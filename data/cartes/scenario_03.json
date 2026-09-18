@@ -1,0 +1,39 @@
+{
+  "format": "robot-reconfort/scenario",
+  "version": 1,
+  "nom": "scenario_03",
+  "carte": "appartement_03",
+  "armoire": "armoire_standard",
+  "demandes": [
+    {
+      "numero": 1,
+      "resident": "R1",
+      "message": "Je suis sidéré, la télévision s'est allumée toute seule."
+    },
+    {
+      "numero": 2,
+      "resident": "R2",
+      "message": "Je suis furieux, on a encore oublié mon repas."
+    },
+    {
+      "numero": 3,
+      "resident": "R3",
+      "message": "Je me sens calme, la matinée était tranquille."
+    },
+    {
+      "numero": 4,
+      "resident": "R1",
+      "message": "Je suis effondrée, mon frère est parti hier."
+    },
+    {
+      "numero": 5,
+      "resident": "R2",
+      "message": "Je suis curieux de savoir ce qu'il y a dans ce carton."
+    },
+    {
+      "numero": 6,
+      "resident": "R3",
+      "message": "J'ai peur du noir dans ce couloir."
+    }
+  ]
+}

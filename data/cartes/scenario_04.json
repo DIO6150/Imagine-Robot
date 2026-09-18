@@ -1,0 +1,39 @@
+{
+  "format": "robot-reconfort/scenario",
+  "version": 1,
+  "nom": "scenario_04",
+  "carte": "appartement_04",
+  "armoire": "armoire_standard",
+  "demandes": [
+    {
+      "numero": 1,
+      "resident": "R1",
+      "message": "Tout est monotone ici, je m'ennuie."
+    },
+    {
+      "numero": 2,
+      "resident": "R2",
+      "message": "J'admire beaucoup ce que vous faites, vraiment."
+    },
+    {
+      "numero": 3,
+      "resident": "R3",
+      "message": "C'est merveilleux, je suis comblée !"
+    },
+    {
+      "numero": 4,
+      "resident": "R4",
+      "message": "Je suis perplexe, cette porte était fermée ce matin."
+    },
+    {
+      "numero": 5,
+      "resident": "R1",
+      "message": "Je suis fâchée, c'est vraiment injuste."
+    },
+    {
+      "numero": 6,
+      "resident": "R2",
+      "message": "Je reste vigilante, quelqu'un rôde dehors."
+    }
+  ]
+}

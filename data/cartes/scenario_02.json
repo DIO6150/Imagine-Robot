@@ -1,0 +1,34 @@
+{
+  "format": "robot-reconfort/scenario",
+  "version": 1,
+  "nom": "scenario_02",
+  "carte": "appartement_02",
+  "armoire": "armoire_standard",
+  "demandes": [
+    {
+      "numero": 1,
+      "resident": "R1",
+      "message": "Je suis terrifiée, il y a quelqu'un dans l'entrée."
+    },
+    {
+      "numero": 2,
+      "resident": "R2",
+      "message": "J'attends la visite de mon fils, je suis impatiente."
+    },
+    {
+      "numero": 3,
+      "resident": "R3",
+      "message": "Cette odeur me dégoûte, c'est insupportable."
+    },
+    {
+      "numero": 4,
+      "resident": "R1",
+      "message": "J'ai le cafard aujourd'hui, sans savoir pourquoi."
+    },
+    {
+      "numero": 5,
+      "resident": "R2",
+      "message": "Je te fais confiance, tu sauras quoi faire."
+    }
+  ]
+}

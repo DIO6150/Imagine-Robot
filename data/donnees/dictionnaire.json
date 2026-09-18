@@ -1,0 +1,1136 @@
+{
+  "format": "robot-reconfort/dictionnaire",
+  "version": 1,
+  "nom": "dictionnaire_residence",
+  "emotions": [
+    "joie",
+    "confiance",
+    "peur",
+    "surprise",
+    "tristesse",
+    "degout",
+    "colere",
+    "anticipation"
+  ],
+  "intensites": [
+    "faible",
+    "moyenne",
+    "forte"
+  ],
+  "entrees": [
+    {
+      "formes": [
+        "apaise",
+        "apaisee"
+      ],
+      "emotion": "joie",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "calme"
+      ],
+      "emotion": "joie",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "content",
+        "contente"
+      ],
+      "emotion": "joie",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "paisible"
+      ],
+      "emotion": "joie",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "serein",
+        "sereine",
+        "serenite"
+      ],
+      "emotion": "joie",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "tranquille"
+      ],
+      "emotion": "joie",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "gai",
+        "gaie"
+      ],
+      "emotion": "joie",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "heureux",
+        "heureuse"
+      ],
+      "emotion": "joie",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "joie"
+      ],
+      "emotion": "joie",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "joyeux",
+        "joyeuse"
+      ],
+      "emotion": "joie",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "ravi",
+        "ravie"
+      ],
+      "emotion": "joie",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "sourire",
+        "souris"
+      ],
+      "emotion": "joie",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "comble",
+        "comblee"
+      ],
+      "emotion": "joie",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "euphorique",
+        "euphorie"
+      ],
+      "emotion": "joie",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "exalte",
+        "exaltee"
+      ],
+      "emotion": "joie",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "extase"
+      ],
+      "emotion": "joie",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "formidable"
+      ],
+      "emotion": "joie",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "merveilleux",
+        "merveilleuse"
+      ],
+      "emotion": "joie",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "accepte"
+      ],
+      "emotion": "confiance",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "accord"
+      ],
+      "emotion": "confiance",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "ok"
+      ],
+      "emotion": "confiance",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "rassure",
+        "rassuree"
+      ],
+      "emotion": "confiance",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "tolere"
+      ],
+      "emotion": "confiance",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "volontiers"
+      ],
+      "emotion": "confiance",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "compte"
+      ],
+      "emotion": "confiance",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "confiance"
+      ],
+      "emotion": "confiance",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "confie",
+        "confier"
+      ],
+      "emotion": "confiance",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "fiable"
+      ],
+      "emotion": "confiance",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "solide"
+      ],
+      "emotion": "confiance",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "soutien"
+      ],
+      "emotion": "confiance",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "admire",
+        "admiration"
+      ],
+      "emotion": "confiance",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "epatant",
+        "epatante"
+      ],
+      "emotion": "confiance",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "exemplaire"
+      ],
+      "emotion": "confiance",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "gratitude"
+      ],
+      "emotion": "confiance",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "reconnaissant",
+        "reconnaissante"
+      ],
+      "emotion": "confiance",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "respect"
+      ],
+      "emotion": "confiance",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "anxieux",
+        "anxieuse"
+      ],
+      "emotion": "peur",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "apprehension",
+        "apprehende"
+      ],
+      "emotion": "peur",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "hesitant",
+        "hesitante"
+      ],
+      "emotion": "peur",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "inquiet",
+        "inquiete",
+        "inquietude"
+      ],
+      "emotion": "peur",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "nerveux",
+        "nerveuse"
+      ],
+      "emotion": "peur",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "soucieux",
+        "soucieuse"
+      ],
+      "emotion": "peur",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "angoisse",
+        "angoissee"
+      ],
+      "emotion": "peur",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "apeure",
+        "apeuree"
+      ],
+      "emotion": "peur",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "crains",
+        "craint",
+        "crainte"
+      ],
+      "emotion": "peur",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "effraye",
+        "effrayee"
+      ],
+      "emotion": "peur",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "peur"
+      ],
+      "emotion": "peur",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "redoute"
+      ],
+      "emotion": "peur",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "epouvante",
+        "epouvantee"
+      ],
+      "emotion": "peur",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "horrifie",
+        "horrifiee"
+      ],
+      "emotion": "peur",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "panique",
+        "paniquee"
+      ],
+      "emotion": "peur",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "petrifie",
+        "petrifiee"
+      ],
+      "emotion": "peur",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "terrifie",
+        "terrifiee",
+        "terreur"
+      ],
+      "emotion": "peur",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "tetanise",
+        "tetanisee"
+      ],
+      "emotion": "peur",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "bizarre"
+      ],
+      "emotion": "surprise",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "deroute",
+        "deroutee"
+      ],
+      "emotion": "surprise",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "distrait",
+        "distraite"
+      ],
+      "emotion": "surprise",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "etrange"
+      ],
+      "emotion": "surprise",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "perplexe"
+      ],
+      "emotion": "surprise",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "trouble",
+        "troublee"
+      ],
+      "emotion": "surprise",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "etonne",
+        "etonnee",
+        "etonnant"
+      ],
+      "emotion": "surprise",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "imprevu",
+        "imprevue"
+      ],
+      "emotion": "surprise",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "inattendu",
+        "inattendue"
+      ],
+      "emotion": "surprise",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "soudain",
+        "soudaine"
+      ],
+      "emotion": "surprise",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "surprenant",
+        "surprenante"
+      ],
+      "emotion": "surprise",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "surpris",
+        "surprise"
+      ],
+      "emotion": "surprise",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "abasourdi",
+        "abasourdie"
+      ],
+      "emotion": "surprise",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "choc",
+        "choque"
+      ],
+      "emotion": "surprise",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "ebahi",
+        "ebahie"
+      ],
+      "emotion": "surprise",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "incroyable"
+      ],
+      "emotion": "surprise",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "sidere",
+        "sideree"
+      ],
+      "emotion": "surprise",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "stupefait",
+        "stupefaite",
+        "stupefaction"
+      ],
+      "emotion": "surprise",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "cafard"
+      ],
+      "emotion": "tristesse",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "melancolique",
+        "melancolie"
+      ],
+      "emotion": "tristesse",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "morose"
+      ],
+      "emotion": "tristesse",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "nostalgique",
+        "nostalgie"
+      ],
+      "emotion": "tristesse",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "pensif",
+        "pensive"
+      ],
+      "emotion": "tristesse",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "vide"
+      ],
+      "emotion": "tristesse",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "abattu",
+        "abattue"
+      ],
+      "emotion": "tristesse",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "decu",
+        "decue"
+      ],
+      "emotion": "tristesse",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "malheureux",
+        "malheureuse"
+      ],
+      "emotion": "tristesse",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "peine"
+      ],
+      "emotion": "tristesse",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "seul",
+        "seule",
+        "solitude"
+      ],
+      "emotion": "tristesse",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "triste",
+        "tristesse"
+      ],
+      "emotion": "tristesse",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "aneanti",
+        "aneantie"
+      ],
+      "emotion": "tristesse",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "chagrin"
+      ],
+      "emotion": "tristesse",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "desespere",
+        "desesperee",
+        "desespoir"
+      ],
+      "emotion": "tristesse",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "detresse"
+      ],
+      "emotion": "tristesse",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "effondre",
+        "effondree"
+      ],
+      "emotion": "tristesse",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "larmes",
+        "pleure",
+        "pleurer"
+      ],
+      "emotion": "tristesse",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "blase",
+        "blasee"
+      ],
+      "emotion": "degout",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "ennui",
+        "ennuie"
+      ],
+      "emotion": "degout",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "fade"
+      ],
+      "emotion": "degout",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "lasse",
+        "lassee"
+      ],
+      "emotion": "degout",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "monotone"
+      ],
+      "emotion": "degout",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "morne"
+      ],
+      "emotion": "degout",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "degout",
+        "degoute",
+        "degoutee"
+      ],
+      "emotion": "degout",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "ecoeure",
+        "ecoeuree"
+      ],
+      "emotion": "degout",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "insupportable"
+      ],
+      "emotion": "degout",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "nausee"
+      ],
+      "emotion": "degout",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "repugne",
+        "repugnant"
+      ],
+      "emotion": "degout",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "sale"
+      ],
+      "emotion": "degout",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "abject",
+        "abjecte"
+      ],
+      "emotion": "degout",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "execrable"
+      ],
+      "emotion": "degout",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "horreur"
+      ],
+      "emotion": "degout",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "immonde"
+      ],
+      "emotion": "degout",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "infect",
+        "infecte"
+      ],
+      "emotion": "degout",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "repulsion"
+      ],
+      "emotion": "degout",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "agace",
+        "agacee"
+      ],
+      "emotion": "colere",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "contrarie",
+        "contrariee",
+        "contrariete"
+      ],
+      "emotion": "colere",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "embete",
+        "embetee"
+      ],
+      "emotion": "colere",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "enerve",
+        "enervee"
+      ],
+      "emotion": "colere",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "irrite",
+        "irritee"
+      ],
+      "emotion": "colere",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "marre"
+      ],
+      "emotion": "colere",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "colere"
+      ],
+      "emotion": "colere",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "fache",
+        "fachee"
+      ],
+      "emotion": "colere",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "indigne",
+        "indignee"
+      ],
+      "emotion": "colere",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "injuste"
+      ],
+      "emotion": "colere",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "remonte",
+        "remontee"
+      ],
+      "emotion": "colere",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "revolte",
+        "revoltee"
+      ],
+      "emotion": "colere",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "exaspere",
+        "exasperee"
+      ],
+      "emotion": "colere",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "fulmine"
+      ],
+      "emotion": "colere",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "furieux",
+        "furieuse"
+      ],
+      "emotion": "colere",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "rage",
+        "enrage",
+        "enragee"
+      ],
+      "emotion": "colere",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "scandaleux",
+        "scandaleuse"
+      ],
+      "emotion": "colere",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "ulcere",
+        "ulceree"
+      ],
+      "emotion": "colere",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "attentif",
+        "attentive"
+      ],
+      "emotion": "anticipation",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "curieux",
+        "curieuse"
+      ],
+      "emotion": "anticipation",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "decouvrir"
+      ],
+      "emotion": "anticipation",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "informe",
+        "informee"
+      ],
+      "emotion": "anticipation",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "interesse",
+        "interessee",
+        "interet"
+      ],
+      "emotion": "anticipation",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "intrigue",
+        "intriguee"
+      ],
+      "emotion": "anticipation",
+      "intensite": "faible"
+    },
+    {
+      "formes": [
+        "attends",
+        "attend",
+        "attente"
+      ],
+      "emotion": "anticipation",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "bientot"
+      ],
+      "emotion": "anticipation",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "espere",
+        "espoir"
+      ],
+      "emotion": "anticipation",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "hate"
+      ],
+      "emotion": "anticipation",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "impatient",
+        "impatiente"
+      ],
+      "emotion": "anticipation",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "prevois",
+        "prevoit"
+      ],
+      "emotion": "anticipation",
+      "intensite": "moyenne"
+    },
+    {
+      "formes": [
+        "aguets"
+      ],
+      "emotion": "anticipation",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "alerte"
+      ],
+      "emotion": "anticipation",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "gardes"
+      ],
+      "emotion": "anticipation",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "guette"
+      ],
+      "emotion": "anticipation",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "surveille"
+      ],
+      "emotion": "anticipation",
+      "intensite": "forte"
+    },
+    {
+      "formes": [
+        "vigilant",
+        "vigilante",
+        "vigilance"
+      ],
+      "emotion": "anticipation",
+      "intensite": "forte"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "format": "robot-reconfort/carte",
+  "version": 1,
+  "nom": "appartement_01",
+  "dimensions": {
+    "hauteur": 9,
+    "largeur": 13
+  },
+  "legende": {
+    "#": "mur",
+    ".": "libre",
+    "R": "depart du robot",
+    "A": "armoire",
+    "D": "dictionnaire",
+    "P": "resident"
+  },
+  "grille": [
+    "#############",
+    "#......#....#",
+    "#...........#",
+    "#..P...#....#",
+    "#.#########.#",
+    "#......#....#",
+    "#R..A..#...P#",
+    "#.....D#....#",
+    "#############"
+  ],
+  "depart_robot": [
+    6,
+    1
+  ],
+  "armoire": {
+    "position": [
+      6,
+      4
+    ]
+  },
+  "dictionnaire": {
+    "position": [
+      7,
+      6
+    ]
+  },
+  "residents": [
+    {
+      "id": "R1",
+      "nom": "Camille",
+      "position": [
+        6,
+        11
+      ]
+    },
+    {
+      "id": "R2",
+      "nom": "Hugo",
+      "position": [
+        3,
+        3
+      ]
+    }
+  ]
+}

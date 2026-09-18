@@ -1,0 +1,194 @@
+{
+  "format": "robot-reconfort/armoire",
+  "version": 1,
+  "nom": "armoire_standard",
+  "emotions": [
+    "joie",
+    "confiance",
+    "peur",
+    "surprise",
+    "tristesse",
+    "degout",
+    "colere",
+    "anticipation"
+  ],
+  "intensites": [
+    "faible",
+    "moyenne",
+    "forte"
+  ],
+  "casier_depart": [
+    1,
+    0
+  ],
+  "casiers": [
+    {
+      "ligne": 0,
+      "colonne": 0,
+      "emotion": "joie",
+      "intensite": "faible",
+      "objet": "tisane"
+    },
+    {
+      "ligne": 0,
+      "colonne": 1,
+      "emotion": "confiance",
+      "intensite": "faible",
+      "objet": "coussin"
+    },
+    {
+      "ligne": 0,
+      "colonne": 2,
+      "emotion": "peur",
+      "intensite": "faible",
+      "objet": "veilleuse"
+    },
+    {
+      "ligne": 0,
+      "colonne": 3,
+      "emotion": "surprise",
+      "intensite": "faible",
+      "objet": null
+    },
+    {
+      "ligne": 0,
+      "colonne": 4,
+      "emotion": "tristesse",
+      "intensite": "faible",
+      "objet": "mouchoirs"
+    },
+    {
+      "ligne": 0,
+      "colonne": 5,
+      "emotion": "degout",
+      "intensite": "faible",
+      "objet": "livre"
+    },
+    {
+      "ligne": 0,
+      "colonne": 6,
+      "emotion": "colere",
+      "intensite": "faible",
+      "objet": "balle antistress"
+    },
+    {
+      "ligne": 0,
+      "colonne": 7,
+      "emotion": "anticipation",
+      "intensite": "faible",
+      "objet": "magazine"
+    },
+    {
+      "ligne": 1,
+      "colonne": 0,
+      "emotion": "joie",
+      "intensite": "moyenne",
+      "objet": "photo de famille"
+    },
+    {
+      "ligne": 1,
+      "colonne": 1,
+      "emotion": "confiance",
+      "intensite": "moyenne",
+      "objet": "plaid"
+    },
+    {
+      "ligne": 1,
+      "colonne": 2,
+      "emotion": "peur",
+      "intensite": "moyenne",
+      "objet": "lampe torche"
+    },
+    {
+      "ligne": 1,
+      "colonne": 3,
+      "emotion": "surprise",
+      "intensite": "moyenne",
+      "objet": null
+    },
+    {
+      "ligne": 1,
+      "colonne": 4,
+      "emotion": "tristesse",
+      "intensite": "moyenne",
+      "objet": "couverture"
+    },
+    {
+      "ligne": 1,
+      "colonne": 5,
+      "emotion": "degout",
+      "intensite": "moyenne",
+      "objet": "desodorisant"
+    },
+    {
+      "ligne": 1,
+      "colonne": 6,
+      "emotion": "colere",
+      "intensite": "moyenne",
+      "objet": "casque audio"
+    },
+    {
+      "ligne": 1,
+      "colonne": 7,
+      "emotion": "anticipation",
+      "intensite": "moyenne",
+      "objet": "calendrier"
+    },
+    {
+      "ligne": 2,
+      "colonne": 0,
+      "emotion": "joie",
+      "intensite": "forte",
+      "objet": "guirlande lumineuse"
+    },
+    {
+      "ligne": 2,
+      "colonne": 1,
+      "emotion": "confiance",
+      "intensite": "forte",
+      "objet": "album souvenir"
+    },
+    {
+      "ligne": 2,
+      "colonne": 2,
+      "emotion": "peur",
+      "intensite": "forte",
+      "objet": "bouton d appel"
+    },
+    {
+      "ligne": 2,
+      "colonne": 3,
+      "emotion": "surprise",
+      "intensite": "forte",
+      "objet": null
+    },
+    {
+      "ligne": 2,
+      "colonne": 4,
+      "emotion": "tristesse",
+      "intensite": "forte",
+      "objet": "telephone"
+    },
+    {
+      "ligne": 2,
+      "colonne": 5,
+      "emotion": "degout",
+      "intensite": "forte",
+      "objet": "gants de menage"
+    },
+    {
+      "ligne": 2,
+      "colonne": 6,
+      "emotion": "colere",
+      "intensite": "forte",
+      "objet": "tasse de camomille"
+    },
+    {
+      "ligne": 2,
+      "colonne": 7,
+      "emotion": "anticipation",
+      "intensite": "forte",
+      "objet": null
+    }
+  ]
+}

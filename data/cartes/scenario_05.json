@@ -1,0 +1,49 @@
+{
+  "format": "robot-reconfort/scenario",
+  "version": 1,
+  "nom": "scenario_05",
+  "carte": "appartement_05",
+  "armoire": "armoire_standard",
+  "demandes": [
+    {
+      "numero": 1,
+      "resident": "R1",
+      "message": "Je me sens seule, la maison est vide."
+    },
+    {
+      "numero": 2,
+      "resident": "R2",
+      "message": "Je suis malheureux depuis le départ de ma femme."
+    },
+    {
+      "numero": 3,
+      "resident": "R3",
+      "message": "Quelle drôle de surprise, la porte s'est ouverte."
+    },
+    {
+      "numero": 4,
+      "resident": "R4",
+      "message": "Je guette le moindre bruit dans le couloir."
+    },
+    {
+      "numero": 5,
+      "resident": "R1",
+      "message": "Je me sens abattue ce matin."
+    },
+    {
+      "numero": 6,
+      "resident": "R2",
+      "message": "Je suis stupéfaite, la fenêtre était ouverte."
+    },
+    {
+      "numero": 7,
+      "resident": "R3",
+      "message": "Ma petite-fille est passée, je suis heureuse."
+    },
+    {
+      "numero": 8,
+      "resident": "R4",
+      "message": "Je suis un peu nerveuse ce soir."
+    }
+  ]
+}

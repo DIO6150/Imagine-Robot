@@ -1,0 +1,9 @@
+{
+  "format": "robot-reconfort/rendu",
+  "version": 1,
+  "equipe": ["NOM Prenom", "NOM Prenom"],
+  "langage": "Python 3",
+  "preparation": [],
+  "commande": ["python", "agent.py"],
+  "video": "demo.mp4"
+}
