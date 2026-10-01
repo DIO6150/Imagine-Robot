@@ -68,11 +68,10 @@ private:
 					if (value == "libre") {} // do nothing
 					else if (value == "depart du robot") property.setAgentStart(true);
 					else if (value == "mur")             property.setSolid(true);
-					else if (value == "armoire")         property.setSolid(true).setItemPickup  (true);
-					else if (value == "dictionnaire")    property.setSolid(true).setRecord(true);
-					else if (value == "resident")        property.setSolid(true).setPerson      (true);
+					else if (value == "armoire")         property.setSolid(true).setItemPickup(true);
+					else if (value == "dictionnaire")    property.setSolid(true).setRecord    (true);
+					else if (value == "resident")        property.setSolid(true).setPerson    (true);
 					else return JSONParserStatus::UnknownProperty;
-					// it will however break all other filler functions
 
 					charProperties_.emplace(nested.key().at(0), property);
 
