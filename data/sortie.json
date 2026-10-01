@@ -1,0 +1,136 @@
+{
+  "format": "robot-reconfort/trace",
+  "version": 1,
+  "carte": "appartement_01",
+  "scenario": "scenario_01",
+  "equipe": [
+    "A completer",
+    "A completer"
+  ],
+  "pas": [
+    {
+      "t": 0,
+      "demande": 1,
+      "position": [
+        6,
+        1
+      ],
+      "casier": [
+        1,
+        0
+      ],
+      "action": "ATTENDRE",
+      "argument": null,
+      "perception": null,
+      "contenu_casier": null,
+      "commentaire": "robot de demonstration : ne fait rien"
+    },
+    {
+      "t": 1,
+      "demande": 2,
+      "position": [
+        6,
+        1
+      ],
+      "casier": [
+        1,
+        0
+      ],
+      "action": "ATTENDRE",
+      "argument": null,
+      "perception": null,
+      "contenu_casier": null,
+      "commentaire": "robot de demonstration : ne fait rien"
+    },
+    {
+      "t": 2,
+      "demande": 3,
+      "position": [
+        6,
+        1
+      ],
+      "casier": [
+        1,
+        0
+      ],
+      "action": "ATTENDRE",
+      "argument": null,
+      "perception": null,
+      "contenu_casier": null,
+      "commentaire": "robot de demonstration : ne fait rien"
+    },
+    {
+      "t": 3,
+      "demande": 4,
+      "position": [
+        6,
+        1
+      ],
+      "casier": [
+        1,
+        0
+      ],
+      "action": "ATTENDRE",
+      "argument": null,
+      "perception": null,
+      "contenu_casier": null,
+      "commentaire": "robot de demonstration : ne fait rien"
+    }
+  ],
+  "livraisons": [
+    {
+      "demande": 1,
+      "resident": "R1",
+      "emotion": null,
+      "intensite": null,
+      "casier_choisi": null,
+      "repli": "aucun",
+      "objet": null,
+      "pas_utilises": 1,
+      "succes": false,
+      "motif_echec": "agent non implemente"
+    },
+    {
+      "demande": 2,
+      "resident": "R2",
+      "emotion": null,
+      "intensite": null,
+      "casier_choisi": null,
+      "repli": "aucun",
+      "objet": null,
+      "pas_utilises": 1,
+      "succes": false,
+      "motif_echec": "agent non implemente"
+    },
+    {
+      "demande": 3,
+      "resident": "R1",
+      "emotion": null,
+      "intensite": null,
+      "casier_choisi": null,
+      "repli": "aucun",
+      "objet": null,
+      "pas_utilises": 1,
+      "succes": false,
+      "motif_echec": "agent non implemente"
+    },
+    {
+      "demande": 4,
+      "resident": "R2",
+      "emotion": null,
+      "intensite": null,
+      "casier_choisi": null,
+      "repli": "aucun",
+      "objet": null,
+      "pas_utilises": 1,
+      "succes": false,
+      "motif_echec": "agent non implemente"
+    }
+  ],
+  "resume": {
+    "demandes": 4,
+    "reussies": 0,
+    "echecs": 4,
+    "pas_total": 4
+  }
+}
