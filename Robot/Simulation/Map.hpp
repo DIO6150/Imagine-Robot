@@ -7,7 +7,7 @@
 
 #include <Robot/Errors/Error.hpp>
 
-#include <Robot/Simulation/Tile.hpp>
+#include <Robot/Common/Tile.hpp>
 #include <Robot/Simulation/Resident.hpp>
 
 #include <Robot/Utils/JSONParser.hpp>
@@ -22,6 +22,8 @@ public:
 
 	Tile getTile(int32_t x, int32_t y) const;
 	Tile getTile(Pos2D pos) const;
+
+	bool isInside(Pos2D pos) const;
 
 private:
 	std::string const FORMAT_  = "robot-reconfort/carte";

@@ -17,3 +17,14 @@ Tile Map::getTile(Pos2D pos) const
 {
 	return getTile(pos.x, pos.y);
 }
+
+bool Map::isInside(Pos2D pos) const
+{
+	if (pos.x < 0 || pos.y < 0)
+		return false;
+
+	if (pos.x >= width_ || pos.y >= height_)
+		return false;
+
+	return true;
+}

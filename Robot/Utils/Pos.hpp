@@ -11,4 +11,19 @@ struct Pos2D
 	{
 		return x == rhs.x && y == rhs.y;
 	}
+
+	Pos2D & operator+=(Pos2D const & rhs)
+	{
+		x += rhs.x;
+		y += rhs.y;
+
+		return *this;
+	}
+
+	friend Pos2D operator+(Pos2D lhs, Pos2D const & rhs)
+	{
+		lhs += rhs;
+
+		return lhs;
+	}
 };

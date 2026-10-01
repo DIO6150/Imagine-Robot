@@ -4,15 +4,17 @@ project(ImagineRobot
 	LANGUAGES CXX
 )
 
-add_executable(${PROJECT_NAME}
-	Robot/Utils/JSONParser.cpp)
+add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
 	PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Main.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/Playground.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/Simulation.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/Map.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/Tile.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/PlaygroundView.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Agent/Agent.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Utils/JSONParser.cpp
 )
 
