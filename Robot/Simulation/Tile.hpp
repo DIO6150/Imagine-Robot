@@ -4,29 +4,40 @@
 
 #include <string>
 
+#include <Robot/Utils/Pos.hpp>
+
 class TileProperty
 {
 public:
-	void solid();
-	void agentStart();
-	void person();
-	void item();
+ 	TileProperty & setSolid(bool value);
+    TileProperty & setAgentStart(bool value);
+    TileProperty & setPerson(bool value);
+    TileProperty & setItemPickup(bool value);
+    TileProperty & setRecord(bool value);
 
-	bool isSolid();
-	bool isAgentStart();
-	bool isPerson();
-	bool isItem();
+	bool isEmpty() const;
+	bool isSolid() const;
+	bool isAgentStart() const;
+	bool isPerson() const;
+	bool isItemPickup() const;
+	bool isRecord() const;
 
 private:
-	uint64_t flags_;
+	enum : uint64_t
+    {
+        Solid        = 1ull << 0,
+        AgentStart   = 1ull << 1,
+        Person       = 1ull << 2,
+        ItemPickup   = 1ull << 3,
+        Record = 1ull << 4,
+    };
+
+	uint64_t flags_ = 0;
 };
 
-struct Tile
+struct Tile: public TileProperty
 {
-	TileProperty property;
-	std::string alias;
-	char icon;
+	Tile(TileProperty const & property, Pos2D pos);
 
-	uint32_t posX_;
-	uint32_t posY_;
+	Pos2D pos_;
 };

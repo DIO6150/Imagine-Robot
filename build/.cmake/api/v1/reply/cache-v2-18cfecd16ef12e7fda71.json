@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "c:/Users/maele/Desktop/Master/POA/Projet1/build"
+			"value" : "c:/Users/maele/Desktop/Master/M1/POA/Imagine-Robot/build"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -139,10 +139,10 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "No help, variable specified on the command line."
+					"value" : "CXX compiler"
 				}
 			],
-			"type" : "FILEPATH",
+			"type" : "STRING",
 			"value" : "C:/msys64/ucrt64/bin/g++.exe"
 		},
 		{
@@ -443,7 +443,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/maele/Desktop/Master/POA/Projet1/build/CMakeFiles/pkgRedirects"
+			"value" : "C:/Users/maele/Desktop/Master/M1/POA/Imagine-Robot/build/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -515,7 +515,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Users/maele/Desktop/Master/POA/Projet1"
+			"value" : "C:/Users/maele/Desktop/Master/M1/POA/Imagine-Robot"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1247,7 +1247,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/maele/Desktop/Master/POA/Projet1/build"
+			"value" : "C:/Users/maele/Desktop/Master/M1/POA/Imagine-Robot/build"
 		},
 		{
 			"name" : "ImagineRobot_IS_TOP_LEVEL",
@@ -1271,7 +1271,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/maele/Desktop/Master/POA/Projet1"
+			"value" : "C:/Users/maele/Desktop/Master/M1/POA/Imagine-Robot"
 		}
 	],
 	"kind" : "cache",

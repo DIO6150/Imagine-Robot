@@ -1,39 +1,19 @@
 
 #include <Robot/Simulation/Map.hpp>
 
-using json = nlohmann::json;
-
-Error Map::parseJson(json object)
+JSONParserStatus Map::parseJson(json const & object)
 {
-	// TODO add more descriptive errors
+	return parser_.fillFields(object);
+}
 
-	if (!object.contains("format" )) return Error::JSONSyntaxError;
-	if (!object.contains("version")) return Error::JSONSyntaxError;
-	if (!object.contains("nom"    )) return Error::JSONSyntaxError;
-	if (object.contains("dimensions"))
-	{
-		if (!object.at("dimensions").contains("hauteur"))
-			return Error::JSONSyntaxError;
+// TODO: what do we do when an invalid position is inputed
+Tile Map::getTile(int32_t x, int32_t y) const
+{
+	auto index = x * width_ + y;
+	return tiles_.at(index);
+}
 
-		if (!object.at("dimensions").contains("largeur"))
-			return Error::JSONSyntaxError;
-	}
-	else return Error::JSONSyntaxError;
-
-	auto format  = object.at("format") .get<std::string>();
-	auto version = object.at("version").get<int>();
-
-	if (version != 1)
-		return Error::JSONSyntaxError;
-
-	if (format != "robot-reconfort/carte")
-		return Error::JSONSyntaxError;
-
-	name_  = object.at("nom").get<std::string>();
-
-	auto size = object.at("dimensions");
-	width_  = size.at("largeur");
-	height_ = size.at("hauteur");
-
-
+Tile Map::getTile(Pos2D pos) const
+{
+	return getTile(pos.x, pos.y);
 }
