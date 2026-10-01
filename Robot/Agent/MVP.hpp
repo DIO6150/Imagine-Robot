@@ -64,7 +64,7 @@ private:
 using AnimationID = int;
 using AnimationContext = int;
 
-class Playground : public AgentCommandListener
+class Playground : public AgentCommandListener, PlaygroundViewListener
 {
 public:
 

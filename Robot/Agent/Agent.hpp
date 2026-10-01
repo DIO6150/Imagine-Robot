@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Robot/Agent/PlaygroundInterface.hpp>
+#include <Robot/Agent/MVP.hpp>
 
 class Agent
 {
