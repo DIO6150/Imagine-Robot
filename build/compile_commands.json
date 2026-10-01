@@ -1,0 +1,20 @@
+[
+{
+  "directory": "C:/Users/maele/Desktop/Master/POA/Projet1/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -IC:/Users/maele/Desktop/Master/POA/Projet1 -IC:/Users/maele/Desktop/Master/POA/Projet1/vendor -g -o CMakeFiles\\ImagineRobot.dir\\Robot\\Main.cpp.obj -c C:\\Users\\maele\\Desktop\\Master\\POA\\Projet1\\Robot\\Main.cpp",
+  "file": "C:/Users/maele/Desktop/Master/POA/Projet1/Robot/Main.cpp",
+  "output": "C:/Users/maele/Desktop/Master/POA/Projet1/build/CMakeFiles/ImagineRobot.dir/Robot/Main.cpp.obj"
+},
+{
+  "directory": "C:/Users/maele/Desktop/Master/POA/Projet1/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -IC:/Users/maele/Desktop/Master/POA/Projet1 -IC:/Users/maele/Desktop/Master/POA/Projet1/vendor -g -o CMakeFiles\\ImagineRobot.dir\\Robot\\Simulation\\Simulation.cpp.obj -c C:\\Users\\maele\\Desktop\\Master\\POA\\Projet1\\Robot\\Simulation\\Simulation.cpp",
+  "file": "C:/Users/maele/Desktop/Master/POA/Projet1/Robot/Simulation/Simulation.cpp",
+  "output": "C:/Users/maele/Desktop/Master/POA/Projet1/build/CMakeFiles/ImagineRobot.dir/Robot/Simulation/Simulation.cpp.obj"
+},
+{
+  "directory": "C:/Users/maele/Desktop/Master/POA/Projet1/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -IC:/Users/maele/Desktop/Master/POA/Projet1 -IC:/Users/maele/Desktop/Master/POA/Projet1/vendor -g -o CMakeFiles\\ImagineRobot.dir\\Robot\\Simulation\\Map.cpp.obj -c C:\\Users\\maele\\Desktop\\Master\\POA\\Projet1\\Robot\\Simulation\\Map.cpp",
+  "file": "C:/Users/maele/Desktop/Master/POA/Projet1/Robot/Simulation/Map.cpp",
+  "output": "C:/Users/maele/Desktop/Master/POA/Projet1/build/CMakeFiles/ImagineRobot.dir/Robot/Simulation/Map.cpp.obj"
+}
+]
