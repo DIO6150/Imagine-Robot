@@ -9,7 +9,9 @@ int main(int argc, char ** argv)
 	instructions.data   = "data/donnees";
 	
 	Simulation sim;
-	sim.executeDirective(instructions);
+	auto result = sim.executeDirective(instructions);
+
+	// do something with the trace
 
 	return 0;
 }

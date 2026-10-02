@@ -1,12 +1,28 @@
 #pragma once
 
-#include <Robot/Agent/PlaygroundInterface.hpp>
+#include <Robot/Common/AgentCommandListener.hpp>
+
+struct Request
+{
+	uint32_t id_;
+	std::string resident_;
+	std::string message_;
+};
 
 class Agent
 {
 public:
-	void Init(std::weak_ptr<PlaygroundInterface> playground);
+	Agent(AgentCommandListener * listener);
+
+	void start(std::initializer_list<Request> requests);
+	void tick();
+
+	Pos2D getPosition() const;
+	void setPosition(Pos2D newPos);
 
 private:
-	std::weak_ptr<PlaygroundInterface> playground_;
+	Pos2D pos_;
+
+private:
+	AgentCommandListener * listener_;
 };

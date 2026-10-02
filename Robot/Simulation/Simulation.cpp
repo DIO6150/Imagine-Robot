@@ -1,18 +1,18 @@
 
 #include <Robot/Simulation/Simulation.hpp>
 
-#include <vendor/nlohmann/json.hpp>
-
-#include <iostream>
-
 using json = nlohmann::json;
 
 DirectiveTrace Simulation::executeDirective(Directive instructions)
 {
-	std::ifstream map {instructions.map};
-	json mapData = json::parse(map); // TODO catch error here
+	playground_.start(instructions);
 
-	auto status = playground_.map_.parseJson(mapData);
+	while(1)
+	{
+		// if we have multiple SIMULATIONS MY NAMING IS WRONG AAAAAAAAAA
+		// we would iterate trough and call tick() on each of them
+		playground_.tick();
+	}
 	
 	return DirectiveTrace {};
 }
