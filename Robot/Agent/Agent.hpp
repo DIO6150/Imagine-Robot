@@ -1,14 +1,8 @@
 #pragma once
 
 #include <Robot/Common/AgentCommandListener.hpp>
+#include <Robot/Common/Request.hpp>
 #include <Robot/Simulation/Map.hpp>
-
-struct Request
-{
-	uint32_t id_;
-	std::string resident_;
-	std::string message_;
-};
 
 class Agent
 {

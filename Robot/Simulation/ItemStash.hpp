@@ -1,8 +1,17 @@
 #pragma once
 
-#include <Robot/Utils/JSONParser.hpp>
+#include <stdint.h>
 
-#include <Robot/Common/Item.hpp>
+#include <string>
+#include <map>
+#include <vector>
+
+#include <Robot/Errors/Error.hpp>
+
+#include <Robot/Utils/JSONParser.hpp>
+#include <Robot/Utils/Pos.hpp>
+
+#include <vendor/nlohmann/json.hpp>
 
 struct Drawer
 {

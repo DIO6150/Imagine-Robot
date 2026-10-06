@@ -36,6 +36,7 @@ public:
 
 private:
 	Map map_;
+	ItemStash closet_;
 	std::unique_ptr<Agent> agent_;
 	std::unique_ptr<PlaygroundView> view_;
 };

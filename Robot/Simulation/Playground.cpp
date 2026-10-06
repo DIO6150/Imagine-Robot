@@ -24,7 +24,34 @@ void Playground::start(Directive const & instructions)
 	if (status != JSONParserStatus::Ok)
 		return;
 
-	agent_->start({}); // we suppose we have parsed the script and that we're passing it as arg to Agent::start
+
+	std::ifstream dictionaryStream {instructions.dictionary};
+	json dictionaryData = json::parse(dictionaryStream); // TODO catch error here
+
+	status = dictionary_.parseJson(dictionaryData);
+
+	if (status != JSONParserStatus::Ok)
+		return;
+
+
+	std::ifstream closetStream {instructions.closet};
+	json closetData = json::parse(closetStream); // TODO catch error here
+
+	status = closet_.parseJson(closetData);
+
+	if (status != JSONParserStatus::Ok)
+		return;
+
+
+	std::ifstream scriptStream {instructions.script};
+	json scriptData = json::parse(scriptStream); // TODO catch error here
+
+	status = script_.parseJson(scriptData);
+
+	if (status != JSONParserStatus::Ok)
+		return;
+
+	agent_->start(script_.getRequests()); // we suppose we have parsed the script and that we're passing it as arg to Agent::start
 }
 
 void Playground::tick()
