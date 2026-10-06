@@ -9,7 +9,7 @@ Agent::Agent(AgentCommandListener * listener)
 
 void Agent::start(std::initializer_list<Request> list_requests)
 {
-	requests_.fill(requests_.end(), list_requests.begin(), list_requests.end());
+	requests_ = list_requests;
 }
 
 void Agent::tick()
@@ -27,17 +27,17 @@ void Agent::setPosition(Pos2D newPos)
 	pos_ = newPos;
 }
 
-Request Agent::getRequest(int index) const
+Request Agent::getCurrentRequest()
 {
-	return requests.front();
+	return requests_.front();
 }
 
-void removeRemoveRequest()
+void Agent::removeRemoveRequest()
 {
-	requests.erase(requests.begin());
+	requests_.erase(requests_.begin());
 }
 
-void initalizeMentalMap(int height, int width)
+void Agent::initalizeMentalMap(int height, int width)
 {
 	std::vector<std::tuple<Tile, int>> MentalMap;
 }

@@ -7,7 +7,9 @@ enum class JSONParserStatus: int
 	WrongType            = 2,
 	WrongValue           = 3,
 	UnknownProperty      = 4,
-	IncoherentData       = 5,
+	UnknownEmotion       = 5,
+	UnknownIntensity     = 6,
+	IncoherentData       = 7,
 };
 
 enum class CommandStatus

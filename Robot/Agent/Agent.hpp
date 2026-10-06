@@ -21,10 +21,10 @@ public:
 	Pos2D getPosition() const;
 	void setPosition(Pos2D newPos);
 
-	Request getCurrentRequest() const;
+	Request getCurrentRequest();
 	void removeRemoveRequest();
 
-	std::vector<std::tuple<Tile, int>> initalizeMentalMap(int height, int width);
+	void initalizeMentalMap(int height, int width);
 
 private:
 	std::vector<std::tuple<Tile, int>> MentalMap;

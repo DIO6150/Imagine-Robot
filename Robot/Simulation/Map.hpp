@@ -26,6 +26,9 @@ public:
 
 	bool isInside(Pos2D pos) const;
 
+	uint32_t getWidth();
+	uint32_t getHeight();
+
 private:
 	std::string const FORMAT_  = "robot-reconfort/carte";
 	int         const VERSION_ = 1;

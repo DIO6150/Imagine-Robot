@@ -5,6 +5,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
+#include <cstdio>
 
 Playground::Playground()
 {

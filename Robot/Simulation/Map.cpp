@@ -28,3 +28,13 @@ bool Map::isInside(Pos2D pos) const
 
 	return true;
 }
+
+uint32_t Map::getWidth()
+{
+	return width_;
+}
+
+uint32_t Map::getHeight()
+{
+	return height_;
+}
