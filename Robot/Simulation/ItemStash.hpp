@@ -5,6 +5,9 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <iostream>
+
+#include <Robot/Common/Emotion.hpp>
 
 #include <Robot/Errors/Error.hpp>
 
@@ -16,8 +19,8 @@
 struct Drawer
 {
 	Pos2D location_;
-	std::string emotionName_;
-	std::string intensityName_;
+	Emotion emotion_;
+	Intensity intensity_;
 	std::string item_;
 };
 
@@ -35,8 +38,8 @@ private:
 	std::string const FORMAT_  = "robot-reconfort/armoire";
 	int         const VERSION_ = 1;
 	Pos2D casierDepart_;
-	std::map<std::string, Emotion> emotions_;
-	std::map<std::string, Intensity> intensities_;
+	std::map<std::string, Emotion> stringToEmotions_;
+	std::map<std::string, Intensity> stringToIntensities_;
 
 	JSONParser parser_ {
 		Field::validate("format",
@@ -56,17 +59,17 @@ private:
 					auto nom_emotion = nested.get<std::string>();
 					Emotion emotion;
 
-					if (nom_emotion == "joie")              emotion = Joy;
-					else if (nom_emotion == "confiance")    emotion = Confidence;
-					else if (nom_emotion == "peur")         emotion = Fear;
-					else if (nom_emotion == "surprise")     emotion = Surprised;
-					else if (nom_emotion == "tristesse")    emotion = Sadness;
-					else if (nom_emotion == "degout")       emotion = Disgust;
-					else if (nom_emotion == "colere")       emotion = Anger;
-					else if (nom_emotion == "anticipation") emotion = Anticipation;
+					if (nom_emotion == "joie")              emotion = Emotion::Joy;
+					else if (nom_emotion == "confiance")    emotion = Emotion::Confidence;
+					else if (nom_emotion == "peur")         emotion = Emotion::Fear;
+					else if (nom_emotion == "surprise")     emotion = Emotion::Surprised;
+					else if (nom_emotion == "tristesse")    emotion = Emotion::Sadness;
+					else if (nom_emotion == "degout")       emotion = Emotion::Disgust;
+					else if (nom_emotion == "colere")       emotion = Emotion::Anger;
+					else if (nom_emotion == "anticipation") emotion = Emotion::Anticipation;
 					else return JSONParserStatus::UnknownEmotion;
 
-					emotions_.emplace(nom_emotion, emotion);
+					stringToEmotions_.emplace(nom_emotion, emotion);
 				}
 
 				return JSONParserStatus::Ok;
@@ -80,12 +83,12 @@ private:
 					auto nom_intensite = nested.get<std::string>();
 					Intensity intensity;
 
-					if (nom_intensite == "faible")       intensity = Small;
-					else if (nom_intensite == "moyenne") intensity = Mid;
-					else if (nom_intensite == "forte")   intensity = Strong;
+					if (nom_intensite == "faible")       intensity = Intensity::Small;
+					else if (nom_intensite == "moyenne") intensity = Intensity::Mid;
+					else if (nom_intensite == "forte")   intensity = Intensity::Strong;
 					else return JSONParserStatus::UnknownIntensity;
 
-					intensities_.emplace(nom_intensite, intensity);
+					stringToIntensities_.emplace(nom_intensite, intensity);
 				}
 
 				return JSONParserStatus::Ok;
@@ -97,8 +100,6 @@ private:
 				Pos2D drawerStart; // obviously should check if its a list and if it has size == 2
 				drawerStart.x = object.at(0).get<int>();
 				drawerStart.y = object.at(1).get<int>();
-
-				auto tile  = getDrawer(drawerStart);
 
 				casierDepart_ = drawerStart;
 
@@ -115,9 +116,11 @@ private:
 					drawer.location_.x   = nested.at("colonne").get<int>();
 					drawer.location_.y   = nested.at("ligne").get<int>();
 
-					drawer.emotionName_ = nested.at("emotion").get<std::string>();
-					drawer.intensityName_ = nested.at("intensite").get<std::string>();
-					drawer.item_ = nested.at("objet").get<std::string>();
+					std::string emotionName_ = nested.at("emotion").get<std::string>();
+					drawer.emotion_ = stringToEmotions_[emotionName_];
+					std::string intensityName_ = nested.at("intensite").get<std::string>();
+					drawer.intensity_ = stringToIntensities_[intensityName_];
+					drawer.item_ = ((nested.at("objet").is_null()) ? "vide" : nested.at("objet").get<std::string>());
 
 					drawers_.push_back(drawer);
 				}

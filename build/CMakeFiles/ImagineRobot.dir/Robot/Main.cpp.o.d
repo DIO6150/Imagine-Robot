@@ -1,9 +1,7 @@
 CMakeFiles/ImagineRobot.dir/Robot/Main.cpp.o: \
  /home/tahina/Bureau/Imagine-Robot/Robot/Main.cpp \
- /usr/include/stdc-predef.h \
- /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Simulation.hpp \
- /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Directive.hpp \
- /usr/include/c++/13/string /usr/include/c++/13/bits/requires_hosted.h \
+ /usr/include/stdc-predef.h /usr/include/c++/13/string \
+ /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -123,8 +121,10 @@ CMakeFiles/ImagineRobot.dir/Robot/Main.cpp.o: \
  /usr/include/c++/13/bits/uses_allocator.h \
  /usr/include/c++/13/bits/uses_allocator_args.h /usr/include/c++/13/tuple \
  /usr/include/c++/13/bits/ranges_util.h \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Simulation.hpp \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Directive.hpp \
  /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Playground.hpp \
- /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Map.hpp \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Dictionary.hpp \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
@@ -138,10 +138,8 @@ CMakeFiles/ImagineRobot.dir/Robot/Main.cpp.o: \
  /usr/include/c++/13/bits/stl_vector.h \
  /usr/include/c++/13/bits/stl_bvector.h \
  /usr/include/c++/13/bits/vector.tcc \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Common/Emotion.hpp \
  /home/tahina/Bureau/Imagine-Robot/Robot/Errors/Error.hpp \
- /home/tahina/Bureau/Imagine-Robot/Robot/Common/Tile.hpp \
- /home/tahina/Bureau/Imagine-Robot/Robot/Utils/Pos.hpp \
- /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Resident.hpp \
  /home/tahina/Bureau/Imagine-Robot/Robot/Utils/JSONParser.hpp \
  /usr/include/c++/13/functional /usr/include/c++/13/bits/std_function.h \
  /usr/include/c++/13/typeinfo /usr/include/c++/13/unordered_map \
@@ -288,6 +286,14 @@ CMakeFiles/ImagineRobot.dir/Robot/Main.cpp.o: \
  /usr/include/c++/13/variant /usr/include/c++/13/numeric \
  /usr/include/c++/13/bits/stl_numeric.h \
  /usr/include/c++/13/pstl/glue_numeric_defs.h /usr/include/c++/13/any \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/ItemStash.hpp \
+ /usr/include/c++/13/iostream \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Utils/Pos.hpp \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Map.hpp \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Common/Tile.hpp \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Resident.hpp \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Script.hpp \
+ /home/tahina/Bureau/Imagine-Robot/Robot/Common/Request.hpp \
  /home/tahina/Bureau/Imagine-Robot/Robot/Common/AgentCommandListener.hpp \
  /home/tahina/Bureau/Imagine-Robot/Robot/Common/PlaygroundViewListener.hpp \
  /home/tahina/Bureau/Imagine-Robot/Robot/Agent/Agent.hpp \

@@ -1,6 +1,7 @@
 #include <Robot/Simulation/ItemStash.hpp>
 
-JSONParserStatus ItemStash::parseJson(json const & object)
+JSONParserStatus ItemStash::parseJSON(json const & object)
 {
 	return parser_.fillFields(object);
 }
+

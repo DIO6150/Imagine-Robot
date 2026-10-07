@@ -153,6 +153,30 @@ Robot/Agent/Agent.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Agent/Agent.cpp.s
 .PHONY : Robot/Agent/Agent.cpp.s
 
+Robot/Common/Request.o: Robot/Common/Request.cpp.o
+.PHONY : Robot/Common/Request.o
+
+# target to build an object file
+Robot/Common/Request.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Common/Request.cpp.o
+.PHONY : Robot/Common/Request.cpp.o
+
+Robot/Common/Request.i: Robot/Common/Request.cpp.i
+.PHONY : Robot/Common/Request.i
+
+# target to preprocess a source file
+Robot/Common/Request.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Common/Request.cpp.i
+.PHONY : Robot/Common/Request.cpp.i
+
+Robot/Common/Request.s: Robot/Common/Request.cpp.s
+.PHONY : Robot/Common/Request.s
+
+# target to generate assembly for a file
+Robot/Common/Request.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Common/Request.cpp.s
+.PHONY : Robot/Common/Request.cpp.s
+
 Robot/Common/Tile.o: Robot/Common/Tile.cpp.o
 .PHONY : Robot/Common/Tile.o
 
@@ -225,6 +249,54 @@ Robot/Render/PlaygroundView.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Render/PlaygroundView.cpp.s
 .PHONY : Robot/Render/PlaygroundView.cpp.s
 
+Robot/Simulation/Dictionary.o: Robot/Simulation/Dictionary.cpp.o
+.PHONY : Robot/Simulation/Dictionary.o
+
+# target to build an object file
+Robot/Simulation/Dictionary.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/Dictionary.cpp.o
+.PHONY : Robot/Simulation/Dictionary.cpp.o
+
+Robot/Simulation/Dictionary.i: Robot/Simulation/Dictionary.cpp.i
+.PHONY : Robot/Simulation/Dictionary.i
+
+# target to preprocess a source file
+Robot/Simulation/Dictionary.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/Dictionary.cpp.i
+.PHONY : Robot/Simulation/Dictionary.cpp.i
+
+Robot/Simulation/Dictionary.s: Robot/Simulation/Dictionary.cpp.s
+.PHONY : Robot/Simulation/Dictionary.s
+
+# target to generate assembly for a file
+Robot/Simulation/Dictionary.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/Dictionary.cpp.s
+.PHONY : Robot/Simulation/Dictionary.cpp.s
+
+Robot/Simulation/ItemStash.o: Robot/Simulation/ItemStash.cpp.o
+.PHONY : Robot/Simulation/ItemStash.o
+
+# target to build an object file
+Robot/Simulation/ItemStash.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/ItemStash.cpp.o
+.PHONY : Robot/Simulation/ItemStash.cpp.o
+
+Robot/Simulation/ItemStash.i: Robot/Simulation/ItemStash.cpp.i
+.PHONY : Robot/Simulation/ItemStash.i
+
+# target to preprocess a source file
+Robot/Simulation/ItemStash.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/ItemStash.cpp.i
+.PHONY : Robot/Simulation/ItemStash.cpp.i
+
+Robot/Simulation/ItemStash.s: Robot/Simulation/ItemStash.cpp.s
+.PHONY : Robot/Simulation/ItemStash.s
+
+# target to generate assembly for a file
+Robot/Simulation/ItemStash.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/ItemStash.cpp.s
+.PHONY : Robot/Simulation/ItemStash.cpp.s
+
 Robot/Simulation/Map.o: Robot/Simulation/Map.cpp.o
 .PHONY : Robot/Simulation/Map.o
 
@@ -272,6 +344,30 @@ Robot/Simulation/Playground.s: Robot/Simulation/Playground.cpp.s
 Robot/Simulation/Playground.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/Playground.cpp.s
 .PHONY : Robot/Simulation/Playground.cpp.s
+
+Robot/Simulation/Script.o: Robot/Simulation/Script.cpp.o
+.PHONY : Robot/Simulation/Script.o
+
+# target to build an object file
+Robot/Simulation/Script.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/Script.cpp.o
+.PHONY : Robot/Simulation/Script.cpp.o
+
+Robot/Simulation/Script.i: Robot/Simulation/Script.cpp.i
+.PHONY : Robot/Simulation/Script.i
+
+# target to preprocess a source file
+Robot/Simulation/Script.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/Script.cpp.i
+.PHONY : Robot/Simulation/Script.cpp.i
+
+Robot/Simulation/Script.s: Robot/Simulation/Script.cpp.s
+.PHONY : Robot/Simulation/Script.s
+
+# target to generate assembly for a file
+Robot/Simulation/Script.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ImagineRobot.dir/build.make CMakeFiles/ImagineRobot.dir/Robot/Simulation/Script.cpp.s
+.PHONY : Robot/Simulation/Script.cpp.s
 
 Robot/Simulation/Simulation.o: Robot/Simulation/Simulation.cpp.o
 .PHONY : Robot/Simulation/Simulation.o
@@ -333,6 +429,9 @@ help:
 	@echo "... Robot/Agent/Agent.o"
 	@echo "... Robot/Agent/Agent.i"
 	@echo "... Robot/Agent/Agent.s"
+	@echo "... Robot/Common/Request.o"
+	@echo "... Robot/Common/Request.i"
+	@echo "... Robot/Common/Request.s"
 	@echo "... Robot/Common/Tile.o"
 	@echo "... Robot/Common/Tile.i"
 	@echo "... Robot/Common/Tile.s"
@@ -342,12 +441,21 @@ help:
 	@echo "... Robot/Render/PlaygroundView.o"
 	@echo "... Robot/Render/PlaygroundView.i"
 	@echo "... Robot/Render/PlaygroundView.s"
+	@echo "... Robot/Simulation/Dictionary.o"
+	@echo "... Robot/Simulation/Dictionary.i"
+	@echo "... Robot/Simulation/Dictionary.s"
+	@echo "... Robot/Simulation/ItemStash.o"
+	@echo "... Robot/Simulation/ItemStash.i"
+	@echo "... Robot/Simulation/ItemStash.s"
 	@echo "... Robot/Simulation/Map.o"
 	@echo "... Robot/Simulation/Map.i"
 	@echo "... Robot/Simulation/Map.s"
 	@echo "... Robot/Simulation/Playground.o"
 	@echo "... Robot/Simulation/Playground.i"
 	@echo "... Robot/Simulation/Playground.s"
+	@echo "... Robot/Simulation/Script.o"
+	@echo "... Robot/Simulation/Script.i"
+	@echo "... Robot/Simulation/Script.s"
 	@echo "... Robot/Simulation/Simulation.o"
 	@echo "... Robot/Simulation/Simulation.i"
 	@echo "... Robot/Simulation/Simulation.s"

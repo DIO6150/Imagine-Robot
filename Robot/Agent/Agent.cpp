@@ -7,7 +7,7 @@ Agent::Agent(AgentCommandListener * listener)
 
 }
 
-void Agent::start(std::initializer_list<Request> list_requests)
+void Agent::start(std::vector<Request> list_requests)
 {
 	requests_ = list_requests;
 }

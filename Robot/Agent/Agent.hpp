@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include <Robot/Common/AgentCommandListener.hpp>
 #include <Robot/Common/Request.hpp>
 #include <Robot/Simulation/Map.hpp>
@@ -9,7 +11,7 @@ class Agent
 public:
 	Agent(AgentCommandListener * listener);
 
-	void start(std::initializer_list<Request> list_requests);
+	void start(std::vector<Request> list_requests);
 	void tick();
 
 	Pos2D getPosition() const;

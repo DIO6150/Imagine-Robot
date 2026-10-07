@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <stdint.h>
 
 #include <string>
@@ -24,9 +25,9 @@ private:
 	std::string name_;
 	std::vector<Request> requests_;
 	
-	std::string const FORMAT_  = "robot-reconfort/armoire";
+	std::string const FORMAT_  = "robot-reconfort/scenario";
 	int         const VERSION_ = 1;
-	std::string name_;
+	
 	std::string mapName_;
 	std::string closetName_;
 
@@ -53,13 +54,13 @@ private:
 				{
 					Request request;
 
-					request.id_       = nested.at("numero").get<int>();
-					request.resident_ = nested.at("resident").get<std::string>();
-					request.message_  = nested.at("message").get<std::string>();
+					request.setId(nested.at("numero").get<int>());
+					request.setResidentName(nested.at("resident").get<std::string>());
+					request.setMessage(nested.at("message").get<std::string>());
 
 					requests_.push_back(request);
 				}
-
+				
 				return JSONParserStatus::Ok;
 			}
 		)

@@ -1,7 +1,7 @@
 
 #include <Robot/Simulation/Map.hpp>
 
-JSONParserStatus Map::parseJson(json const & object)
+JSONParserStatus Map::parseJSON(json const & object)
 {
 	return parser_.fillFields(object);
 }

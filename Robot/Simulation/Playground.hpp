@@ -1,7 +1,10 @@
 #pragma once
 
+#include <Robot/Simulation/Dictionary.hpp>
 #include <Robot/Simulation/Directive.hpp>
+#include <Robot/Simulation/ItemStash.hpp>
 #include <Robot/Simulation/Map.hpp>
+#include <Robot/Simulation/Script.hpp>
 
 #include <Robot/Common/AgentCommandListener.hpp>
 #include <Robot/Common/PlaygroundViewListener.hpp>
@@ -35,8 +38,10 @@ public:
 	void wait() override;
 
 private:
+	Script script_;
 	Map map_;
 	ItemStash closet_;
+	Dictionary dictionary_;
 	std::unique_ptr<Agent> agent_;
 	std::unique_ptr<PlaygroundView> view_;
 };

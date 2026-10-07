@@ -6,9 +6,10 @@
 #include <map>
 #include <vector>
 
+#include <Robot/Common/Tile.hpp>
+
 #include <Robot/Errors/Error.hpp>
 
-#include <Robot/Common/Tile.hpp>
 #include <Robot/Simulation/Resident.hpp>
 
 #include <Robot/Utils/JSONParser.hpp>
@@ -19,7 +20,7 @@
 class Map
 {
 public:
-	JSONParserStatus parseJson(json const & object);
+	JSONParserStatus parseJSON(json const & object);
 
 	Tile getTile(int32_t x, int32_t y) const;
 	Tile getTile(Pos2D pos) const;

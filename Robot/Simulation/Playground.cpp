@@ -5,8 +5,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <cstdlib>
-#include <cstdio>
 
 Playground::Playground()
 {
@@ -14,39 +12,31 @@ Playground::Playground()
 	view_  = std::make_unique<PlaygroundView>(this);
 }
 
+json dataParser(std::string const & path)
+{
+	std::ifstream Stream {path};
+	json Data = json::parse(Stream);
+	return Data;
+}
+
 void Playground::start(Directive const & instructions)
 {
-	std::ifstream mapStream {instructions.map};
-	json mapData = json::parse(mapStream); // TODO catch error here
-
-	auto status = map_.parseJson(mapData);
+	auto status = map_.parseJSON(dataParser(instructions.map));
 
 	if (status != JSONParserStatus::Ok)
 		return;
 
-
-	std::ifstream dictionaryStream {instructions.dictionary};
-	json dictionaryData = json::parse(dictionaryStream); // TODO catch error here
-
-	status = dictionary_.parseJson(dictionaryData);
+	status = dictionary_.parseJSON(dataParser(instructions.dictionary));
 
 	if (status != JSONParserStatus::Ok)
 		return;
 
-
-	std::ifstream closetStream {instructions.closet};
-	json closetData = json::parse(closetStream); // TODO catch error here
-
-	status = closet_.parseJson(closetData);
+	status = closet_.parseJSON(dataParser(instructions.closet));
 
 	if (status != JSONParserStatus::Ok)
 		return;
 
-
-	std::ifstream scriptStream {instructions.script};
-	json scriptData = json::parse(scriptStream); // TODO catch error here
-
-	status = script_.parseJson(scriptData);
+	status = script_.parseJSON(dataParser(instructions.script));
 
 	if (status != JSONParserStatus::Ok)
 		return;
