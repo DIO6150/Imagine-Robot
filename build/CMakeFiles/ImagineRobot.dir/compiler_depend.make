@@ -682,7 +682,6 @@ CMakeFiles/ImagineRobot.dir/Robot/Main.cpp.o: /home/tahina/Bureau/Imagine-Robot/
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/ItemStash.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Map.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Playground.hpp \
-  /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Resident.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Script.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Simulation.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Utils/JSONParser.hpp \
@@ -1753,7 +1752,6 @@ CMakeFiles/ImagineRobot.dir/Robot/Simulation/Map.cpp.o: /home/tahina/Bureau/Imag
   /home/tahina/Bureau/Imagine-Robot/Robot/Common/Tile.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Errors/Error.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Map.hpp \
-  /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Resident.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Utils/JSONParser.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Utils/Pos.hpp \
   /home/tahina/Bureau/Imagine-Robot/vendor/nlohmann/json.hpp \
@@ -2118,7 +2116,6 @@ CMakeFiles/ImagineRobot.dir/Robot/Simulation/Playground.cpp.o: /home/tahina/Bure
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/ItemStash.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Map.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Playground.hpp \
-  /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Resident.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Script.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Utils/JSONParser.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Utils/Pos.hpp \
@@ -2844,7 +2841,6 @@ CMakeFiles/ImagineRobot.dir/Robot/Simulation/Simulation.cpp.o: /home/tahina/Bure
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/ItemStash.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Map.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Playground.hpp \
-  /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Resident.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Script.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Simulation/Simulation.hpp \
   /home/tahina/Bureau/Imagine-Robot/Robot/Utils/JSONParser.hpp \

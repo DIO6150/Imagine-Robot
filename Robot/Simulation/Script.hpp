@@ -55,7 +55,7 @@ private:
 					Request request;
 
 					request.setId(nested.at("numero").get<int>());
-					request.setResidentName(nested.at("resident").get<std::string>());
+					request.setResidentId(nested.at("resident").get<std::string>());
 					request.setMessage(nested.at("message").get<std::string>());
 
 					requests_.push_back(request);

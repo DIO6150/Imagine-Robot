@@ -5,9 +5,9 @@ uint32_t Request::getId()
     return id_;
 }
 
-std::string Request::getResidentName()
+std::string Request::getResidentId()
 {
-    return residentName_;
+    return residentId_;
 }
 
 std::string Request::getMessage()
@@ -20,9 +20,9 @@ void Request::setId(uint32_t id)
     id_ = id;
 }
 
-void Request::setResidentName(std::string residentName)
+void Request::setResidentId(std::string residentId)
 {
-    residentName_ = residentName;
+    residentId_ = residentId;
 }
 
 void Request::setMessage(std::string message)

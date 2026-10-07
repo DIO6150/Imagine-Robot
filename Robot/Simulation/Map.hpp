@@ -10,12 +10,17 @@
 
 #include <Robot/Errors/Error.hpp>
 
-#include <Robot/Simulation/Resident.hpp>
-
 #include <Robot/Utils/JSONParser.hpp>
 #include <Robot/Utils/Pos.hpp>
 
 #include <vendor/nlohmann/json.hpp>
+
+struct Resident
+{
+	std::string id_;
+	std::string name_;
+	Pos2D pos_;
+};
 
 class Map
 {

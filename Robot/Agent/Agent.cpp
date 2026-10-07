@@ -7,16 +7,6 @@ Agent::Agent(AgentCommandListener * listener)
 
 }
 
-void Agent::start(std::vector<Request> list_requests)
-{
-	requests_ = list_requests;
-}
-
-void Agent::tick()
-{
-
-}
-
 Pos2D Agent::getPosition() const
 {
 	return pos_;
@@ -27,17 +17,104 @@ void Agent::setPosition(Pos2D newPos)
 	pos_ = newPos;
 }
 
-Request Agent::getCurrentRequest()
+uint32_t reconstructionPath(std::vector<Pos2D> & chemin, std::map<Pos2D, Pos2D> predecesseur, Pos2D end)
 {
-	return requests_.front();
+	uint32_t distance = 1;
+	chemin.push_back(end);
+	while(predecesseur[chemin.back].x != -1)
+	{
+		chemin.push_back(predecesseur[chemin.back]);
+		distance++;
+	}
+	return distance;
 }
 
-void Agent::removeRemoveRequest()
+int32_t Agent::cheminDistance(std::vector<Pos2D> & chemin, Pos2D start, Pos2D destination)
 {
-	requests_.erase(requests_.begin());
+	std::map<Pos2D, Pos2D> predecesseur;
+	std::queue<Pos2D> queue;
+	std::vector<Tile> voisins(4);
+	std::vector<Pos2D> chemin;
+	Pos2D initPos = pos_;
+	AgentTileView surroundings;
+	int32_t distance = 0;
+
+	if(start == destination) {
+		chemin.push_back(start);
+		return distance;
+	}
+
+	while(!queue.empty())
+	{
+		pos_ = queue.front();
+		queue.pop();
+		predecesseur[start] = Pos2D {-1, -1};
+
+		surroundings = see();
+		voisins[0] = surroundings.north_;
+		voisins[1] = surroundings.east_;
+		voisins[2] = surroundings.south_;
+		voisins[3] = surroundings.west_;
+
+		for(Tile voisin : voisins)
+		{
+			if(!predecesseur.contains(voisin.pos) && !voisin.isSolid())
+			{
+				predecesseur[voisin.pos] = pos_;
+				if(voisin.pos == destination) {
+					pos_ = initPos;
+					return reconstructionPath(chemin, predecesseur, voisin.pos);
+				}
+			}
+			queue.push(voisin.getPos());
+		}
+		pos_ = initPos;
+		return -1;
+	}
 }
 
-void Agent::initalizeMentalMap(int height, int width)
+void Agent::initalizeMentalMap(uint32_t height, uint32_t width)
 {
-	std::vector<std::tuple<Tile, int>> MentalMap;
+	std::vector<Tile> mentalArrangement(height*width);
+	std::vector<int32_t> mentalTileDistances(height*width, -1);
+	TileProperty wall, walkable, agentstart;
+	wall.setSolid(true);
+	propertyStart.setAgentStart(true);
+	for(uint32_t y = 0; y < height; ++y)
+	{
+		for (uint32_t x = 0; x < width; ++x)
+		{
+			mentalArrangement[y*height + x] = ((x == 0 || x == width-1 || y == 0 || y == width-1) ? Tile(wall, Pos2D {x, y}) : Tile(walkable, Pos2D {x, y}));
+		}
+	}
+
+	mentalArrangement[pos_.y*height + pos_.x] = Tile(agentstart, pos_);
+	mentalTileDistances[pos_.y*height + pos_.x] = 0;
+	
+	for(uint32_t y = 1; y < height-1; ++y)
+	{
+		for (uint32_t x = 1; x < width-1; ++x)
+		{
+			mentalTileDistances[y*height + x] = cheminDistance(pos_, Pos {x,y});
+		}
+	}
+
+	mentalArrangement_ = mentalArrangement;
+	mentalTileDistances_ = mentalTileDistances;
+}
+
+void Agent::start(std::vector<Request> list_requests)
+{
+	requests_ = list_requests;
+	for(Request currentRequest : list_requests)
+	{
+		std::cout << "Requete numero " << currentRequest.getId() << std::endl;
+		std::cout << "Demande du resident " << currentRequest.getResidentId() << std::endl;
+		std::cout << "Contenu du message : " << currentRequest.getMessage() << "\n" << std::endl;
+	}
+}
+
+void Agent::tick()
+{
+
 }
