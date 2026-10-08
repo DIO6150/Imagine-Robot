@@ -29,7 +29,7 @@ private:
         AgentStart   = 1ull << 1,
         Person       = 1ull << 2,
         ItemPickup   = 1ull << 3,
-        Record = 1ull << 4,
+        Record       = 1ull << 4,
     };
 
 	uint64_t flags_ = 0;

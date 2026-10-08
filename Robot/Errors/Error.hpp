@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 enum class JSONParserStatus: int
 {
 	Ok                   = 0,
@@ -18,6 +20,7 @@ enum class CommandStatus
 	StashNotInRange,
 	StashEmpty,
 	ResidentNotInRange,
+	OutOfBounds,
 	GodSaidNo,
 };
 
@@ -35,6 +38,16 @@ public:
 		: value_ {value}
 	{
 		
+	}
+
+	CommandStatus failureReason()
+	{
+		return status_;
+	}
+
+	bool operator==(CommandStatus const & status)
+	{
+		return status_ == status;
 	}
 
 	operator bool() { return status_ == CommandStatus::Ok; }
@@ -55,8 +68,33 @@ public:
 
 	}
 
+	CommandStatus failureReason()
+	{
+		return status_;
+	}
+
+	bool operator==(CommandStatus const & status)
+	{
+		return status_ == status;
+	}
+
 	operator bool() { return status_ == CommandStatus::Ok; }
 
 private:
 	CommandStatus status_;
 };
+
+enum class AgentFailureType
+{
+	GivingItem,
+	
+};
+
+inline std::string failureToString(AgentFailureType type)
+{
+	switch (type)
+	{
+	case AgentFailureType::GivingItem: return "Giving Item";
+	default: return "Unkwown Failure";
+	}
+}

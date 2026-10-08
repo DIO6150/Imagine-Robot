@@ -26,11 +26,13 @@ public:
 	CommandResult<void> consult() override;
 	CommandResult<void> search(Orientation direction) override;
 
-	CommandResult<void> take(std::string name) override;
-	CommandResult<void> give() override;
+	CommandResult<Item> take(std::string name) override;
+	CommandResult<void> give(Item item) override;
 
 
-	CommandResult<AgentTileView> see() override;
+	CommandResult<Tile> see(Pos2D pos) override;
+
+	void onAgentFail(AgentFailureType reason, std::string message);
 
 	void wait() override;
 

@@ -64,48 +64,27 @@ CommandResult<void> Playground::search(Orientation direction)
 	return CommandStatus::Ok;
 }
 
-CommandResult<void> Playground::take(std::string name)
+CommandResult<Item> Playground::take(std::string name)
 {
 	return CommandStatus::Ok;
 }
 
-CommandResult<void> Playground::give()
+CommandResult<void> Playground::give(Item item)
 {
 	return CommandStatus::Ok;
 }
 
-CommandResult<AgentTileView> Playground::see()
+CommandResult<Tile> Playground::see(Pos2D pos)
 {
-	Orientation const dirs[] = {
-		Orientation::North, Orientation::South, Orientation::West, Orientation::East
-	};
+	if (!map_.isInside(pos))
+		return CommandStatus::OutOfBounds;
 
-	auto agentPos = agent_->getPosition();
+	return map_.getTile(pos);
+}
 
-	TileProperty solid;
-	solid.setSolid(true);
-
-	std::vector<Tile> result;
-	for (auto dir : dirs)
-	{
-		auto pos = agentPos + orientationToPos(dir);
-		if (!map_.isInside(pos)) // normally not possible but we never know ...
-		{
-			result.emplace_back(solid, pos);
-			// TODO: push to trace (view)
-		}
-
-		auto tile = map_.getTile(pos);
-		result.push_back(tile);
-	}
-
-	AgentTileView tileView;
-	tileView.north_ = result.at(0);
-	tileView.south_ = result.at(1);
-	tileView.west_  = result.at(2);
-	tileView.east_  = result.at(3);
-
-	return tileView;
+void Playground::onAgentFail(AgentFailureType type, std::string message)
+{
+	std::cout << "AGENT FAILURE" << failureToString(type) << " " << message; // TODO: print it in the trace too
 }
 
 void Playground::wait()

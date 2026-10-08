@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include <string>
+#include <map>
 #include <vector>
 
 #include <Robot/Errors/Error.hpp>
