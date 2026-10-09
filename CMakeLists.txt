@@ -4,7 +4,7 @@ project(ImagineRobot
 	LANGUAGES CXX
 )
 
-set (CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD 26)
 
 add_executable(${PROJECT_NAME})
 
