@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 
+#include <Robot/Common/Request.hpp>
 #include <Robot/Common/Tile.hpp>
 
 #include <Robot/Errors/Error.hpp>
@@ -14,13 +15,6 @@
 #include <Robot/Utils/Pos.hpp>
 
 #include <vendor/nlohmann/json.hpp>
-
-struct Resident
-{
-	std::string id_;
-	std::string name_;
-	Pos2D pos_;
-};
 
 class Map
 {

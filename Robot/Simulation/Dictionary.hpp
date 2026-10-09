@@ -4,6 +4,7 @@
 
 #include <string>
 #include <map>
+#include <tuple>
 #include <vector>
 
 #include <Robot/Common/Emotion.hpp>
@@ -25,6 +26,7 @@ class Dictionary
 {
 public:
 	JSONParserStatus parseJSON(json const & object);
+	bool identifEmoIntens(std:tuple<Emotion, Intensity> & EmoIntens, std::string message);
 
 private:
 	std::string name_;

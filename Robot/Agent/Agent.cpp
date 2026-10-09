@@ -50,7 +50,7 @@ int32_t Agent::cheminDistance(std::vector<Pos2D> & chemin, Pos2D start, Pos2D de
 		queue.pop();
 		predecesseur[start] = Pos2D {-1, -1};
 
-		surroundings = see();
+		surroundings = listener_->see();
 		voisins[0] = surroundings.north_;
 		voisins[1] = surroundings.east_;
 		voisins[2] = surroundings.south_;
@@ -73,34 +73,24 @@ int32_t Agent::cheminDistance(std::vector<Pos2D> & chemin, Pos2D start, Pos2D de
 	}
 }
 
-void Agent::initalizeMentalMap(uint32_t height, uint32_t width)
+void Agent::initalizeMentalMap(RecapMap recap)
 {
-	std::vector<Tile> mentalArrangement(height*width);
-	std::vector<int32_t> mentalTileDistances(height*width, -1);
-	TileProperty wall, walkable, agentstart;
-	wall.setSolid(true);
-	propertyStart.setAgentStart(true);
-	for(uint32_t y = 0; y < height; ++y)
+	std::vector<int32_t> mentalTileDistances(recap.height*recap*width);
+	for(uint32_t y = 0; y < recap.height; ++y)
 	{
-		for (uint32_t x = 0; x < width; ++x)
+		for (uint32_t x = 0; x < recap.width; ++x)
 		{
-			mentalArrangement[y*height + x] = ((x == 0 || x == width-1 || y == 0 || y == width-1) ? Tile(wall, Pos2D {x, y}) : Tile(walkable, Pos2D {x, y}));
+			mentalArrangement[y*recap.height + x] = ((x == 0 || x == recap.width-1 || y == 0 || y == recap.width-1) ? -5 : -1);
 		}
 	}
 
-	mentalArrangement[pos_.y*height + pos_.x] = Tile(agentstart, pos_);
-	mentalTileDistances[pos_.y*height + pos_.x] = 0;
-	
-	for(uint32_t y = 1; y < height-1; ++y)
-	{
-		for (uint32_t x = 1; x < width-1; ++x)
-		{
-			mentalTileDistances[y*height + x] = cheminDistance(pos_, Pos {x,y});
-		}
-	}
+	mentalTileDistances[recap.robotStart.y*height + recap.robotStart.x] = 0;
+	mentalTileDistances[recap.posStash.y*height + recap.posStash.x] = -2;
+	mentalTileDistances[recap.posDictionary.y*height + recap.posDictionary.x] = -3;
+	for(Pos2D pres : recap.posResidentList)
+		mentalTileDistances[pres.y*height + pres.x] = -4;
 
-	mentalArrangement_ = mentalArrangement;
-	mentalTileDistances_ = mentalTileDistances;
+	mentalMap_ = mentalTileDistances;
 }
 
 void Agent::start(std::vector<Request> list_requests)
@@ -112,6 +102,8 @@ void Agent::start(std::vector<Request> list_requests)
 		std::cout << "Demande du resident " << currentRequest.getResidentId() << std::endl;
 		std::cout << "Contenu du message : " << currentRequest.getMessage() << "\n" << std::endl;
 	}
+
+	initalizeMentalMap()
 }
 
 void Agent::tick()

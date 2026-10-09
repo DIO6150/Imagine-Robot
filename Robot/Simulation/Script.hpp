@@ -52,12 +52,7 @@ private:
 			{
 				for (auto const & nested : object)
 				{
-					Request request;
-
-					request.setId(nested.at("numero").get<int>());
-					request.setResidentId(nested.at("resident").get<std::string>());
-					request.setMessage(nested.at("message").get<std::string>());
-
+					Request request = Request(nested.at("numero").get<int>(), nested.at("resident").get<std::string>(), nested.at("message").get<std::string>());
 					requests_.push_back(request);
 				}
 				
