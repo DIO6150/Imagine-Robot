@@ -6,7 +6,8 @@ struct Directive
 {
 	std::string map;
 	std::string script;
-	std::string data;
+	std::string closet;
+	std::string dictionary;
 };
 
 struct DirectiveTrace

@@ -6,13 +6,13 @@
 #include <functional>
 #include <queue>
 #include <optional>
+#include <iostream>
+#include <queue>
+#include <cstdint>
 
-struct Request
-{
-	uint32_t id_;
-	std::string resident_;
-	std::string message_;
-};
+#include <Robot/Common/AgentCommandListener.hpp>
+#include <Robot/Common/Request.hpp>
+#include <Robot/Simulation/Map.hpp>
 
 enum JobStatus
 {
@@ -29,15 +29,20 @@ class Agent
 public:
 	Agent(AgentCommandListener * listener);
 
-	void start(std::initializer_list<Request> requests);
+	void start(std::vector<Request> list_requests);
 	void tick();
 
 	Pos2D getPosition() const;
 	void setPosition(Pos2D newPos);
 
 	void pushJob(Job const & job);
+	void initalizeMentalMap(uint32_t height, uint32_t width);
 
 private:
+	std::vector<Tile> mentalArrangement_;
+	std::vector<int32_t> mentalTileDistances_;
+	std::vector<Request> requests_;
+
 	Pos2D pos_;
 	Pos2D dictionary_;
 	Pos2D itemStash_;

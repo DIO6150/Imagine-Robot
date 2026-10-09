@@ -6,25 +6,34 @@
 #include <map>
 #include <vector>
 
-#include <Robot/Errors/Error.hpp>
-
 #include <Robot/Common/Tile.hpp>
-#include <Robot/Simulation/Resident.hpp>
+
+#include <Robot/Errors/Error.hpp>
 
 #include <Robot/Utils/JSONParser.hpp>
 #include <Robot/Utils/Pos.hpp>
 
 #include <vendor/nlohmann/json.hpp>
 
+struct Resident
+{
+	std::string id_;
+	std::string name_;
+	Pos2D pos_;
+};
+
 class Map
 {
 public:
-	JSONParserStatus parseJson(json const & object);
+	JSONParserStatus parseJSON(json const & object);
 
 	Tile getTile(int32_t x, int32_t y) const;
 	Tile getTile(Pos2D pos) const;
 
 	bool isInside(Pos2D pos) const;
+
+	uint32_t getWidth();
+	uint32_t getHeight();
 
 private:
 	std::string const FORMAT_  = "robot-reconfort/carte";
