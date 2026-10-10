@@ -86,7 +86,7 @@ MapParser::MapParser(Map & map, json const & object)
 				if (!tile.isAgentStart())
 					return JSONParserStatus::IncoherentData;
 
-				map.robotStart_ = robotStart;
+				map.robotStartPos_ = robotStart;
 
 				return JSONParserStatus::Ok;
 			}
@@ -103,7 +103,7 @@ MapParser::MapParser(Map & map, json const & object)
 				if (!tile.isItemPickup())
 					return JSONParserStatus::IncoherentData; // obv not everyhing is checkable at validator layer so eeeh
 
-				map.stash_ = stash;
+				map.stashPos_ = stash;
 
 				return JSONParserStatus::Ok;
 			}
@@ -120,7 +120,7 @@ MapParser::MapParser(Map & map, json const & object)
 				if (!tile.isRecord())
 					return JSONParserStatus::IncoherentData; // obv not everyhing is checkable at validator layer so eeeh
 
-				map.dictionary_ = dict;
+				map.dictionaryPos_ = dict;
 
 				return JSONParserStatus::Ok;
 			}

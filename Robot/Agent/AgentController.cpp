@@ -13,7 +13,9 @@ AgentController::AgentController(Map const & map)
 
 void AgentController::start(std::vector<Request> requestList)
 {
-	brain_->start(requestList);
+	MapInfo info = map_.generateInfo();
+
+	brain_->start(info, requestList);
 }
 
 void AgentController::tick()
@@ -23,7 +25,7 @@ void AgentController::tick()
 
 CommandResult<void> AgentController::move(Orientation direction)
 {
-	Pos2D pos = pos_ + orientationToPos(direction);
+	Pos2D pos = pos_ + directionToPos(direction);
 
 	if (!map_.isInside(pos))
 	{
@@ -70,13 +72,13 @@ CommandResult<std::vector<Tile>> AgentController::see()
 	TileProperty wall;
 	wall.setSolid(true);
 
-	std::vector<Tile> result {4};
+	std::vector<Tile> result;
 
 	auto index = 0;
 	for (auto & dir : directions)
 	{
 		auto iterator = result.begin() + index++;
-		auto pos = pos_ + orientationToPos(dir);
+		auto pos = pos_ + directionToPos(dir);
 
 		if (!map_.isInside(pos))
 		{

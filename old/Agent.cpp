@@ -1,5 +1,5 @@
 
-#include <Robot/Agent/Agent.hpp>
+#include <old/Agent.hpp>
 
 Agent::Agent(AgentCommandListener * listener)
 	: listener_{listener}
@@ -73,10 +73,10 @@ std::vector<Pos2D> Agent::shortestPath(Pos2D start, Pos2D destination)
 		queue.pop();
 		predecesseur.emplace(start, Pos2D {-1, -1});
 
-		voisins[0] = currentPos + orientationToPos(Orientation::North);
-		voisins[1] = currentPos + orientationToPos(Orientation::South);
-		voisins[2] = currentPos + orientationToPos(Orientation::East);
-		voisins[3] = currentPos + orientationToPos(Orientation::West);
+		voisins[0] = currentPos + directionToPos(Orientation::North);
+		voisins[1] = currentPos + directionToPos(Orientation::South);
+		voisins[2] = currentPos + directionToPos(Orientation::East);
+		voisins[3] = currentPos + directionToPos(Orientation::West);
 
 		for(Pos2D voisin : voisins)
 		{
@@ -140,7 +140,7 @@ void Agent::initalizeAgent(RecapMap recap)
 /*
 CommandStatus<void> Agent::move(Orientation direction)
 {
-	Pos2D newPos = pos_ + orientationToPos(direction);
+	Pos2D newPos = pos_ + directionToPos(direction);
 
 	if (isOutWalls(newPos.x, newPos.y))
 	{

@@ -1,0 +1,17 @@
+#pragma once
+
+#include <Robot/Common/Request.hpp>
+
+#include <Robot/Utils/Pos.hpp>
+
+#include <vector>
+
+struct MapInfo
+{
+	uint32_t width;
+	uint32_t height;
+	Pos2D robotStartPos;
+	Pos2D stashPos;
+	Pos2D dictionaryPos;
+	std::vector<Resident> residentList; // is it really a residentList ?
+};

@@ -8,34 +8,54 @@
 #include <cstdint>
 
 #include <Robot/Agent/AgentControllerListener.hpp>
+#include <Robot/Common/MapInfo.hpp>
 #include <Robot/Common/Request.hpp>
 #include <Robot/Common/Item.hpp>
 #include <Robot/Simulation/Map.hpp>
+
+enum class Objective : int32_t
+{
+	InterpretRequest,
+	FindDictionary,
+	FindItem,
+	TakeItem,
+	FindPerson,
+	GiveItem,
+};
+
 
 class Brain
 {
 public:
 	Brain(AgentControllerListener * listener);
 
-	void start(std::vector<Request> requestList);
+	void start(MapInfo info, std::vector<Request> requestList);
 	void tick();
 
 private:
-	void initalizeMentalMap(uint32_t height, uint32_t width);
-	void updateMentalMap();
+	void initalizeMentalMap();
 
-	int32_t bfs(std::vector<Pos2D> & chemin, Pos2D start, Pos2D destination);
+	std::vector<Pos2D> shortestPath(Pos2D start, Pos2D destination);
+
+	bool move(Orientation direction);
 
 private:
-	std::vector<Tile> mentalArrangement_;
-	std::vector<int32_t> mentalTileDistances_;
-	std::vector<Request> requests_;
-	
-	std::string wantedItem_;
+	//Request currentRequest_;
+	MapInfo mapInfo_;
+	std::vector<Tile>  mentalMap_;
+	std::vector<Pos2D> currentPath_;
 
-	Pos2D dictionary_;
-	Pos2D itemStash_;
-	Pos2D currentResident_;
+
+	Objective currentObjective_ = Objective::FindDictionary;
+
+	bool carryItem_ = false;
+	std::string itemName_;
+
+	Pos2D tileTarget_;
+	
+
+	Pos2D pos_;
+
 
 private:
 	AgentControllerListener * body_;

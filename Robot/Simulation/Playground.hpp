@@ -18,19 +18,17 @@ class Playground : public PlaygroundViewListener
 {
 public:
 	Playground();
-
-	JSONParserStatus dataParser(std::string const & path, std::string toFill);
-	Map getMap();
-	ItemStash getCloset();
-	Dictionary getDictionary();
-
-
+	
 	// Presenter Code
-	int start(Directive const & instructions);
+	void start(Directive const & instructions);
 	void tick();
 	void draw();
+	
+private:
+	JSONParserStatus parse(std::string const & path, std::string toFill);
 
 private:
+	Script script_;
 	Map map_;
 	ItemStash closet_;
 	Dictionary dictionary_;

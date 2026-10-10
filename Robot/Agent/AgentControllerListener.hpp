@@ -15,7 +15,7 @@ enum Orientation
 	South
 };
 
-inline Pos2D orientationToPos(Orientation direction)
+inline Pos2D directionToPos(Orientation direction)
 {
 	switch (direction)
 	{
@@ -26,6 +26,19 @@ inline Pos2D orientationToPos(Orientation direction)
 	}
 
 	return Pos2D {0, 0};
+}
+
+inline Orientation findDirection(Pos2D a, Pos2D b)
+{
+	auto dir = a - b;
+
+	if (dir.y > 0) return North;
+	else if (dir.y < 0) return South;
+
+	if (dir.x > 0) return East;
+	else if (dir.x < 0) return West;
+
+	return North;
 }
 
 struct AgentControllerListener

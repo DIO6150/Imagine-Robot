@@ -1,21 +1,33 @@
 
 #include <Robot/Agent/Brain.hpp>
 
+inline int32_t calculateIndex(Pos2D pos, MapInfo info)
+{
+	return pos.y * info.height + pos.x;
+}
+
+inline bool inRect(Pos2D pos, uint32_t width, uint32_t height)
+{
+	if (pos.x < 0 || pos.y < 0) return false;
+	if (pos.x >= width || pos.y >= height) return false;
+
+	return true;
+}
+
 Brain::Brain(AgentControllerListener * body)
 	: body_ {body}
 {
 
 }
 
-void Brain::start(std::vector<Request> requests)
+void Brain::start(MapInfo info, std::vector<Request> requestList)
 {
-	requests_ = requests;
-	for(Request currentRequest : requests)
-	{
-		std::cout << "Requete numero :"      << currentRequest.getId()                      << std::endl;
-		std::cout << "Demande du resident :" << currentRequest.getResidentId()              << std::endl;
-		std::cout << "Contenu du message : " << currentRequest.getMessage()    << std::endl << std::endl;
-	}
+	mapInfo_ = info;
+
+	initalizeMentalMap();
+
+	pos_ = mapInfo_.robotStartPos;
+	currentObjective_ = Objective::FindDictionary;
 }
 
 void Brain::tick()
@@ -23,105 +35,169 @@ void Brain::tick()
 	// PERCEVOIR
 	auto nwse = body_->see();
 
+	if (!nwse)
+	{
+		return;
+	}
+
 	// MEMORISER
+	std::vector<Orientation> const directions = { North, West, South, East };
+
+	for (auto i = 0; i < directions.size(); ++i)
+	{
+		auto pos = pos_ + directionToPos(directions[i]);
+		
+		if (inRect(pos, mapInfo_.width, mapInfo_.height))
+			continue;
+		
+		auto index = calculateIndex(pos, mapInfo_);
+
+		mentalMap_[index] = nwse.get()[i];
+	}
 
 	// DECIDER
+	bool shouldMove     = false;
+	bool shouldTakeItem = false;
+	bool shouldGiveItem = false;
+	Pos2D where;
+	// idk if its the right design choice
+	// could have an empty std::function here instead
+	// we fill it below then execute it in AGIR
+
+	switch (currentObjective_)
+	{
+	case Objective::InterpretRequest:
+		break;
+
+	case Objective::FindDictionary:
+		break;
+	
+	case Objective::FindItem:
+		break;
+
+	case Objective::TakeItem:
+		break;
+	
+	case Objective::FindPerson:
+		break;
+
+	case Objective::GiveItem:
+		break;
+	
+	default:
+		break;
+	}
 
 	// AGIR
-}
-
-uint32_t reconstructPath(std::vector<Pos2D> & chemin, std::map<Pos2D, Pos2D> predecesseur, Pos2D end)
-{
-	/*
-	uint32_t distance = 1;
-	chemin.push_back(end);
-	while(predecesseur[chemin.back()].x != -1)
+	if (shouldMove)
 	{
-		chemin.push_back(predecesseur[chemin.back()]);
-		distance++;
-	}
-	return distance;
-	*/
+		auto path      = shortestPath (pos_, where);
+		auto direction = findDirection(pos_, path[0]);
 
-	return 0;
+		move(direction);
+	}
 }
 
-int32_t Brain::bfs(std::vector<Pos2D> & path, Pos2D start, Pos2D destination)
+void Brain::initalizeMentalMap()
 {
-	/*
-	std::map<Pos2D, Pos2D> predecesseur;
+	mentalMap_.clear();
+	mentalMap_.resize(mapInfo_.width * mapInfo_.height);
+
+	TileProperty empty;
+
+	Pos2D pos;
+	for(pos.y = 0; pos.y < mapInfo_.height; ++pos.y)
+	{
+		for (pos.x = 0; pos.x < mapInfo_.width; ++pos.x)
+		{
+			auto index = calculateIndex(pos, mapInfo_);
+
+			mentalMap_.at(index) = Tile {empty, pos};
+			if ((pos.y == 0 || pos.y == mapInfo_.height - 1) || (pos.x == 0 || pos.x == mapInfo_.width))
+			{
+				mentalMap_[index].setSolid(true);
+			}
+		}
+	}
+
+	mentalMap_[calculateIndex(mapInfo_.robotStartPos, mapInfo_)].setAgentStart(true);
+	mentalMap_[calculateIndex(mapInfo_.stashPos, mapInfo_)]     .setSolid(true).setItemPickup(true);
+	mentalMap_[calculateIndex(mapInfo_.dictionaryPos, mapInfo_)].setSolid(true).setRecord(true);
+
+	for (auto resident : mapInfo_.residentList)
+	{
+		mentalMap_[calculateIndex(resident.pos_, mapInfo_)].setSolid(true).setPerson(true);
+	}
+}
+
+std::vector<Pos2D> reconstructPath(std::map<Pos2D, Pos2D> previous, Pos2D end)
+{
+	std::vector<Pos2D> path;
+	path.push_back(end);
+
+	Pos2D pred = previous.at(path.back());
+
+	while(pred.x != -1)
+	{
+		path.push_back(pred);
+		pred = previous.at(path.back());
+	}
+
+	std::reverse(path.begin(), path.end());
+
+	return path;
+}
+
+std::vector<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
+{
+	std::map<Pos2D, Pos2D> previous;
 	std::queue<Pos2D> queue;
-	std::vector<Tile> voisins(4);
-	std::vector<Pos2D> chemin;
-	Pos2D initPos = pos_;
-	AgentTileView surroundings;
-	int32_t distance = 0;
+	std::vector<Pos2D> neighbours(4);
+	std::vector<Pos2D> path;
+	Pos2D currentPos;
+	std::vector<Tile> surroundings;
 
 	if(start == destination) {
-		chemin.push_back(start);
-		return distance;
+		path.push_back(start);
+		return path;
 	}
+
+	queue.push(start);
 
 	while(!queue.empty())
 	{
-		pos_ = queue.front();
+		currentPos = queue.front();
 		queue.pop();
-		predecesseur[start] = Pos2D {-1, -1};
+		previous.emplace(start, Pos2D {-1, -1});
 
-		surroundings = body_->see();
-		voisins[0] = surroundings.north_;
-		voisins[1] = surroundings.east_;
-		voisins[2] = surroundings.south_;
-		voisins[3] = surroundings.west_;
+		neighbours[0] = currentPos + directionToPos(Orientation::North);
+		neighbours[1] = currentPos + directionToPos(Orientation::South);
+		neighbours[2] = currentPos + directionToPos(Orientation::East);
+		neighbours[3] = currentPos + directionToPos(Orientation::West);
 
-		for(Tile voisin : voisins)
+		for(Pos2D voisin : neighbours)
 		{
-			if(!predecesseur.contains(voisin.pos_) && !voisin.isSolid())
+			if(!previous.contains(voisin) && !(mentalMap_[calculateIndex(voisin, mapInfo_)].isSolid()))
 			{
-				predecesseur[voisin.pos_] = pos_;
-				if(voisin.pos_ == destination) {
-					pos_ = initPos;
-					return reconstructPath(chemin, predecesseur, voisin.pos_);
-				}
+				previous.emplace(voisin, currentPos);
+				if(voisin == destination)
+					return reconstructPath(previous, voisin);
 			}
-			queue.push(voisin.pos_);
+			queue.push(voisin);
 		}
-		pos_ = initPos;
-		return -1;
 	}
-	*/
 
-	return 0;
+	path.clear(); // clear ???
+
+	return path;
 }
 
-void Brain::initalizeMentalMap(uint32_t height, uint32_t width)
+bool Brain::move(Orientation direction)
 {
-	/*
-	std::vector<Tile> mentalArrangement(height*width);
-	std::vector<int32_t> mentalTileDistances(height*width, -1);
-	TileProperty wall, walkable, Brainstart;
-	wall.setSolid(true);
-	Brainstart.setAgentStart(true);
-	for(uint32_t y = 0; y < height; ++y)
-	{
-		for (uint32_t x = 0; x < width; ++x)
-		{
-			mentalArrangement[y*height + x] = ((x == 0 || x == width-1 || y == 0 || y == width-1) ? Tile(wall, Pos2D {x, y}) : Tile(walkable, Pos2D {x, y}));
-		}
-	}
+	auto result = body_->move(direction);
+	if (!result) return false;
 
-	mentalArrangement[pos_.y*height + pos_.x] = Tile(Brainstart, pos_);
-	mentalTileDistances[pos_.y*height + pos_.x] = 0;
-	
-	for(uint32_t y = 1; y < height-1; ++y)
-	{
-		for (uint32_t x = 1; x < width-1; ++x)
-		{
-			mentalTileDistances[y*height + x] = bfs(pos_, Pos {x,y});
-		}
-	}
+	pos_ += directionToPos(direction);
 
-	mentalArrangement_ = mentalArrangement;
-	mentalTileDistances_ = mentalTileDistances;
-	*/
+	return true;
 }

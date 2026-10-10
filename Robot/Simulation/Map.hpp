@@ -7,9 +7,12 @@
 #include <map>
 #include <vector>
 
+#include <Robot/Common/MapInfo.hpp>
 #include <Robot/Common/Request.hpp>
 #include <Robot/Common/Tile.hpp>
+
 #include <Robot/Errors/Error.hpp>
+
 #include <Robot/Utils/Pos.hpp>
 
 #include <vendor/nlohmann/json.hpp>
@@ -24,15 +27,17 @@ public:
 
 	bool isInside(Pos2D pos) const;
 	
-	std::string getName();
-	uint32_t getWidth();
-	uint32_t getHeight();
-	Pos2D getRobotStart();
-	Pos2D getPosStash();
-	Pos2D getPosDictionary();
-	std::vector<Resident> getResidentList();
+	std::string getName() const;
+	uint32_t getWidth() const;
+	uint32_t getHeight() const;
+		Pos2D getRobotStartPos() const;
+	Pos2D getStashPos() const;
+	Pos2D getDictionaryPos() const;
+	std::vector<Resident> getResidentList() const;
 
-	void mapInfos();
+	MapInfo generateInfo() const;
+
+	void printInfo() const;
 
 private:
 	std::string const FORMAT_  = "robot-reconfort/carte";
@@ -43,9 +48,9 @@ private:
 	uint32_t height_;
 	std::map<char, TileProperty> charProperties_;
 	std::vector<Tile> tiles_;
-	Pos2D robotStart_;
-	Pos2D posStash_;
-	Pos2D posDictionary_;
+	Pos2D robotStartPos_;
+	Pos2D stashPos_;
+	Pos2D dictionaryPos_;
 	std::vector<Resident> residentList_;
 
 	friend class MapParser;

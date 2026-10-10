@@ -7,7 +7,7 @@ JSONParserStatus ItemStash::parseJSON(json const & object)
 	return ClosetParser {*this, object}.result;
 }
 
-Pos2D getCasierDepart()
+Pos2D ItemStash::getCasierDepart()
 {
 	return casierDepart_;
 }

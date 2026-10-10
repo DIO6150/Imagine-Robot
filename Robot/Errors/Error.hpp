@@ -90,6 +90,7 @@ private:
 enum class AgentFailureType
 {
 	GivingItem,
+	Move,
 	
 };
 
