@@ -131,18 +131,10 @@ void Agent::recapMapSet(RecapMap recap)
 	recapMap_.posResidentList = recap.posResidentList;
 }
 
-void Agent::start(std::vector<Request> list_requests, RecapMap recap)
+void Agent::initalizeAgent(RecapMap recap)
 {
 	recapMapSet(recap);
-
 	initalizeMentalMap();
-	requests_ = list_requests;
-	for(Request currentRequest : list_requests)
-	{
-		std::cout << "Requete numero " << currentRequest.getId() << std::endl;
-		std::cout << "Demande du resident " << currentRequest.getResident().id_ << std::endl;
-		std::cout << "Contenu du message : " << currentRequest.getMessage() << "\n" << std::endl;
-	}
 }
 
 /*

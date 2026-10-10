@@ -40,3 +40,15 @@ bool Dictionary::identifEmoIntens(std::tuple<Emotion, Intensity> & EmoIntens, st
 	}
 	return false;
 }
+
+void Dictionary::dictionaryInfos()
+{
+	std::cout << "Nom dictionnaire : " << name_ << std::endl;
+	for (Entree ent : entrees_)
+	{
+		std::cout << "Entrees : ";
+		for (std::string form : ent.formes_)
+			std::cout << form;
+		std::cout << "." << std::endl;
+	}
+}

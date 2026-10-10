@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <iostream>
 
 #include <string>
 #include <map>
@@ -27,6 +28,7 @@ class Dictionary
 public:
 	JSONParserStatus parseJSON(json const & object);
 	bool identifEmoIntens(std::tuple<Emotion, Intensity> & EmoIntens, std::string message);
+	void dictionaryInfos();
 
 private:
 	std::string name_;

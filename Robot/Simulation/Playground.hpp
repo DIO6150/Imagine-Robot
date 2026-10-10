@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 #include <Robot/Simulation/Dictionary.hpp>
 #include <Robot/Simulation/Directive.hpp>
@@ -13,16 +14,23 @@
 
 #include <Robot/Render/PlaygroundView.hpp>
 
-class Playground : public AgentCommandListener, public PlaygroundViewListener
+class Playground : public PlaygroundViewListener
 {
 public:
 	Playground();
 
+	JSONParserStatus dataParser(std::string const & path, std::string toFill);
+	Map getMap();
+	ItemStash getCloset();
+	Dictionary getDictionary();
+
+
 	// Presenter Code
-	int start(Directive const & instructions);
+	int initalizePlayground(Directive const & instructions);
 	void tick();
 	void draw();
 
+	/*
 	// Agent Listener Code
 	CommandResult<void> move(Orientation direction) override;
 	
@@ -36,12 +44,11 @@ public:
 	CommandResult<AgentTileView> see() override;
 
 	void wait() override;
+	*/
 
 private:
-	Script script_;
 	Map map_;
 	ItemStash closet_;
 	Dictionary dictionary_;
-	std::unique_ptr<Agent> agent_;
 	std::unique_ptr<PlaygroundView> view_;
 };

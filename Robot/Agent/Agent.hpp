@@ -25,7 +25,7 @@ class Agent
 public:
 	Agent(AgentCommandListener * listener);
 
-	void start(std::vector<Request> list_requests, RecapMap recap);
+	void initalizeAgent(RecapMap recap);
 	void tick();
 
 	Pos2D getPosition() const;
@@ -45,7 +45,8 @@ private:
 	std::vector<Tile> mentalMap_;
 	RecapMap recapMap_;
 	Pos2D pos_;
-	std::vector<Request> requests_;
+	Request curRequest_;
+	std::vector<Pos2D> currentPath_;
 
 	bool MessageIdentifyActive_ = false;
 	bool ItemRetrivalActive_ = false;

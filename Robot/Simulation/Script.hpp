@@ -18,6 +18,7 @@ class Script
 {
 public:
 	JSONParserStatus parseJSON(json const & object);
+	void scriptInfos();
     std::vector<Request> getRequests();
 	std::string getMapName();
 	std::string getClosetName();

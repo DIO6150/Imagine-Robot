@@ -3,31 +3,48 @@
 
 #include <vendor/nlohmann/json.hpp>
 
-#include <iostream>
 #include <fstream>
 
 Playground::Playground()
 {
-	agent_ = std::make_unique<Agent>(this);
+	//agent_ = std::make_unique<Agent>(this);
 	view_  = std::make_unique<PlaygroundView>(this);
 }
 
-json dataParser(std::string const & path)
+Map Playground::getMap()
+{
+	return map_;
+}
+
+ItemStash Playground::getCloset()
+{
+	return closet_;
+}
+
+Dictionary Playground::getDictionary()
+{
+	return dictionary_;
+}
+
+JSONParserStatus Playground::dataParser(std::string const & path, std::string toFill)
 {
 	std::ifstream Stream {path};
 	json Data = json::parse(Stream);
-	return Data;
+	JSONParserStatus status = JSONParserStatus::IncorrectArgument;
+	if (toFill == "carte")
+		status = map_.parseJSON(Data);
+	else if (toFill == "armoire")
+		status = closet_.parseJSON(Data);
+	else if (toFill == "dictionnaire")
+		status = dictionary_.parseJSON(Data);
+	else
+		std::cout << "incorrect element to fill" << std::endl;
+	return status;
 }
 
-int Playground::start(Directive const & instructions)
+RecapMap Playground::initalizePlayground(Directive const & instructions)
 {
-
-	auto status = script_.parseJSON(dataParser(instructions.script));
-
-	if (status != JSONParserStatus::Ok)
-		return 1;
-
-	status = map_.parseJSON(dataParser(instructions.map));
+	auto status = dataParser(instructions.map, "carte");
 
 	if (status != JSONParserStatus::Ok)
 		return 1;
@@ -36,13 +53,13 @@ int Playground::start(Directive const & instructions)
 		return 1;
 
 	std::string closetPath = instructions.data + "/" + script_.getClosetName() + ".json";
-	status = closet_.parseJSON(dataParser(closetPath));
+	status = dataParser(closetPath, "armoire");
 
 	if (status != JSONParserStatus::Ok)
 		return 1;
 
 	std::string dictionaryPath = instructions.data + "/dictionnaire.json";
-	status = dictionary_.parseJSON(dataParser(dictionaryPath));
+	status = dataParser(dictionaryPath, "dictionnaire");
 
 	if (status != JSONParserStatus::Ok)
 		return 1;
@@ -56,10 +73,11 @@ int Playground::start(Directive const & instructions)
 	recap.posDictionary = map_.getPosDictionary();
 	recap.posResidentList = map_.getResidentList();
 
-	agent_->start(script_.getRequests(), recap); // we suppose we have parsed the script and that we're passing it as arg to Agent::start
-	return 0;
+	//agent_->start(script_.getRequests(), recap); // we suppose we have parsed the script and that we're passing it as arg to Agent::start
+	return recap;
 }
 
+/*
 void Playground::tick()
 {
 	agent_->tick();
@@ -147,3 +165,4 @@ void Playground::wait()
 {
 	// litterally do nothing
 }
+*/

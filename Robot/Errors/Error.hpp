@@ -3,13 +3,14 @@
 enum class JSONParserStatus: int
 {
 	Ok                   = 0,
-	MissingField         = 1,
-	WrongType            = 2,
-	WrongValue           = 3,
-	UnknownProperty      = 4,
-	UnknownEmotion       = 5,
-	UnknownIntensity     = 6,
-	IncoherentData       = 7,
+	IncorrectArgument    = 1,
+	MissingField         = 2,
+	WrongType            = 3,
+	WrongValue           = 4,
+	UnknownProperty      = 5,
+	UnknownEmotion       = 6,
+	UnknownIntensity     = 7,
+	IncoherentData       = 8,
 };
 
 enum class CommandStatus

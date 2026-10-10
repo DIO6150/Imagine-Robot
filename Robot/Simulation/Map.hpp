@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <iostream>
 
 #include <string>
 #include <map>
@@ -33,6 +34,8 @@ public:
 	Pos2D getPosStash();
 	Pos2D getPosDictionary();
 	std::vector<Resident> getResidentList();
+
+	void mapInfos();
 
 private:
 	std::string const FORMAT_  = "robot-reconfort/carte";

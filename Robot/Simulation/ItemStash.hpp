@@ -30,6 +30,8 @@ public:
 	JSONParserStatus parseJSON(json const & object);
 
 	std::string getItem(Pos2D pos);
+	Pos2D getCasierDepart();
+	void closetInfos();
 
 private:
 	std::string name_;
