@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include <Robot/Agent/AgentController.hpp>
 
 #include <Robot/Simulation/Dictionary.hpp>
@@ -17,13 +19,18 @@ class Playground : public PlaygroundViewListener
 public:
 	Playground();
 
+	JSONParserStatus dataParser(std::string const & path, std::string toFill);
+	Map getMap();
+	ItemStash getCloset();
+	Dictionary getDictionary();
+
+
 	// Presenter Code
-	void start(Directive const & instructions);
+	int start(Directive const & instructions);
 	void tick();
 	void draw();
 
 private:
-	Script script_;
 	Map map_;
 	ItemStash closet_;
 	Dictionary dictionary_;

@@ -1,23 +1,18 @@
 #pragma once
 
 #include <stdint.h>
+#include <iostream>
 
 #include <string>
 #include <map>
 #include <vector>
 
+#include <Robot/Common/Request.hpp>
 #include <Robot/Common/Tile.hpp>
 #include <Robot/Errors/Error.hpp>
 #include <Robot/Utils/Pos.hpp>
 
 #include <vendor/nlohmann/json.hpp>
-
-struct Resident
-{
-	std::string id_;
-	std::string name_;
-	Pos2D pos_;
-};
 
 class Map
 {
@@ -28,9 +23,16 @@ public:
 	Tile getTile(Pos2D pos) const;
 
 	bool isInside(Pos2D pos) const;
-
+	
+	std::string getName();
 	uint32_t getWidth();
 	uint32_t getHeight();
+	Pos2D getRobotStart();
+	Pos2D getPosStash();
+	Pos2D getPosDictionary();
+	std::vector<Resident> getResidentList();
+
+	void mapInfos();
 
 private:
 	std::string const FORMAT_  = "robot-reconfort/carte";
@@ -42,8 +44,8 @@ private:
 	std::map<char, TileProperty> charProperties_;
 	std::vector<Tile> tiles_;
 	Pos2D robotStart_;
-	Pos2D stash_;
-	Pos2D dictionary_;
+	Pos2D posStash_;
+	Pos2D posDictionary_;
 	std::vector<Resident> residentList_;
 
 	friend class MapParser;
