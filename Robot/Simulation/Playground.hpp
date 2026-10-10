@@ -1,19 +1,18 @@
 #pragma once
 
+#include <Robot/Agent/AgentController.hpp>
+
 #include <Robot/Simulation/Dictionary.hpp>
 #include <Robot/Simulation/Directive.hpp>
 #include <Robot/Simulation/ItemStash.hpp>
 #include <Robot/Simulation/Map.hpp>
 #include <Robot/Simulation/Script.hpp>
 
-#include <Robot/Common/AgentCommandListener.hpp>
 #include <Robot/Common/PlaygroundViewListener.hpp>
-
-#include <Robot/Agent/Agent.hpp>
 
 #include <Robot/Render/PlaygroundView.hpp>
 
-class Playground : public AgentCommandListener, public PlaygroundViewListener
+class Playground : public PlaygroundViewListener
 {
 public:
 	Playground();
@@ -23,27 +22,13 @@ public:
 	void tick();
 	void draw();
 
-	// Agent Listener Code
-	CommandResult<void> move(Orientation direction) override;
-	
-	CommandResult<void> consult() override;
-	CommandResult<void> search(Orientation direction) override;
-
-	CommandResult<Item> take(std::string name) override;
-	CommandResult<void> give(Item item) override;
-
-
-	CommandResult<Tile> see(Pos2D pos) override;
-
-	void onAgentFail(AgentFailureType reason, std::string message);
-
-	void wait() override;
-
 private:
 	Script script_;
 	Map map_;
 	ItemStash closet_;
 	Dictionary dictionary_;
-	std::unique_ptr<Agent> agent_;
+
+private:
+	std::unique_ptr<AgentController> agent_;
 	std::unique_ptr<PlaygroundView> view_;
 };

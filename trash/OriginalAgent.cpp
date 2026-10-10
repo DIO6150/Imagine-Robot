@@ -1,13 +1,13 @@
 
-#include <Robot/Agent/Agent.hpp>
+#include <trash/OriginalAgent.hpp>
 
-Agent::Agent(AgentCommandListener * listener)
+OriginalAgent::OriginalAgent(OriginalAgent * listener)
 	: listener_ {listener}
 {
 
 }
 
-void Agent::start(std::initializer_list<Request> requests)
+void OriginalAgent::start(std::vector<Request> requests)
 {
 	// idea behind the job system
 	pushJob(moveTowards(dictionary_));
@@ -19,7 +19,7 @@ void Agent::start(std::initializer_list<Request> requests)
 	pushJob(endRequest());
 }
 
-void Agent::tick()
+void OriginalAgent::tick()
 {
 	if (frontJobs_.empty())
 		return;
@@ -50,17 +50,17 @@ void Agent::tick()
 	}
 }
 
-Pos2D Agent::getPosition() const
+Pos2D OriginalAgent::getPosition() const
 {
 	return pos_;
 }
 
-void Agent::setPosition(Pos2D newPos)
+void OriginalAgent::setPosition(Pos2D newPos)
 {
 	pos_ = newPos;
 }
 
-void Agent::pushJob(Job const & job)
+void OriginalAgent::pushJob(Job const & job)
 {
 	if (pushSafe_)
 	{
@@ -72,7 +72,7 @@ void Agent::pushJob(Job const & job)
 	}
 }
 
-Job Agent::moveTowards(Pos2D pos)
+Job OriginalAgent::moveTowards(Pos2D pos)
 {
 	return [this, pos]()
 	{
@@ -82,7 +82,7 @@ Job Agent::moveTowards(Pos2D pos)
 	};
 }
 
-Job Agent::consult()
+Job OriginalAgent::consult()
 {
 	return [this]()
 	{
@@ -93,7 +93,7 @@ Job Agent::consult()
 	};
 }
 
-Job Agent::takeItem()
+Job OriginalAgent::takeItem()
 {
 	return [this]()
 	{
@@ -106,7 +106,7 @@ Job Agent::takeItem()
 	};
 }
 
-Job Agent::giveItem()
+Job OriginalAgent::giveItem()
 {
 	return [this]()
 	{
@@ -128,26 +128,26 @@ Job Agent::giveItem()
 	};
 }
 
-Job Agent::endRequest()
+Job OriginalAgent::endRequest()
 {
 	return []()
 	{
 		return Stop;
 	};
 }
-uint32_t reconstructionPath(std::vector<Pos2D> & chemin, std::map<Pos2D, Pos2D> predecesseur, Pos2D end)
+uint32_t reconstructPath(std::vector<Pos2D> & chemin, std::map<Pos2D, Pos2D> predecesseur, Pos2D end)
 {
 	uint32_t distance = 1;
 	chemin.push_back(end);
-	while(predecesseur[chemin.back].x != -1)
+	while(predecesseur[chemin.back()].x != -1)
 	{
-		chemin.push_back(predecesseur[chemin.back]);
+		chemin.push_back(predecesseur[chemin.back()]);
 		distance++;
 	}
 	return distance;
 }
 
-int32_t Agent::cheminDistance(std::vector<Pos2D> & chemin, Pos2D start, Pos2D destination)
+int32_t OriginalAgent::bfs(std::vector<Pos2D> & path, Pos2D start, Pos2D destination)
 {
 	std::map<Pos2D, Pos2D> predecesseur;
 	std::queue<Pos2D> queue;
@@ -168,7 +168,7 @@ int32_t Agent::cheminDistance(std::vector<Pos2D> & chemin, Pos2D start, Pos2D de
 		queue.pop();
 		predecesseur[start] = Pos2D {-1, -1};
 
-		surroundings = see();
+		surroundings = listener_->see();
 		voisins[0] = surroundings.north_;
 		voisins[1] = surroundings.east_;
 		voisins[2] = surroundings.south_;
@@ -176,28 +176,28 @@ int32_t Agent::cheminDistance(std::vector<Pos2D> & chemin, Pos2D start, Pos2D de
 
 		for(Tile voisin : voisins)
 		{
-			if(!predecesseur.contains(voisin.pos) && !voisin.isSolid())
+			if(!predecesseur.contains(voisin.pos_) && !voisin.isSolid())
 			{
-				predecesseur[voisin.pos] = pos_;
-				if(voisin.pos == destination) {
+				predecesseur[voisin.pos_] = pos_;
+				if(voisin.pos_ == destination) {
 					pos_ = initPos;
-					return reconstructionPath(chemin, predecesseur, voisin.pos);
+					return reconstructPath(chemin, predecesseur, voisin.pos_);
 				}
 			}
-			queue.push(voisin.getPos());
+			queue.push(voisin.pos_);
 		}
 		pos_ = initPos;
 		return -1;
 	}
 }
 
-void Agent::initalizeMentalMap(uint32_t height, uint32_t width)
+void OriginalAgent::initalizeMentalMap(uint32_t height, uint32_t width)
 {
 	std::vector<Tile> mentalArrangement(height*width);
 	std::vector<int32_t> mentalTileDistances(height*width, -1);
 	TileProperty wall, walkable, agentstart;
 	wall.setSolid(true);
-	propertyStart.setAgentStart(true);
+	agentstart.setAgentStart(true);
 	for(uint32_t y = 0; y < height; ++y)
 	{
 		for (uint32_t x = 0; x < width; ++x)
@@ -213,7 +213,7 @@ void Agent::initalizeMentalMap(uint32_t height, uint32_t width)
 	{
 		for (uint32_t x = 1; x < width-1; ++x)
 		{
-			mentalTileDistances[y*height + x] = cheminDistance(pos_, Pos {x,y});
+			mentalTileDistances[y*height + x] = bfs(pos_, Pos {x,y});
 		}
 	}
 
@@ -221,18 +221,18 @@ void Agent::initalizeMentalMap(uint32_t height, uint32_t width)
 	mentalTileDistances_ = mentalTileDistances;
 }
 
-void Agent::start(std::vector<Request> list_requests)
+void OriginalAgent::start(std::vector<Request> list_requests)
 {
 	requests_ = list_requests;
 	for(Request currentRequest : list_requests)
 	{
-		std::cout << "Requete numero " << currentRequest.getId() << std::endl;
-		std::cout << "Demande du resident " << currentRequest.getResidentId() << std::endl;
-		std::cout << "Contenu du message : " << currentRequest.getMessage() << "\n" << std::endl;
+		std::cout << "Requete numero "       << currentRequest.getId()                      << std::endl;
+		std::cout << "Demande du resident "  << currentRequest.getResidentId()              << std::endl;
+		std::cout << "Contenu du message : " << currentRequest.getMessage()    << std::endl << std::endl;
 	}
 }
 
-void Agent::tick()
+void OriginalAgent::tick()
 {
-
+	
 }

@@ -1,9 +1,11 @@
 
 #include <Robot/Simulation/Map.hpp>
 
-JSONParserStatus Map::parseJSON(json const & object)
+#include <Robot/Parsers/MapParser.hpp>
+
+JSONParserStatus Map::parseJSON(nlohmann::json const & object)
 {
-	return parser_.fillFields(object);
+	return MapParser {*this, object}.result;
 }
 
 // TODO: what do we do when an invalid position is inputed

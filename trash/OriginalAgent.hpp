@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Robot/Common/AgentCommandListener.hpp>
-#include <Robot/Common/Item.hpp>
 
 #include <functional>
 #include <queue>
@@ -10,8 +8,11 @@
 #include <queue>
 #include <cstdint>
 
-#include <Robot/Common/AgentCommandListener.hpp>
+
+#include <Robot/Agent/AgentControllerListener.hpp>
+#include <Robot/Common/Item.hpp>
 #include <Robot/Common/Request.hpp>
+
 #include <Robot/Simulation/Map.hpp>
 
 enum JobStatus
@@ -24,10 +25,10 @@ enum JobStatus
 
 using Job = std::function<JobStatus()>;
 
-class Agent
+class OriginalAgent
 {
 public:
-	Agent(AgentCommandListener * listener);
+	OriginalAgent(OriginalAgent * listener);
 
 	void start(std::vector<Request> list_requests);
 	void tick();
@@ -48,12 +49,12 @@ private:
 	Pos2D itemStash_;
 	Pos2D currentResident_;
 
-private:
 	std::string wantedItem_;
 	std::optional<Item> carriedItem_ {std::nullopt};
 	
 private:
 	void updateMentalMap();
+	int32_t OriginalAgent::bfs(std::vector<Pos2D> & chemin, Pos2D start, Pos2D destination);
 
 private:
 	std::queue<Job> frontJobs_;
@@ -68,6 +69,6 @@ private:
 	Job endRequest();
 	
 private:
-	AgentCommandListener * listener_;
+	OriginalAgent * listener_;
 
 };

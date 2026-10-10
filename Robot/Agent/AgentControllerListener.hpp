@@ -7,7 +7,7 @@
 
 class Playground;
 
-enum class Orientation
+enum Orientation
 {
 	North,
 	East,
@@ -19,24 +19,16 @@ inline Pos2D orientationToPos(Orientation direction)
 {
 	switch (direction)
 	{
-	case Orientation::North: return Pos2D {0,  1};
-	case Orientation::South: return Pos2D {0, -1};
-	case Orientation::East:  return Pos2D { 1, 0};
-	case Orientation::West:  return Pos2D {-1, 0};
+	case North: return Pos2D { 0,  1 };
+	case South: return Pos2D { 0, -1 };
+	case West:  return Pos2D { -1, 0 };
+	case East:  return Pos2D {  1, 0 };
 	}
 
 	return Pos2D {0, 0};
 }
 
-struct AgentTileView
-{
-	Tile north_;
-	Tile east_;
-	Tile west_;
-	Tile south_;
-};
-
-struct AgentCommandListener
+struct AgentControllerListener
 {
 	virtual CommandResult<void> move(Orientation direction) = 0;
 
@@ -44,11 +36,9 @@ struct AgentCommandListener
 	virtual CommandResult<void> search(Orientation direction) = 0;
 
 	virtual CommandResult<Item> take(std::string name) = 0;
-	virtual CommandResult<void> give(Item item) = 0;
+	virtual CommandResult<void> give() = 0;
 
-	virtual CommandResult<Tile> see(Pos2D pos) = 0;
-
-	virtual void wait() = 0;
+	virtual CommandResult<std::vector<Tile>> see() = 0;
 
 	virtual void onAgentFail(AgentFailureType type, std::string message) = 0;
 };
