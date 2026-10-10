@@ -29,6 +29,11 @@ bool Map::isInside(Pos2D pos) const
 	return true;
 }
 
+std::string Map::getName()
+{
+	return name_;
+}
+
 uint32_t Map::getWidth()
 {
 	return width_;
@@ -37,4 +42,23 @@ uint32_t Map::getWidth()
 uint32_t Map::getHeight()
 {
 	return height_;
+}
+Pos2D Map::getRobotStart()
+{
+	return robotStart_;
+}
+
+Pos2D Map::getPosStash()
+{
+	return posStash_;
+}
+
+Pos2D Map::getPosDictionary()
+{
+	return posDictionary_;
+}
+
+std::vector<Resident> Map::getResidentList()
+{
+	return residentList_;
 }

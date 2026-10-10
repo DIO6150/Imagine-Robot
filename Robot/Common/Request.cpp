@@ -14,27 +14,19 @@ uint32_t Request::getId()
     return id_;
 }
 
-std::string Request::getResidentId()
+Resident Request::getResident()
 {
-    return resident.id_;
+    return resident_;
 }
 
 std::string Request::getMessage()
 {
     return message_;
 }
-	
-void Request::setId(uint32_t id)
-{
-    id_ = id;
-}
 
-void Request::setResidentId(std::string residentId)
+void Request::setResident(Resident resident)
 {
-    resident.id_ = residentId;
-}
-
-void Request::setMessage(std::string message)
-{
-    message_ = message;
+    resident_.id_ = resident.id_;
+    resident_.name_ = resident.name_;
+    resident_.pos_ = resident.pos_;
 }

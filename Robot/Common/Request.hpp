@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cstdint>
+#include <Robot/Utils/Pos.hpp>
 
 struct Resident
 {
@@ -15,11 +16,13 @@ class Request
 public:
 	Request(uint32_t id, Resident resident, std::string message);
 	uint32_t getId();
-	std::string getResidentId();
+	Resident getResident();
 	std::string getMessage();
 
+	void setResident(Resident resident);
+
 private:
-	Resident resident;
+	Resident resident_;
 	uint32_t id_;
 	std::string message_;
 };

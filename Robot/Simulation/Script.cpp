@@ -10,3 +10,13 @@ std::vector<Request> Script::getRequests()
 {
     return requests_;
 }
+
+std::string Script::getMapName()
+{
+    return mapName_;
+}
+
+std::string Script::getClosetName()
+{
+    return closetName_;
+}

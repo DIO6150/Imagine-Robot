@@ -19,7 +19,7 @@ public:
 	Playground();
 
 	// Presenter Code
-	void start(Directive const & instructions);
+	int start(Directive const & instructions);
 	void tick();
 	void draw();
 

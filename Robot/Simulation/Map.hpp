@@ -25,9 +25,14 @@ public:
 	Tile getTile(Pos2D pos) const;
 
 	bool isInside(Pos2D pos) const;
-
+	
+	std::string getName();
 	uint32_t getWidth();
 	uint32_t getHeight();
+	Pos2D getRobotStart();
+	Pos2D getPosStash();
+	Pos2D getPosDictionary();
+	std::vector<Resident> getResidentList();
 
 private:
 	std::string const FORMAT_  = "robot-reconfort/carte";
@@ -39,8 +44,8 @@ private:
 	std::map<char, TileProperty> charProperties_;
 	std::vector<Tile> tiles_;
 	Pos2D robotStart_;
-	Pos2D stash_;
-	Pos2D dictionary_;
+	Pos2D posStash_;
+	Pos2D posDictionary_;
 	std::vector<Resident> residentList_;
 
 	JSONParser parser_ {
@@ -135,7 +140,7 @@ private:
 				if (!tile.isItemPickup())
 					return JSONParserStatus::IncoherentData; // obv not everyhing is checkable at validator layer so eeeh
 
-				stash_ = stash;
+				posStash_ = stash;
 
 				return JSONParserStatus::Ok;
 			}
@@ -152,7 +157,7 @@ private:
 				if (!tile.isRecord())
 					return JSONParserStatus::IncoherentData; // obv not everyhing is checkable at validator layer so eeeh
 
-				dictionary_ = dict;
+				posDictionary_ = dict;
 
 				return JSONParserStatus::Ok;
 			}

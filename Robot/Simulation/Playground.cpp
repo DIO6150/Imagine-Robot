@@ -19,29 +19,45 @@ json dataParser(std::string const & path)
 	return Data;
 }
 
-void Playground::start(Directive const & instructions)
+int Playground::start(Directive const & instructions)
 {
-	auto status = map_.parseJSON(dataParser(instructions.map));
+
+	auto status = script_.parseJSON(dataParser(instructions.script));
 
 	if (status != JSONParserStatus::Ok)
-		return;
+		return 1;
 
-	status = dictionary_.parseJSON(dataParser(instructions.dictionary));
-
-	if (status != JSONParserStatus::Ok)
-		return;
-
-	status = closet_.parseJSON(dataParser(instructions.closet));
+	status = map_.parseJSON(dataParser(instructions.map));
 
 	if (status != JSONParserStatus::Ok)
-		return;
+		return 1;
 
-	status = script_.parseJSON(dataParser(instructions.script));
+	if (script_.getMapName() != map_.getName())
+		return 1;
+
+	std::string closetPath = instructions.data + "/" + script_.getClosetName() + ".json";
+	status = closet_.parseJSON(dataParser(closetPath));
 
 	if (status != JSONParserStatus::Ok)
-		return;
+		return 1;
 
-	agent_->start(script_.getRequests()); // we suppose we have parsed the script and that we're passing it as arg to Agent::start
+	std::string dictionaryPath = instructions.data + "/dictionnaire.json";
+	status = dictionary_.parseJSON(dataParser(dictionaryPath));
+
+	if (status != JSONParserStatus::Ok)
+		return 1;
+
+	RecapMap recap;
+
+	recap.width_ = map_.getWidth();
+	recap.height_ = map_.getHeight();
+	recap.robotStart = map_.getRobotStart();
+	recap.posStash = map_.getPosStash();
+	recap.posDictionary = map_.getPosDictionary();
+	recap.posResidentList = map_.getResidentList();
+
+	agent_->start(script_.getRequests(), recap); // we suppose we have parsed the script and that we're passing it as arg to Agent::start
+	return 0;
 }
 
 void Playground::tick()
@@ -66,7 +82,7 @@ CommandResult<void> Playground::move(Orientation direction)
 		return CommandStatus::AgentMovementObstructed;
 	}
 
-	agent_->setPosition(newPos);
+	//agent_->move(newPos);
 
 	// TODO: push to trace (view)
 

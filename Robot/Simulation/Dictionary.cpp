@@ -25,7 +25,7 @@ std::vector<std::string> normalize(std::string message)
 	return liste_mots;
 }
 
-bool Dictionary::identifEmoIntens(std:tuple<Emotion, Intensity> & EmoIntens, std::string message)
+bool Dictionary::identifEmoIntens(std::tuple<Emotion, Intensity> & EmoIntens, std::string message)
 {
 	std::vector<std::string> liste_mots = normalize(message);
 	for(std::string mot : liste_mots) {

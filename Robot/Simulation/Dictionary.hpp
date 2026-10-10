@@ -26,7 +26,7 @@ class Dictionary
 {
 public:
 	JSONParserStatus parseJSON(json const & object);
-	bool identifEmoIntens(std:tuple<Emotion, Intensity> & EmoIntens, std::string message);
+	bool identifEmoIntens(std::tuple<Emotion, Intensity> & EmoIntens, std::string message);
 
 private:
 	std::string name_;

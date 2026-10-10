@@ -2,9 +2,9 @@
 #include <Robot/Agent/Agent.hpp>
 
 Agent::Agent(AgentCommandListener * listener)
-	: listener_ {listener}
+	: listener_{listener}
 {
-
+	
 }
 
 Pos2D Agent::getPosition() const
@@ -17,94 +17,157 @@ void Agent::setPosition(Pos2D newPos)
 	pos_ = newPos;
 }
 
-uint32_t reconstructionPath(std::vector<Pos2D> & chemin, std::map<Pos2D, Pos2D> predecesseur, Pos2D end)
+void Agent::MessageIdentifyLever(bool state)
 {
-	uint32_t distance = 1;
-	chemin.push_back(end);
-	while(predecesseur[chemin.back].x != -1)
-	{
-		chemin.push_back(predecesseur[chemin.back]);
-		distance++;
-	}
-	return distance;
+	MessageIdentifyActive_ = state;
 }
 
-int32_t Agent::cheminDistance(std::vector<Pos2D> & chemin, Pos2D start, Pos2D destination)
+void Agent::ItemRetrivalLever(bool state)
+{
+	ItemRetrivalActive_ = state;
+}
+
+void Agent::ItemDeliveryLever(bool state)
+{
+	ItemDeliveryActive_ = state;
+}
+
+Tile Agent::atMap(std::vector<Tile> & map, int32_t y, int32_t x)
+{
+	return map[y*recapMap_.height_ + x];
+}
+
+std::vector<Pos2D> reconstructionPath(std::map<Pos2D, Pos2D> predecesseur, Pos2D end)
+{
+	std::vector<Pos2D> chemin;
+	chemin.push_back(end);
+	Pos2D pred = predecesseur.at(chemin.back());
+	while(pred.x != -1)
+	{
+		chemin.push_back(pred);
+		pred = predecesseur.at(chemin.back());
+	}
+	std::reverse(chemin.begin(), chemin.end());
+	return chemin;
+}
+
+std::vector<Pos2D> Agent::shortestPath(Pos2D start, Pos2D destination)
 {
 	std::map<Pos2D, Pos2D> predecesseur;
 	std::queue<Pos2D> queue;
-	std::vector<Tile> voisins(4);
+	std::vector<Pos2D> voisins(4);
 	std::vector<Pos2D> chemin;
-	Pos2D initPos = pos_;
+	Pos2D currentPos;
 	AgentTileView surroundings;
-	int32_t distance = 0;
 
 	if(start == destination) {
 		chemin.push_back(start);
-		return distance;
+		return chemin;
 	}
+
+	queue.push(start);
 
 	while(!queue.empty())
 	{
-		pos_ = queue.front();
+		currentPos = queue.front();
 		queue.pop();
-		predecesseur[start] = Pos2D {-1, -1};
+		predecesseur.emplace(start, Pos2D {-1, -1});
 
-		surroundings = listener_->see();
-		voisins[0] = surroundings.north_;
-		voisins[1] = surroundings.east_;
-		voisins[2] = surroundings.south_;
-		voisins[3] = surroundings.west_;
+		voisins[0] = currentPos + orientationToPos(Orientation::North);
+		voisins[1] = currentPos + orientationToPos(Orientation::South);
+		voisins[2] = currentPos + orientationToPos(Orientation::East);
+		voisins[3] = currentPos + orientationToPos(Orientation::West);
 
-		for(Tile voisin : voisins)
+		for(Pos2D voisin : voisins)
 		{
-			if(!predecesseur.contains(voisin.pos) && !voisin.isSolid())
+			if(!predecesseur.contains(voisin) && !(atMap(mentalMap_, voisin.y, voisin.x)).isSolid())
 			{
-				predecesseur[voisin.pos] = pos_;
-				if(voisin.pos == destination) {
-					pos_ = initPos;
-					return reconstructionPath(chemin, predecesseur, voisin.pos);
-				}
+				predecesseur.emplace(voisin, currentPos);
+				if(voisin == destination)
+					return reconstructionPath(predecesseur, voisin);
 			}
-			queue.push(voisin.getPos());
+			queue.push(voisin);
 		}
-		pos_ = initPos;
-		return -1;
 	}
+	chemin.clear();	
+	return chemin;
 }
 
-void Agent::initalizeMentalMap(RecapMap recap)
+bool Agent::isOutWalls(int32_t y, int32_t x)
 {
-	std::vector<int32_t> mentalTileDistances(recap.height*recap*width);
-	for(uint32_t y = 0; y < recap.height; ++y)
+	return (x <= 0 || x >= recapMap_.width_-1 || y <= 0 || y >= recapMap_.width_-1);
+}
+
+void Agent::initalizeMentalMap()
+{
+	std::vector<Tile> mentalArrangement(recapMap_.height_*recapMap_.width_);
+	TileProperty free, wall;
+	wall.setSolid(true);
+
+	for(int32_t y = 0; y < recapMap_.height_; ++y)
 	{
-		for (uint32_t x = 0; x < recap.width; ++x)
+		for (int32_t x = 0; x < recapMap_.width_; ++x)
 		{
-			mentalArrangement[y*recap.height + x] = ((x == 0 || x == recap.width-1 || y == 0 || y == recap.width-1) ? -5 : -1);
+			atMap(mentalArrangement, y, x) = ((isOutWalls(x,y)) ? Tile {wall, Pos2D {x,y}} : Tile {free, Pos2D {x,y}});
 		}
 	}
 
-	mentalTileDistances[recap.robotStart.y*height + recap.robotStart.x] = 0;
-	mentalTileDistances[recap.posStash.y*height + recap.posStash.x] = -2;
-	mentalTileDistances[recap.posDictionary.y*height + recap.posDictionary.x] = -3;
-	for(Pos2D pres : recap.posResidentList)
-		mentalTileDistances[pres.y*height + pres.x] = -4;
+	atMap(mentalArrangement, recapMap_.robotStart.y, recapMap_.robotStart.x).setAgentStart(true);
+	atMap(mentalArrangement, recapMap_.posStash.y, recapMap_.posStash.x).setSolid(true).setItemPickup(true);
+	atMap(mentalArrangement, recapMap_.posDictionary.y, recapMap_.posDictionary.x).setSolid(true).setRecord(true);
+	for(Resident pres : recapMap_.posResidentList)
+		atMap(mentalArrangement, pres.pos_.y, pres.pos_.x).setSolid(true).setPerson(true);
 
-	mentalMap_ = mentalTileDistances;
+	mentalMap_ = mentalArrangement;
 }
 
-void Agent::start(std::vector<Request> list_requests)
+void Agent::recapMapSet(RecapMap recap)
 {
+	recapMap_.width_ = recap.width_;
+	recapMap_.height_ = recap.height_;
+	recapMap_.robotStart = recap.robotStart;
+	recapMap_.posStash = recap.posStash;
+	recapMap_.posDictionary = recap.posDictionary;
+	recapMap_.posResidentList = recap.posResidentList;
+}
+
+void Agent::start(std::vector<Request> list_requests, RecapMap recap)
+{
+	recapMapSet(recap);
+
+	initalizeMentalMap();
 	requests_ = list_requests;
 	for(Request currentRequest : list_requests)
 	{
 		std::cout << "Requete numero " << currentRequest.getId() << std::endl;
-		std::cout << "Demande du resident " << currentRequest.getResidentId() << std::endl;
+		std::cout << "Demande du resident " << currentRequest.getResident().id_ << std::endl;
 		std::cout << "Contenu du message : " << currentRequest.getMessage() << "\n" << std::endl;
 	}
-
-	initalizeMentalMap()
 }
+
+/*
+CommandStatus<void> Agent::move(Orientation direction)
+{
+	Pos2D newPos = pos_ + orientationToPos(direction);
+
+	if (isOutWalls(newPos.x, newPos.y))
+	{
+		// TODO: push to trace (view)
+		return CommandStatus::AgentMovementObstructed;
+	}
+
+	auto tile = atMap(mentalMap_, newPos.x, newPos.y);
+	if (tile.isSolid())
+	{
+		// TODO: push to trace (view)
+		return CommandStatus::AgentMovementObstructed;
+	}
+
+	// TODO: push to trace (view)
+
+	return CommandStatus::Ok;
+}
+*/
 
 void Agent::tick()
 {

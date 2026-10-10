@@ -11,7 +11,6 @@
 #include <Robot/Errors/Error.hpp>
 
 #include <Robot/Utils/JSONParser.hpp>
-#include <Robot/Utils/Pos.hpp>
 
 #include <vendor/nlohmann/json.hpp>
 
@@ -20,6 +19,8 @@ class Script
 public:
 	JSONParserStatus parseJSON(json const & object);
     std::vector<Request> getRequests();
+	std::string getMapName();
+	std::string getClosetName();
 
 private:
 	std::string name_;
@@ -52,7 +53,9 @@ private:
 			{
 				for (auto const & nested : object)
 				{
-					Request request = Request(nested.at("numero").get<int>(), nested.at("resident").get<std::string>(), nested.at("message").get<std::string>());
+					Resident resident;
+					resident.id_ = nested.at("resident").get<std::string>();
+					Request request = Request(nested.at("numero").get<int>(), resident, nested.at("message").get<std::string>());
 					requests_.push_back(request);
 				}
 				
