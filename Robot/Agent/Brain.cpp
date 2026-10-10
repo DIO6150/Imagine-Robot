@@ -45,14 +45,14 @@ void Brain::tick()
 
 	for (auto i = 0; i < directions.size(); ++i)
 	{
-		auto pos = pos_ + directionToPos(directions[i]);
+		auto tile = nwse.get()[i];
 		
-		if (inRect(pos, mapInfo_.width, mapInfo_.height))
+		if (inRect(tile.pos_, mapInfo_.width, mapInfo_.height))
 			continue;
 		
-		auto index = calculateIndex(pos, mapInfo_);
+		auto index = calculateIndex(tile.pos_, mapInfo_);
 
-		mentalMap_[index] = nwse.get()[i];
+		mentalMap_[index] = tile;
 	}
 
 	// DECIDER

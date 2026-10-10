@@ -14,6 +14,7 @@ AgentController::AgentController(Map const & map)
 void AgentController::start(std::vector<Request> requestList)
 {
 	MapInfo info = map_.generateInfo();
+	pos_ = info.robotStartPos;
 
 	brain_->start(info, requestList);
 }
