@@ -3,6 +3,7 @@
 #include <Robot/Errors/Error.hpp>
 
 #include <Robot/Common/Tile.hpp>
+#include <Robot/Common/Item.hpp>
 
 class Playground;
 
@@ -42,10 +43,12 @@ struct AgentCommandListener
 	virtual CommandResult<void> consult() = 0;
 	virtual CommandResult<void> search(Orientation direction) = 0;
 
-	virtual CommandResult<void> take(std::string name) = 0;
-	virtual CommandResult<void> give() = 0;
+	virtual CommandResult<Item> take(std::string name) = 0;
+	virtual CommandResult<void> give(Item item) = 0;
 
-	virtual CommandResult<AgentTileView> see() = 0;
+	virtual CommandResult<Tile> see(Pos2D pos) = 0;
 
 	virtual void wait() = 0;
+
+	virtual void onAgentFail(AgentFailureType type, std::string message) = 0;
 };

@@ -4,7 +4,50 @@
 Agent::Agent(AgentCommandListener * listener)
 	: listener_{listener}
 {
-	
+
+}
+
+void Agent::start(std::initializer_list<Request> requests)
+{
+	// idea behind the job system
+	pushJob(moveTowards(dictionary_));
+	pushJob(consult());
+	pushJob(moveTowards(itemStash_));
+	pushJob(takeItem());
+	pushJob(moveTowards(currentResident_));
+	pushJob(giveItem());
+	pushJob(endRequest());
+}
+
+void Agent::tick()
+{
+	if (frontJobs_.empty())
+		return;
+		
+	Job & currentJob = frontJobs_.front();
+
+	pushSafe_ = false;
+	auto result = currentJob();
+	pushSafe_ = true;
+
+	if (result == Stop)
+	{
+		frontJobs_.pop();
+	}
+	else if (result == Swap)
+	{
+		frontJobs_.swap(backJobs_);
+
+		std::queue<Job> empty;
+		backJobs_.swap(empty);
+	}
+	else if (result == Break)
+	{
+		std::queue<Job> empty1;
+		std::queue<Job> empty2;
+		frontJobs_.swap(empty1);
+		backJobs_.swap(empty2);
+	}
 }
 
 Pos2D Agent::getPosition() const
@@ -17,151 +60,78 @@ void Agent::setPosition(Pos2D newPos)
 	pos_ = newPos;
 }
 
-void Agent::MessageIdentifyLever(bool state)
+void Agent::pushJob(Job const & job)
 {
-	MessageIdentifyActive_ = state;
-}
-
-void Agent::ItemRetrivalLever(bool state)
-{
-	ItemRetrivalActive_ = state;
-}
-
-void Agent::ItemDeliveryLever(bool state)
-{
-	ItemDeliveryActive_ = state;
-}
-
-Tile Agent::atMap(std::vector<Tile> & map, int32_t y, int32_t x)
-{
-	return map[y*recapMap_.height_ + x];
-}
-
-std::vector<Pos2D> reconstructionPath(std::map<Pos2D, Pos2D> predecesseur, Pos2D end)
-{
-	std::vector<Pos2D> chemin;
-	chemin.push_back(end);
-	Pos2D pred = predecesseur.at(chemin.back());
-	while(pred.x != -1)
+	if (pushSafe_)
 	{
-		chemin.push_back(pred);
-		pred = predecesseur.at(chemin.back());
+		frontJobs_.push(job);
 	}
-	std::reverse(chemin.begin(), chemin.end());
-	return chemin;
+	else
+	{
+		backJobs_.push(job);
+	}
 }
 
-std::vector<Pos2D> Agent::shortestPath(Pos2D start, Pos2D destination)
+Job Agent::moveTowards(Pos2D pos)
 {
-	std::map<Pos2D, Pos2D> predecesseur;
-	std::queue<Pos2D> queue;
-	std::vector<Pos2D> voisins(4);
-	std::vector<Pos2D> chemin;
-	Pos2D currentPos;
-	AgentTileView surroundings;
-
-	if(start == destination) {
-		chemin.push_back(start);
-		return chemin;
-	}
-
-	queue.push(start);
-
-	while(!queue.empty())
+	return [this, pos]()
 	{
-		currentPos = queue.front();
-		queue.pop();
-		predecesseur.emplace(start, Pos2D {-1, -1});
+		// code here
 
-		voisins[0] = currentPos + orientationToPos(Orientation::North);
-		voisins[1] = currentPos + orientationToPos(Orientation::South);
-		voisins[2] = currentPos + orientationToPos(Orientation::East);
-		voisins[3] = currentPos + orientationToPos(Orientation::West);
+		return Stop;
+	};
+}
 
-		for(Pos2D voisin : voisins)
+Job Agent::consult()
+{
+	return [this]()
+	{
+		auto result = listener_->consult();
+		if (!result) return Break;
+		// TODO : do something with the result
+		return Stop;
+	};
+}
+
+Job Agent::takeItem()
+{
+	return [this]()
+	{
+		auto result = listener_->take(wantedItem_);
+		if (!result) return Break;
+
+		carriedItem_ = result.get();
+
+		return Stop;
+	};
+}
+
+Job Agent::giveItem()
+{
+	return [this]()
+	{
+		if (!carriedItem_.has_value())
 		{
-			if(!predecesseur.contains(voisin) && !(atMap(mentalMap_, voisin.y, voisin.x)).isSolid())
-			{
-				predecesseur.emplace(voisin, currentPos);
-				if(voisin == destination)
-					return reconstructionPath(predecesseur, voisin);
-			}
-			queue.push(voisin);
+			listener_->onAgentFail(AgentFailureType::GivingItem, "The agent didn't carry any items");
+			return Break;
 		}
-	}
-	chemin.clear();	
-	return chemin;
-}
 
-bool Agent::isOutWalls(int32_t y, int32_t x)
-{
-	return (x <= 0 || x >= recapMap_.width_-1 || y <= 0 || y >= recapMap_.width_-1);
-}
+		auto result = listener_->give(carriedItem_.value());
 
-void Agent::initalizeMentalMap()
-{
-	std::vector<Tile> mentalArrangement(recapMap_.height_*recapMap_.width_);
-	TileProperty free, wall;
-	wall.setSolid(true);
-
-	for(int32_t y = 0; y < recapMap_.height_; ++y)
-	{
-		for (int32_t x = 0; x < recapMap_.width_; ++x)
+		if (result == CommandStatus::ResidentNotInRange)
 		{
-			atMap(mentalArrangement, y, x) = ((isOutWalls(x,y)) ? Tile {wall, Pos2D {x,y}} : Tile {free, Pos2D {x,y}});
+			listener_->onAgentFail(AgentFailureType::GivingItem, "The agent is not in range of a resident");
+			return Break;
 		}
-	}
 
-	atMap(mentalArrangement, recapMap_.robotStart.y, recapMap_.robotStart.x).setAgentStart(true);
-	atMap(mentalArrangement, recapMap_.posStash.y, recapMap_.posStash.x).setSolid(true).setItemPickup(true);
-	atMap(mentalArrangement, recapMap_.posDictionary.y, recapMap_.posDictionary.x).setSolid(true).setRecord(true);
-	for(Resident pres : recapMap_.posResidentList)
-		atMap(mentalArrangement, pres.pos_.y, pres.pos_.x).setSolid(true).setPerson(true);
-
-	mentalMap_ = mentalArrangement;
+		return Stop;
+	};
 }
 
-void Agent::recapMapSet(RecapMap recap)
+Job Agent::endRequest()
 {
-	recapMap_.width_ = recap.width_;
-	recapMap_.height_ = recap.height_;
-	recapMap_.robotStart = recap.robotStart;
-	recapMap_.posStash = recap.posStash;
-	recapMap_.posDictionary = recap.posDictionary;
-	recapMap_.posResidentList = recap.posResidentList;
-}
-
-void Agent::initalizeAgent(RecapMap recap)
-{
-	recapMapSet(recap);
-	initalizeMentalMap();
-}
-
-/*
-CommandStatus<void> Agent::move(Orientation direction)
-{
-	Pos2D newPos = pos_ + orientationToPos(direction);
-
-	if (isOutWalls(newPos.x, newPos.y))
+	return []()
 	{
-		// TODO: push to trace (view)
-		return CommandStatus::AgentMovementObstructed;
-	}
-
-	auto tile = atMap(mentalMap_, newPos.x, newPos.y);
-	if (tile.isSolid())
-	{
-		// TODO: push to trace (view)
-		return CommandStatus::AgentMovementObstructed;
-	}
-
-	// TODO: push to trace (view)
-
-	return CommandStatus::Ok;
-}
-*/
-
-void Agent::tick()
-{
-
+		return Stop;
+	};
 }

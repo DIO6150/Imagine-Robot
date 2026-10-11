@@ -1,10 +1,11 @@
 #pragma once
 
-#include <algorithm>
-#include <iostream>
+#include <Robot/Common/AgentCommandListener.hpp>
+#include <Robot/Common/Item.hpp>
+
+#include <functional>
 #include <queue>
-#include <cstdint>
-#include <map>
+#include <optional>
 
 #include <Robot/Common/AgentCommandListener.hpp>
 #include <Robot/Common/Request.hpp>
@@ -20,6 +21,16 @@ struct RecapMap
 	std::vector<Resident> posResidentList;
 };
 
+enum JobStatus
+{
+	Stop,  // arrêter le job
+	Yield, // continuer le job au prochain tick
+	Swap,  // remplace frontJobs_ par backJobs_
+	Break, // casse la chaine tout court
+};
+
+using Job = std::function<JobStatus()>;
+
 class Agent
 {
 public:
@@ -30,33 +41,34 @@ public:
 
 	Pos2D getPosition() const;
 	void setPosition(Pos2D newPos);
-
-	void MessageIdentifyLever(bool state);
-	void ItemRetrivalLever(bool state);
-	void ItemDeliveryLever(bool state);
-
-	void initalizeMentalMap();
-
-	std::vector<Pos2D> shortestPath(Pos2D start, Pos2D destination);
-
-	//CommandStatus<void> move(Orientation direction);
+	void pushJob(Job const & job);
 
 private:
-	std::vector<Tile> mentalMap_;
-	RecapMap recapMap_;
 	Pos2D pos_;
-	Request curRequest_;
-	std::vector<Pos2D> currentPath_;
+	Pos2D dictionary_;
+	Pos2D itemStash_;
+	Pos2D currentResident_;
 
-	bool MessageIdentifyActive_ = false;
-	bool ItemRetrivalActive_ = false;
-	bool ItemDeliveryActive_ = false;
+private:
+	std::string wantedItem_;
+	std::optional<Item> carriedItem_ {std::nullopt};
+	
+private:
+	void updateMentalMap();
 
-	void recapMapSet(RecapMap recap);
-	Tile atMap(std::vector<Tile> & map, int32_t y, int32_t x);
-	bool isOutWalls(int32_t x, int32_t y);
+private:
+	std::queue<Job> frontJobs_;
+	std::queue<Job> backJobs_;
+	bool pushSafe_ = true;
 
-
+private:
+	Job moveTowards(Pos2D pos);
+	Job consult();
+	Job takeItem();
+	Job giveItem();
+	Job endRequest();
+	
 private:
 	AgentCommandListener * listener_;
+
 };

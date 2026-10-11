@@ -4,7 +4,7 @@ project(ImagineRobot
 	LANGUAGES CXX
 )
 
-set (CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD 26)
 
 add_executable(${PROJECT_NAME})
 
@@ -18,7 +18,6 @@ target_sources(${PROJECT_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/Simulation.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/Map.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Common/Tile.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Common/Request.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/PlaygroundView.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Agent/Agent.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Utils/JSONParser.cpp
