@@ -1,9 +1,11 @@
 
 #include <Robot/Simulation/Map.hpp>
 
-JSONParserStatus Map::parseJSON(json const & object)
+#include <Robot/Parsers/MapParser.hpp>
+
+JSONParserStatus Map::parseJSON(nlohmann::json const & object)
 {
-	return parser_.fillFields(object);
+	return MapParser {*this, object}.result;
 }
 
 // TODO: what do we do when an invalid position is inputed
@@ -29,47 +31,61 @@ bool Map::isInside(Pos2D pos) const
 	return true;
 }
 
-std::string Map::getName()
+std::string Map::getName() const
 {
 	return name_;
 }
 
-uint32_t Map::getWidth()
+uint32_t Map::getWidth() const
 {
 	return width_;
 }
 
-uint32_t Map::getHeight()
+uint32_t Map::getHeight() const
 {
 	return height_;
 }
-Pos2D Map::getRobotStart()
+Pos2D Map::getRobotStartPos() const
 {
-	return robotStart_;
+	return robotStartPos_;
 }
 
-Pos2D Map::getPosStash()
+Pos2D Map::getStashPos() const
 {
-	return posStash_;
+	return stashPos_;
 }
 
-Pos2D Map::getPosDictionary()
+Pos2D Map::getDictionaryPos() const
 {
-	return posDictionary_;
+	return dictionaryPos_;
 }
 
-std::vector<Resident> Map::getResidentList()
+std::vector<Resident> Map::getResidentList() const
 {
 	return residentList_;
 }
 
-void Map::mapInfos()
+MapInfo Map::generateInfo() const
 {
-	std::cout << "Nom carte : " << name_ << std::endl;
-	std::cout << "Dimensions : " << width_ << " x " << height_ << std::endl;
-	std::cout << "Depart Robot : " << robotStart_.x << "," << robotStart_.y << std::endl;
-	std::cout << "Case armoire : " << posStash_.x << "," << posStash_.y << std::endl;
-	std::cout << "Case dictionnaire : " << posDictionary_.x << "," << posDictionary_.y << std::endl;
+	MapInfo info;
+	info.width  = width_;
+	info.height = height_;
+	info.robotStartPos = robotStartPos_;
+	info.stashPos      = stashPos_;
+	info.dictionaryPos = dictionaryPos_;
+	info.residentList  = residentList_;
+
+	return info;
+}
+
+void Map::printInfo() const
+{
+	std::cout << "Nom carte : "         << name_  << std::endl;
+	std::cout << "Dimensions : "        << width_ << "*" << height_ << std::endl;
+	std::cout << "Depart Robot : "      << robotStartPos_.x << "," << robotStartPos_.y << std::endl;
+	std::cout << "Case armoire : "      << stashPos_     .x << "," << stashPos_     .y << std::endl;
+	std::cout << "Case dictionnaire : " << dictionaryPos_.x << "," << dictionaryPos_.y << std::endl;
+
 	for (Resident res : residentList_)
 		std::cout << "Resident " << res.pos_.x << "," << res.pos_.y << std::endl;
 }

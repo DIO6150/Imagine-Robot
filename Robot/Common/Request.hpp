@@ -14,6 +14,7 @@ struct Resident
 class Request
 {
 public:
+	Request() = default;
 	Request(uint32_t id, Resident resident, std::string message);
 	uint32_t getId();
 	Resident getResident();

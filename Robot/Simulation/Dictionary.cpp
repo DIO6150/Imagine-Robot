@@ -1,8 +1,10 @@
+
 #include <Robot/Simulation/Dictionary.hpp>
+#include <Robot/Parsers/DictionaryParser.hpp>
 
 JSONParserStatus Dictionary::parseJSON(json const & object)
 {
-	return parser_.fillFields(object);
+	return DictionaryParser {*this, object}.result;
 }
 
 std::vector<std::string> normalize(std::string message)

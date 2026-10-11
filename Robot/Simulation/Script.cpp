@@ -1,9 +1,11 @@
 
 #include <Robot/Simulation/Script.hpp>
+#include <Robot/Parsers/ScriptParser.hpp>
+
 
 JSONParserStatus Script::parseJSON(json const & object)
 {
-	return parser_.fillFields(object);
+	return ScriptParser {*this, object}.result;
 }
 
 std::vector<Request> Script::getRequests()

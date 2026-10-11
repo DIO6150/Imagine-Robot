@@ -38,6 +38,8 @@ private:
 struct Tile: public TileProperty
 {
 	Tile() = default;
+	Tile(Tile & rhs) = default;
+	Tile(Tile const & rhs) = default;
 	Tile(TileProperty const & property, Pos2D pos);
 
 	Pos2D pos_;

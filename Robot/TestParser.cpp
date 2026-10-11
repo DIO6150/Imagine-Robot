@@ -9,7 +9,7 @@ int main(int argc, char ** argv)
     }
 
     Playground playground;
-    JSONParserStatus status = playground.dataParser(argv[2], argv[1]);
+    JSONParserStatus status = playground.parse(argv[2], argv[1]);
 
     if(argv[1] == "scenario")
         playground.getScript().scriptInfos();

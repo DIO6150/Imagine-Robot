@@ -1,5 +1,8 @@
 #pragma once
+
 #include <iostream>
+
+#include <Robot/Agent/AgentController.hpp>
 
 #include <Robot/Simulation/Dictionary.hpp>
 #include <Robot/Simulation/Directive.hpp>
@@ -7,10 +10,7 @@
 #include <Robot/Simulation/Map.hpp>
 #include <Robot/Simulation/Script.hpp>
 
-#include <Robot/Common/AgentCommandListener.hpp>
 #include <Robot/Common/PlaygroundViewListener.hpp>
-
-#include <Robot/Agent/Agent.hpp>
 
 #include <Robot/Render/PlaygroundView.hpp>
 
@@ -18,39 +18,22 @@ class Playground : public PlaygroundViewListener
 {
 public:
 	Playground();
-
-	JSONParserStatus dataParser(std::string const & path, std::string toFill);
-	Map getMap();
-	ItemStash getCloset();
-	Dictionary getDictionary();
-
-
+	
 	// Presenter Code
-	int initalizePlayground(Directive const & instructions);
+	void start(Directive const & instructions);
 	void tick();
 	void draw();
-
-	/*
-	// Agent Listener Code
-	CommandResult<void> move(Orientation direction) override;
 	
-	CommandResult<void> consult() override;
-	CommandResult<void> search(Orientation direction) override;
-
-	CommandResult<Item> take(std::string name) override;
-	CommandResult<void> give(Item item) override;
-
-
-	CommandResult<Tile> see(Pos2D pos) override;
-
-	void onAgentFail(AgentFailureType reason, std::string message);
-
-	void wait() override;
-	*/
+private:
+	JSONParserStatus parse(std::string const & path, std::string toFill);
 
 private:
+	Script script_;
 	Map map_;
 	ItemStash closet_;
 	Dictionary dictionary_;
+
+private:
+	std::unique_ptr<AgentController> agent_;
 	std::unique_ptr<PlaygroundView> view_;
 };

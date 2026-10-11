@@ -33,35 +33,5 @@ private:
 	std::string mapName_;
 	std::string closetName_;
 
-	JSONParser parser_ {
-		Field::validate("format",
-			[this](json const & object) { return object.get<std::string>() == FORMAT_; }
-		),
-		Field::validate("version",
-			[this](json const & object) { return object.get<int>() == VERSION_; }
-		),
-		Field::fillNoError("nom",
-			[this](json const & object) { name_ = object.get<std::string>(); }
-		),
-		Field::fillNoError("carte",
-			[this](json const & object) { mapName_ = object.get<std::string>(); }
-		),
-		Field::fillNoError("armoire",
-			[this](json const & object) { closetName_ = object.get<std::string>(); }
-		),
-		Field::fill("demandes",
-			[this](json const & object)
-			{
-				for (auto const & nested : object)
-				{
-					Resident resident;
-					resident.id_ = nested.at("resident").get<std::string>();
-					Request request = Request(nested.at("numero").get<int>(), resident, nested.at("message").get<std::string>());
-					requests_.push_back(request);
-				}
-				
-				return JSONParserStatus::Ok;
-			}
-		)
-	};
+	friend class ScriptParser;
 };
