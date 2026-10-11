@@ -1,3 +1,0 @@
-/home/tahina/Bureau/Imagine-Robot/build/CMakeFiles/ImagineRobot.dir
-/home/tahina/Bureau/Imagine-Robot/build/CMakeFiles/edit_cache.dir
-/home/tahina/Bureau/Imagine-Robot/build/CMakeFiles/rebuild_cache.dir
