@@ -1,22 +1,25 @@
 
 #include <Robot/Agent/AgentController.hpp>
-#include <Robot/Agent/Brain.hpp>
-
-#include <Robot/Simulation/Map.hpp>
 
 
-AgentController::AgentController(Map const & map)
-	: map_ {map}
+AgentController::AgentController(Playground * playground)
+	: playground_ {playground}
 {
 	brain_ = std::make_unique<Brain>(this);
 }
 
-void AgentController::start(std::vector<Request> requestList)
+Pos2D AgentController::getPosition()
 {
-	MapInfo info = map_.generateInfo();
-	pos_ = info.robotStartPos;
+	return pos_;
+}
 
-	brain_->start(info, requestList);
+void AgentController::start(std::vector<Request> requestList, MapInfo map, Pos2D casierDepart)
+{
+	MapInfo info = map;
+	pos_ = info.robotStartPos;
+	casier_ = casierDepart;
+
+	brain_->start(requestList, info, casierDepart);
 }
 
 void AgentController::tick()
@@ -24,73 +27,56 @@ void AgentController::tick()
 	brain_->tick();
 }
 
+bool AgentController::requestsOver()
+{
+	return brain_->noRequestsLeft();
+}
+
+CommandResult<std::vector<Tile>> AgentController::see()
+{
+	std::vector<Tile> perception = playground_->agentSee();
+	return CommandResult{CommandStatus::Ok, perception};
+}
+
 CommandResult<void> AgentController::move(Orientation direction)
 {
 	Pos2D pos = pos_ + directionToPos(direction);
 
-	if (!map_.isInside(pos))
-	{
-		// TODO: push to trace (view)
+	if(!playground_->agentCanMove())
 		return CommandStatus::AgentMovementObstructed;
-	}
-
-	auto tile = map_.getTile(pos);
-	if (tile.isSolid())
-	{
-		// TODO: push to trace (view)
-		return CommandStatus::AgentMovementObstructed;
-	}
 
 	pos_ = pos;
 
 	return CommandStatus::Ok;
 }
 
-CommandResult<void> AgentController::consult()
+CommandResult<std::tuple<Emotion, Intensity>> AgentController::consult()
 {
-	return CommandStatus::Ok;
-}
-
-CommandResult<void> AgentController::search(Orientation direction)
-{
-	return CommandStatus::Ok;
-}
-
-CommandResult<Item> AgentController::take(std::string name)
-{
-	return CommandStatus::Ok;
-}
-
-CommandResult<void> AgentController::give()
-{
-	return CommandStatus::Ok;
-}
-
-CommandResult<std::vector<Tile>> AgentController::see()
-{
-	std::vector<Orientation> const directions = { North, West, South, East };
-
-	TileProperty wall;
-	wall.setSolid(true);
-
-	std::vector<Tile> result;
-
-	auto index = 0;
-	for (auto & dir : directions)
-	{
-		auto iterator = result.begin() + index++;
-		auto pos = pos_ + directionToPos(dir);
-
-		if (!map_.isInside(pos))
-		{
-			result.emplace(iterator, wall, pos);
-			continue;
-		}
-
-		result.emplace(iterator, map_.getTile(pos));
+	std::tuple<Emotion, Intensity> result = playground_->agentConsult(brain_->getCurrentMessage());
+	if(get<0>(result) == Emotion::Unidentified || get<1>(result) == Intensity::Unidentified) {
+		return CommandResult{CommandStatus::UnindentifiedEmotion, result};
 	}
+	return CommandResult{CommandStatus::Ok, result};
+}
 
-	return result;
+CommandResult<int> AgentController::search(Orientation direction)
+{
+	casier_ = casier_ + directionToPos(direction);
+	casier_.x = casier_.x%8;
+	auto result = playground_->agentSearch(casier_);
+	return CommandResult{CommandStatus::Ok, result};
+}
+
+CommandResult<void> AgentController::take(std::string itemName)
+{
+	playground_->agentTake(casier_, itemName);
+	return CommandStatus::Ok;
+}
+
+CommandResult<void> AgentController::give(std::string itemName)
+{
+	
+	return CommandStatus::Ok;
 }
 
 void AgentController::onAgentFail(AgentFailureType type, std::string message)

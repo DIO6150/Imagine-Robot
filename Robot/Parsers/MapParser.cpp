@@ -132,10 +132,7 @@ MapParser::MapParser(Map & map, json const & object)
 				{
 					Resident resident;
 
-					resident.id_   = nested.at("id") .get<std::string>();
 					resident.name_ = nested.at("nom").get<std::string>();
-
-
 					resident.pos_.x = nested.at("position").at(0).get<int>();
 					resident.pos_.y = nested.at("position").at(1).get<int>();
 
@@ -143,8 +140,8 @@ MapParser::MapParser(Map & map, json const & object)
 
 					if (!tile.isPerson())
 						return JSONParserStatus::IncoherentData;
-
-					map.residentList_.push_back(resident);
+					
+					map.residents_.emplace(nested.at("id").get<std::string>(), resident);
 				}
 
 				return JSONParserStatus::Ok;

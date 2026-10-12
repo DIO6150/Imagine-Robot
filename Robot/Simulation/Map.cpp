@@ -60,9 +60,9 @@ Pos2D Map::getDictionaryPos() const
 	return dictionaryPos_;
 }
 
-std::vector<Resident> Map::getResidentList() const
+Resident Map::atResident(std::string idRes) const
 {
-	return residentList_;
+	return residents_.at(idRes);
 }
 
 MapInfo Map::generateInfo() const
@@ -73,7 +73,7 @@ MapInfo Map::generateInfo() const
 	info.robotStartPos = robotStartPos_;
 	info.stashPos      = stashPos_;
 	info.dictionaryPos = dictionaryPos_;
-	info.residentList  = residentList_;
+	info.residents_  = residents_;
 
 	return info;
 }
@@ -86,6 +86,6 @@ void Map::printInfo() const
 	std::cout << "Case armoire : "      << stashPos_     .x << "," << stashPos_     .y << std::endl;
 	std::cout << "Case dictionnaire : " << dictionaryPos_.x << "," << dictionaryPos_.y << std::endl;
 
-	for (Resident res : residentList_)
-		std::cout << "Resident " << res.pos_.x << "," << res.pos_.y << std::endl;
+	for (auto & res : residents_)
+		std::cout << "Resident " << res.second.pos_.x << "," << res.second.pos_.y << std::endl;
 }

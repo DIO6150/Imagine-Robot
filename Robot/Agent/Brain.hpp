@@ -2,12 +2,12 @@
 
 #include <functional>
 #include <queue>
+#include <map>
 #include <optional>
 #include <iostream>
-#include <queue>
 #include <cstdint>
 
-#include <Robot/Agent/AgentControllerListener.hpp>
+#include <Robot/Agent/AgentController.hpp>
 #include <Robot/Common/MapInfo.hpp>
 #include <Robot/Common/Request.hpp>
 #include <Robot/Common/Item.hpp>
@@ -15,12 +15,14 @@
 
 enum class Objective : int32_t
 {
+	ReachDictionary,
 	InterpretRequest,
-	FindDictionary,
+	ReachCloset,
 	FindItem,
 	TakeItem,
-	FindPerson,
+	ReachResident,
 	GiveItem,
+	NoObjective,
 };
 
 
@@ -29,32 +31,38 @@ class Brain
 public:
 	Brain(AgentControllerListener * listener);
 
-	void start(MapInfo info, std::vector<Request> requestList);
+	void start(std::vector<Request> requestList, MapInfo info, Pos2D casierDepart);
 	void tick();
+
+	std::string getCurrentMessage();
+	bool noRequestsLeft();
 
 private:
 	void initalizeMentalMap();
 
 	std::vector<Pos2D> shortestPath(Pos2D start, Pos2D destination);
-
-	bool move(Orientation direction);
+	std::queue<Pos2D> closetPath();
 
 private:
-	//Request currentRequest_;
 	MapInfo mapInfo_;
-	std::vector<Tile>  mentalMap_;
-	std::vector<Pos2D> currentPath_;
+	std::vector<Request> requestList_;
+	int                  currentReq_;
+	std::vector<Tile>    mentalMap_;
+	std::vector<Pos2D>   currentPath_;
+	Emotion              currentSearchedEmotion_;
+	Intensity            currentSearchedIntensity_;
+	std::queue<Pos2D>    drawerCheckQueue_;
+	std::vector<int>     drawersContainsItem_ = std::vector<int>(24, 0);
 
 
-	Objective currentObjective_ = Objective::FindDictionary;
+	Objective currentObjective_ = Objective::ReachDictionary;
 
 	bool carryItem_ = false;
 	std::string itemName_;
 
 	Pos2D tileTarget_;
-	
-
 	Pos2D pos_;
+	Pos2D casier_;
 
 
 private:

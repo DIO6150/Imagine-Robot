@@ -21,3 +21,14 @@ void ItemStash::closetInfos()
 		std::cout << "Contenu : " << draw.item_ << std::endl;
 	}
 }
+
+std::string ItemStash::getItem(Pos2D pos)
+{
+	return drawers_[pos.x*3 + pos.y].item_;
+}
+
+void ItemStash::removeItem(Pos2D posDrawer, std::string itemName)
+{
+	if(drawers_[posDrawer.x*3 + posDrawer.y].item_ == itemName)
+		drawers_[posDrawer.x*3 + posDrawer.y].item_ = "vide";
+}

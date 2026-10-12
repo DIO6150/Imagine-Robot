@@ -32,9 +32,7 @@ ScriptParser::ScriptParser(Script & script, json const & object)
 			{
 				for (auto const & nested : object)
 				{
-					Resident resident;
-					resident.id_ = nested.at("resident").get<std::string>();
-					Request request = Request(nested.at("numero").get<int>(), resident, nested.at("message").get<std::string>());
+					Request request = Request(nested.at("numero").get<int>(), nested.at("resident").get<std::string>(), nested.at("message").get<std::string>());
 					script.requests_.push_back(request);
 				}
 				

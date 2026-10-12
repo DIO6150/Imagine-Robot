@@ -33,7 +33,7 @@ public:
 		Pos2D getRobotStartPos() const;
 	Pos2D getStashPos() const;
 	Pos2D getDictionaryPos() const;
-	std::vector<Resident> getResidentList() const;
+	Resident atResident(std::string idRes) const;
 
 	MapInfo generateInfo() const;
 
@@ -51,7 +51,8 @@ private:
 	Pos2D robotStartPos_;
 	Pos2D stashPos_;
 	Pos2D dictionaryPos_;
-	std::vector<Resident> residentList_;
+	std::map<std::string, Resident> residents_;
 
 	friend class MapParser;
 };
+

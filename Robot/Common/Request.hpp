@@ -6,7 +6,6 @@
 
 struct Resident
 {
-	std::string id_;
 	std::string name_;
 	Pos2D pos_;
 };
@@ -15,15 +14,13 @@ class Request
 {
 public:
 	Request() = default;
-	Request(uint32_t id, Resident resident, std::string message);
+	Request(uint32_t id, std::string idResident, std::string message);
 	uint32_t getId();
-	Resident getResident();
+	std::string getIdResident();
 	std::string getMessage();
 
-	void setResident(Resident resident);
-
 private:
-	Resident resident_;
 	uint32_t id_;
+	std::string idResident_;
 	std::string message_;
 };

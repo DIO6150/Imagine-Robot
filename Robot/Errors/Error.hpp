@@ -20,6 +20,7 @@ enum class CommandStatus
 	Ok,
 	AgentMovementObstructed,
 	AgentAlreadyCarryingObject,
+	UnindentifiedEmotion,
 	StashNotInRange,
 	StashEmpty,
 	ResidentNotInRange,
@@ -31,14 +32,9 @@ template<class T>
 class CommandResult
 {
 public:
-	CommandResult(CommandStatus status)
+	CommandResult(CommandStatus status, T value)
 		: status_ {status}
-	{
-
-	}
-
-	CommandResult(T value)
-		: value_ {value}
+		, value_ {value}
 	{
 		
 	}

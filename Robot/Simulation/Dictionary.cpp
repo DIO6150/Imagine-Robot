@@ -27,20 +27,23 @@ std::vector<std::string> normalize(std::string message)
 	return liste_mots;
 }
 
-bool Dictionary::identifEmoIntens(std::tuple<Emotion, Intensity> & EmoIntens, std::string message)
+std::tuple<Emotion, Intensity> Dictionary::identifEmoIntens(std::string message)
 {
 	std::vector<std::string> liste_mots = normalize(message);
+	std::tuple<Emotion, Intensity> EmoIntens;
 	for(std::string mot : liste_mots) {
 		for(Entree entree : entrees_) {
 			if(count(entree.formes_.begin(), entree.formes_.end(), mot) > 0)
 			{
-				get<0>(EmoIntens) = entree.emotion_;
-				get<1>(EmoIntens) = entree.intensity_;
-				return true;
+				std::get<0>(EmoIntens) = entree.emotion_;
+				std::get<1>(EmoIntens) = entree.intensity_;
+				return EmoIntens;
 			}
 		}
 	}
-	return false;
+	std::get<0>(EmoIntens) = Emotion::Unidentified;
+	std::get<1>(EmoIntens) = Intensity::Unidentified;
+	return EmoIntens;
 }
 
 void Dictionary::dictionaryInfos()

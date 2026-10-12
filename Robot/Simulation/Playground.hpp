@@ -14,6 +14,8 @@
 
 #include <Robot/Render/PlaygroundView.hpp>
 
+class AgentController;
+
 class Playground : public PlaygroundViewListener
 {
 public:
@@ -23,6 +25,13 @@ public:
 	void start(Directive const & instructions);
 	void tick();
 	void draw();
+	
+	bool agentIsOver();
+	bool agentCanMove();
+	std::vector<Tile> agentSee();
+	std::tuple<Emotion, Intensity> agentConsult(std::string message);
+	int agentSearch(Pos2D posDrawer);
+	void agentTake(Pos2D posDrawer, std::string itemName);
 	
 private:
 	JSONParserStatus parse(std::string const & path, std::string toFill);
