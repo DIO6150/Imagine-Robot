@@ -209,14 +209,14 @@ void Brain::tick()
 		}
 		else
 		{
-			auto direction = findDirection(pos_, currentPath_[0]); // findDirection is maybe wrong
+			auto direction = findDirection(pos_, currentPath_.front()); // findDirection is maybe wrong
 	
 			auto result = body_->move(direction);
 	
 			if (result)
 			{
 				pos_ += directionToPos(direction); // ajust mental position
-				currentPath_.erase(currentPath_.begin());
+				currentPath_.pop();
 			}
 			else
 			{
@@ -321,10 +321,9 @@ void Brain::initalizeMentalMap()
 				mentalMap_[index].setSolid(true);
 			}
 
-			if(pos.x == 6)
-			std::cout << mentalMap_[index].isSolid();
+			if(pos.x == 5 && pos.y == 8)
+				std::cout << mentalMap_[109].isSolid() << std::endl;
 		}
-		std::cout << " " << std::endl;
 	}
 
 	mentalMap_[calculateIndex(mapInfo_.robotStartPos, mapInfo_)].setAgentStart(true);
