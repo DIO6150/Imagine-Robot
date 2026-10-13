@@ -44,6 +44,7 @@ DirectiveTrace Simulation::executeDirective(Directive instructions)
 	/* OPENGL INITIALISATION */
 	initOpenGLContext(window_, "Imagine Robot", 900, 900);
 
+	std::cout << "Script, environnement and agent ready." << std::endl;
 	playground_.start(window_, instructions);
 
 	while(1)
