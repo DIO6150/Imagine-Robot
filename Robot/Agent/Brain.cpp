@@ -1,7 +1,12 @@
 
 #include <Robot/Agent/Brain.hpp>
 
-#include <glad/glad.h>
+Brain::Brain(AgentControllerListener * body)
+	: body_ {body}
+{
+
+}
+
 
 inline int32_t calculateIndex(Pos2D pos, MapInfo info)
 {
@@ -16,20 +21,27 @@ inline bool inRect(Pos2D pos, uint32_t width, uint32_t height)
 	return true;
 }
 
-Brain::Brain(AgentControllerListener * body)
-	: body_ {body}
+std::string Brain::getCurrentMessage()
 {
-
+	return requestList_[currentReq_].getMessage();
 }
 
-void Brain::start(MapInfo info, std::vector<Request> requestList)
+bool Brain::noRequestsLeft()
+{
+	return currentReq_ == requestList_.size();
+}
+
+void Brain::start(std::vector<Request> requestList, MapInfo info, Pos2D casierDepart)
 {
 	mapInfo_ = info;
 
 	initalizeMentalMap();
 
 	pos_ = mapInfo_.robotStartPos;
-	currentObjective_ = Objective::FindDictionary;
+	casier_ = casierDepart;
+	requestList_ = requestList;
+	currentReq_ = 0;
+	currentObjective_ = Objective::ReachDictionary;
 }
 
 struct DeducedStates
@@ -39,6 +51,8 @@ struct DeducedStates
 	Pos2D shouldMoveWhere;
 	bool shouldTakeItem = false;
 	bool shouldGiveItem = false;
+	bool shouldConsult  = false;
+	bool shouldSearch   = false;
 };
 
 void Brain::tick()
@@ -74,25 +88,36 @@ void Brain::tick()
 	}
 
 	// DECIDER
-
 	switch (currentObjective_)
 	{
-	case Objective::InterpretRequest:
+	case Objective::ReachDictionary:
+		reasoning.shouldMove      = true;
+		reasoning.shouldMoveWhere = mapInfo_.dictionaryPos;
 		break;
 
-	case Objective::FindDictionary:
+	case Objective::InterpretRequest:
+		reasoning.shouldConsult = true;
+		break;
+
+	case Objective::ReachCloset:
+		reasoning.shouldMove = true;
+		reasoning.shouldMoveWhere = mapInfo_.stashPos;
 		break;
 	
 	case Objective::FindItem:
+		reasoning.shouldSearch = true;
 		break;
 
 	case Objective::TakeItem:
+		reasoning.shouldTakeItem = true;
 		break;
 	
-	case Objective::FindPerson:
+	case Objective::ReachResident:
+		reasoning.shouldMove = true;
 		break;
 
 	case Objective::GiveItem:
+		reasoning.shouldGiveItem = true;
 		break;
 	
 	default:
@@ -102,7 +127,7 @@ void Brain::tick()
 	// AGIR
 	if (reasoning.shouldMove)
 	{
-		if (reasoning.perceptionChanged)
+		if (reasoning.perceptionChanged || currentPath_.empty())
 		{
 			currentPath_ = shortestPath(pos_, reasoning.shouldMoveWhere);
 		}
@@ -114,6 +139,12 @@ void Brain::tick()
 			if (pos_ == reasoning.shouldMoveWhere)
 			{
 				// target reached
+				if (currentObjective_ == Objective::ReachDictionary)
+					currentObjective_ = Objective::InterpretRequest;
+				if (currentObjective_ == Objective::ReachCloset)
+					currentObjective_ = Objective::FindItem;
+				if (currentObjective_ == Objective::ReachResident)
+					currentObjective_ = Objective::GiveItem;
 			}
 			else
 			{
@@ -125,7 +156,7 @@ void Brain::tick()
 		{
 			auto direction = findDirection(pos_, currentPath_[0]); // findDirection is maybe wrong
 	
-			auto result = move(direction);
+			auto result = body_->move(direction);
 	
 			if (result)
 			{
@@ -137,7 +168,67 @@ void Brain::tick()
 				body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
 			}
 		}
+	}
 
+	if (reasoning.shouldConsult)
+	{
+		auto result = body_->consult();
+		if (result != CommandStatus::Ok)
+		
+		currentSearchedEmotion_ = std::get<0>(result.get());
+		currentSearchedIntensity_ = std::get<1>(result.get());
+		currentObjective_ = Objective::ReachCloset;
+		drawerCheckQueue_ = closetPath();
+	}
+
+	if (reasoning.shouldSearch)
+	{
+		auto drawerDestination = drawerCheckQueue_.front();
+		while(drawersContainsItem_[drawerDestination.x*3 + drawerDestination.y] == -1)
+		{
+			drawerCheckQueue_.pop();
+			drawerDestination = drawerCheckQueue_.front();
+		}
+
+		Orientation dirDrawer;
+		if(drawerDestination.y != casier_.y)
+		{
+			dirDrawer = findDirection(drawerDestination, casier_);
+		}
+		else
+		{
+			if((drawerDestination.x - casier_.x)%8 < 4)
+				dirDrawer = Orientation::East;
+			else
+				dirDrawer = Orientation::West;
+		}
+		
+		CommandResult<int> result = body_->search(dirDrawer);
+		casier_ = casier_ + directionToPos(dirDrawer);
+		casier_.x = casier_.x%8;
+		drawersContainsItem_[casier_.x*3 + casier_.y] = result.get();
+		if(casier_ == drawerDestination)
+			drawerCheckQueue_.pop();
+
+		if (result.get() == 1)
+			currentObjective_ = Objective::TakeItem;
+	}
+
+	if (reasoning.shouldTakeItem)
+	{
+		auto result = body_->take(itemName_);
+		drawersContainsItem_[casier_.x*3 + casier_.y] = -1;
+		carryItem_ = true;
+		currentObjective_ = Objective::ReachResident;
+	}
+
+	if (reasoning.shouldGiveItem)
+	{
+		auto result = body_->give(itemName_);
+		itemName_ = "vide";
+		carryItem_ = false;
+		currentReq_++;
+		currentObjective_ = ((noRequestsLeft()) ? Objective::NoObjective : Objective::ReachDictionary);
 	}
 }
 
@@ -167,9 +258,9 @@ void Brain::initalizeMentalMap()
 	mentalMap_[calculateIndex(mapInfo_.stashPos, mapInfo_)]     .setSolid(true).setItemPickup(true);
 	mentalMap_[calculateIndex(mapInfo_.dictionaryPos, mapInfo_)].setSolid(true).setRecord(true);
 
-	for (auto resident : mapInfo_.residentList)
+	for (auto resident : mapInfo_.residents_)
 	{
-		mentalMap_[calculateIndex(resident.pos_, mapInfo_)].setSolid(true).setPerson(true);
+		mentalMap_[calculateIndex(resident.second.pos_, mapInfo_)].setSolid(true).setPerson(true);
 	}
 }
 
@@ -224,11 +315,8 @@ std::vector<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
 			if(!previous.contains(voisin) && !(mentalMap_[calculateIndex(voisin, mapInfo_)].isSolid()))
 			{
 				previous.emplace(voisin, currentPos);
-
 				if(voisin == destination)
-				{
 					return reconstructPath(previous, voisin);
-				}
 			}
 			queue.push(voisin);
 		}
@@ -237,12 +325,40 @@ std::vector<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
 	return {};
 }
 
-bool Brain::move(Orientation direction)
+std::queue<Pos2D> Brain::closetPath()
 {
-	auto result = body_->move(direction);
-	if (!result) return false;
-
-	pos_ += directionToPos(direction);
-
-	return true;
+	int line = intensityToInt(currentSearchedIntensity_), column = emotionToInt(currentSearchedEmotion_);
+	int emo_vois1d = (column + 1)%8, emo_vois1g = (column - 1)%8, emo_vois2d = (column + 2)%8, emo_vois2g = (column - 2)%8;
+	std::vector<int> intensityOrder(3, 0);
+	std::queue<Pos2D> queueDrawer;
+	switch(line)
+	{
+		case 0:
+			intensityOrder[1] = 1;
+			intensityOrder[2] = 2;
+		case 1:
+			intensityOrder[0] = 1;
+			intensityOrder[2] = 2;
+		case 2:
+			intensityOrder[0] = 2;
+			intensityOrder[1] = 1;
+		default:
+			break;
+	}
+	queueDrawer.push(Pos2D{column, intensityOrder[0]});
+	queueDrawer.push(Pos2D{column, intensityOrder[1]});
+	queueDrawer.push(Pos2D{column, intensityOrder[2]});
+	queueDrawer.push(Pos2D{emo_vois1d, intensityOrder[0]});
+	queueDrawer.push(Pos2D{emo_vois1g, intensityOrder[0]});
+	queueDrawer.push(Pos2D{emo_vois1d, intensityOrder[1]});
+	queueDrawer.push(Pos2D{emo_vois1g, intensityOrder[1]});
+	queueDrawer.push(Pos2D{emo_vois1d, intensityOrder[2]});
+	queueDrawer.push(Pos2D{emo_vois1g, intensityOrder[2]});
+	queueDrawer.push(Pos2D{emo_vois2d, intensityOrder[0]});
+	queueDrawer.push(Pos2D{emo_vois2g, intensityOrder[0]});
+	queueDrawer.push(Pos2D{emo_vois2d, intensityOrder[1]});
+	queueDrawer.push(Pos2D{emo_vois2g, intensityOrder[1]});
+	queueDrawer.push(Pos2D{emo_vois2d, intensityOrder[2]});
+	queueDrawer.push(Pos2D{emo_vois2g, intensityOrder[2]});
+	return queueDrawer;
 }

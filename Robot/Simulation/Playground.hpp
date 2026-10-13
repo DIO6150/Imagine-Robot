@@ -2,23 +2,24 @@
 
 #include <iostream>
 
-#include <Robot/Agent/AgentController.hpp>
-
 #include <Robot/Simulation/Dictionary.hpp>
 #include <Robot/Simulation/Directive.hpp>
 #include <Robot/Simulation/ItemStash.hpp>
 #include <Robot/Simulation/Map.hpp>
 #include <Robot/Simulation/Script.hpp>
 
+#include <Robot/Common/PlaygroundAgentListener.hpp>
 #include <Robot/Common/PlaygroundViewListener.hpp>
 
 #include <Robot/Render/PlaygroundView.hpp>
+
+#include <Robot/Agent/AgentController.hpp>
 
 #include <Robot/Utils/Animation.hpp>
 
 class GLFWwindow;
 
-class Playground : public PlaygroundViewListener
+class Playground : public PlaygroundViewListener, public PlaygroundAgentListener
 {
 public:
 	Playground();
@@ -42,6 +43,16 @@ public:
 	void onAgentConsult() override;
 
 	void onAgentSelect(Pos2D cursor) override;
+
+	bool agentIsOver();
+	
+private:
+
+	bool canMove() override;
+	std::vector<Tile> see() override;
+	std::tuple<Emotion, Intensity> consult(std::string message) override;
+	int search(Pos2D posDrawer) override;
+	bool take(Pos2D posDrawer, std::string itemName) override;
 	
 private:
 	JSONParserStatus parse(std::string const & path, std::string toFill);

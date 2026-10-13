@@ -35,3 +35,4 @@ private:
 
 	friend class ScriptParser;
 };
+

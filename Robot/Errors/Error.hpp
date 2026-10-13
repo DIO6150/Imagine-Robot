@@ -20,6 +20,7 @@ enum class CommandStatus
 	Ok,
 	AgentMovementObstructed,
 	AgentAlreadyCarryingObject,
+	UnindentifiedEmotion,
 	StashNotInRange,
 	StashEmpty,
 	ResidentNotInRange,
@@ -31,14 +32,15 @@ template<class T>
 class CommandResult
 {
 public:
-	CommandResult(CommandStatus status)
-		: status_ {status}
-	{
-
-	}
-
 	CommandResult(T value)
 		: value_ {value}
+	{
+		
+	}
+
+	CommandResult(CommandStatus status, T value)
+		: status_ {status}
+		, value_ {value}
 	{
 		
 	}
@@ -99,6 +101,7 @@ inline std::string failureToString(AgentFailureType type)
 	switch (type)
 	{
 	case AgentFailureType::GivingItem: return "Giving Item";
+	case AgentFailureType::Move: return "Move";
 	default: return "Unkwown Failure";
 	}
 }

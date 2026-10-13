@@ -4,6 +4,7 @@
 
 #include <Robot/Utils/Pos.hpp>
 
+#include <map>
 #include <vector>
 
 struct MapInfo
@@ -13,5 +14,5 @@ struct MapInfo
 	Pos2D robotStartPos;
 	Pos2D stashPos;
 	Pos2D dictionaryPos;
-	std::vector<Resident> residentList; // is it really a residentList ?
+	std::map<std::string, Resident> residents_; // is it really a residentList ?
 };

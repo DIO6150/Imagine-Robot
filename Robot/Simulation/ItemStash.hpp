@@ -32,10 +32,11 @@ public:
 	std::string getItem(Pos2D pos);
 	Pos2D getCasierDepart();
 	void closetInfos();
+	bool removeItem(Pos2D posDrawer, std::string itemName);
 
 private:
 	std::string name_;
-	std::vector<Drawer> drawers_;
+	std::vector<Drawer> drawers_ = std::vector<Drawer>(24);
 	
 	std::string const FORMAT_  = "robot-reconfort/armoire";
 	int         const VERSION_ = 1;
@@ -45,3 +46,4 @@ private:
 
 	friend class ClosetParser;
 };
+
