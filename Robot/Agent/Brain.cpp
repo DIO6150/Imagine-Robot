@@ -121,20 +121,23 @@ void Brain::tick()
 				body_->onAgentFail(AgentFailureType::Move, "No valid path to reach target");
 			}
 		}
-
-		auto direction = findDirection(pos_, currentPath_[0]); // findDirection is maybe wrong
-
-		auto result = move(direction);
-
-		if (result)
-		{
-			pos_ += directionToPos(direction); // ajust mental position
-			currentPath_.erase(currentPath_.begin());
-		}
 		else
 		{
-			body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
+			auto direction = findDirection(pos_, currentPath_[0]); // findDirection is maybe wrong
+	
+			auto result = move(direction);
+	
+			if (result)
+			{
+				pos_ += directionToPos(direction); // ajust mental position
+				currentPath_.erase(currentPath_.begin());
+			}
+			else
+			{
+				body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
+			}
 		}
+
 	}
 }
 
