@@ -32,7 +32,7 @@ inline Pos2D directionToPos(Orientation direction)
 
 inline Orientation findDirection(Pos2D a, Pos2D b)
 {
-	auto dir = b - a;
+	auto dir = a - b;
 
 	if (dir.y > 0) return North;
 	else if (dir.y < 0) return South;

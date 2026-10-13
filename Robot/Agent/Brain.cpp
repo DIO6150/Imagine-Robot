@@ -7,18 +7,58 @@ Brain::Brain(AgentControllerListener * body)
 
 }
 
-
 inline int32_t calculateIndex(Pos2D pos, MapInfo info)
 {
-	return pos.y * info.height + pos.x;
+	return pos.y * info.width + pos.x;
 }
 
-inline bool inRect(Pos2D pos, uint32_t width, uint32_t height)
+inline bool inRect(Pos2D pos, uint32_t bottom, uint32_t up, uint32_t left, uint32_t right)
 {
-	if (pos.x < 0 || pos.y < 0) return false;
-	if (pos.x >= width || pos.y >= height) return false;
+	if (pos.x < left || pos.y < bottom || pos.x >= right || pos.y >= up) return false;
 
 	return true;
+}
+
+void Brain::simulationProgress()
+{
+	std::cout << "Total request : " << requestList_.size() << std::endl;
+	std::cout << "Request n" << requestList_[currentReq_].getId() << std::endl;
+	std::cout << "Current Objective : ";
+	switch (currentObjective_)
+	{
+	case Objective::ReachDictionary:
+		std::cout << "Reach the dictionary." << std::endl;
+		break;
+
+	case Objective::InterpretRequest:
+		std::cout << "Identify nature of request." << std::endl;
+		break;
+
+	case Objective::ReachCloset:
+		std::cout << "Reach the closet." << std::endl;
+		break;
+	
+	case Objective::FindItem:
+		std::cout << "Find comfort item." << std::endl;
+		break;
+
+	case Objective::TakeItem:
+		std::cout << "Retrieve comfort item." << std::endl;
+		break;
+	
+	case Objective::ReachResident:
+		std::cout << "Reach the resident." << std::endl;
+		break;
+
+	case Objective::GiveItem:
+		std::cout << "Give item to resident." << std::endl;
+		break;
+
+	default:
+		std::cout << "No objective." << std::endl;
+		break;
+	}
+	
 }
 
 std::string Brain::getCurrentMessage()
@@ -42,10 +82,15 @@ void Brain::start(std::vector<Request> requestList, MapInfo info, Pos2D casierDe
 	requestList_ = requestList;
 	currentReq_ = 0;
 	currentObjective_ = Objective::ReachDictionary;
+	//currentPath_ = shortestPath(pos_, mapInfo_.dictionaryPos);
+	destinationReached_ = false;
 }
 
 void Brain::tick()
 {
+	simulationProgress();
+	std::cout << pos_.x << "," << pos_.y << std::endl;
+	std::cout << "Agent perception." << std::endl;
 	// PERCEVOIR
 	auto result = body_->see();
 
@@ -54,6 +99,7 @@ void Brain::tick()
 		return;
 	}
 
+	std::cout << "Agent mermorization." << std::endl;
 	// MEMORISER
 	std::vector<Orientation> const directions = { North, West, South, East };
 
@@ -61,7 +107,7 @@ void Brain::tick()
 	{
 		auto tile = result.get()[i];
 		
-		if (inRect(tile.pos_, mapInfo_.width, mapInfo_.height))
+		if (inRect(tile.pos_, 0, mapInfo_.width, 0, mapInfo_.height))
 			continue;
 		
 		auto index = calculateIndex(tile.pos_, mapInfo_);
@@ -69,6 +115,7 @@ void Brain::tick()
 		mentalMap_[index] = tile;
 	}
 
+	std::cout << "Agent decision." << std::endl;
 	// DECIDER
 	bool shouldMove       = false;
 	bool shouldConsult    = false;
@@ -106,6 +153,7 @@ void Brain::tick()
 	
 	case Objective::ReachResident:
 		shouldMove = true;
+		where = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
 		break;
 
 	case Objective::GiveItem:
@@ -116,31 +164,36 @@ void Brain::tick()
 		break;
 	}
 
+	std::cout << "Agent action." << std::endl;
 	// AGIR
 	if (shouldMove)
 	{
-		auto path      = shortestPath (pos_, where);
-		auto direction = findDirection(pos_, path[0]);
+		currentPath_ = shortestPath(pos_, where);
+		auto next = currentPath_.front();
+		std::cout << "(" << next.x << "," << next.y << ")" << std::endl;
+		auto direction = findDirection(next, pos_);
 
 		auto result = body_->move(direction);
 
 		pos_ += directionToPos(direction);
 
-		bool hasReachedDest = false;
-
 		for (auto dir : directions)
 		{
-			hasReachedDest = ((pos_ + directionToPos(dir) == where) ? true : hasReachedDest);
+			destinationReached_ = ((pos_ + directionToPos(dir) == where) ? true : destinationReached_);
 		}
 
-		if (hasReachedDest)
+		if (destinationReached_)
 		{
 			if (currentObjective_ == Objective::ReachDictionary)
 				currentObjective_ = Objective::InterpretRequest;
 			if (currentObjective_ == Objective::ReachCloset)
+			{
 				currentObjective_ = Objective::FindItem;
+				drawerCheckQueue_ = closetPath();
+			}
 			if (currentObjective_ == Objective::ReachResident)
 				currentObjective_ = Objective::GiveItem;
+			simulationProgress();
 		}
 	}
 	if (shouldConsult)
@@ -151,7 +204,9 @@ void Brain::tick()
 		currentSearchedEmotion_ = std::get<0>(result.get());
 		currentSearchedIntensity_ = std::get<1>(result.get());
 		currentObjective_ = Objective::ReachCloset;
-		drawerCheckQueue_ = closetPath();
+		//currentPath_ = shortestPath(pos_, mapInfo_.stashPos);
+		destinationReached_ = false;
+		simulationProgress();
 	}
 	if (shouldSearch)
 	{
@@ -182,8 +237,12 @@ void Brain::tick()
 		if(casier_ == drawerDestination)
 			drawerCheckQueue_.pop();
 
-		if (result.get() == 1)
+		if (result.get() == 1) {
 			currentObjective_ = Objective::TakeItem;
+			simulationProgress();
+			std::queue<Pos2D> empty;
+    		std::swap(drawerCheckQueue_, empty);
+		}
 	}
 	if (shouldTakeItem)
 	{
@@ -191,6 +250,10 @@ void Brain::tick()
 		drawersContainsItem_[casier_.x*3 + casier_.y] = -1;
 		carryItem_ = true;
 		currentObjective_ = Objective::ReachResident;
+		Pos2D residentPos = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
+		//currentPath_ = shortestPath(pos_, residentPos);
+		destinationReached_ = false;
+		simulationProgress();
 	}
 	if (shouldGiveItem)
 	{
@@ -199,6 +262,10 @@ void Brain::tick()
 		carryItem_ = false;
 		currentReq_++;
 		currentObjective_ = ((noRequestsLeft()) ? Objective::NoObjective : Objective::ReachDictionary);
+		//if (currentObjective_ == Objective::ReachDictionary)
+		//	currentPath_ = shortestPath(pos_, mapInfo_.dictionaryPos);
+		destinationReached_ = false;
+		simulationProgress();
 	}
 }
 
@@ -217,7 +284,7 @@ void Brain::initalizeMentalMap()
 			auto index = calculateIndex(pos, mapInfo_);
 
 			mentalMap_.at(index) = Tile {empty, pos};
-			if ((pos.y == 0 || pos.y == mapInfo_.height - 1) || (pos.x == 0 || pos.x == mapInfo_.width))
+			if (!inRect(pos, 1, mapInfo_.height - 1, 1, mapInfo_.width - 1))
 			{
 				mentalMap_[index].setSolid(true);
 			}
@@ -234,45 +301,42 @@ void Brain::initalizeMentalMap()
 	}
 }
 
-std::vector<Pos2D> reconstructPath(std::map<Pos2D, Pos2D> previous, Pos2D end)
+
+std::queue<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
 {
-	std::vector<Pos2D> path;
-	path.push_back(end);
-
-	Pos2D pred = previous.at(path.back());
-
-	while(pred.x != -1)
-	{
-		path.push_back(pred);
-		pred = previous.at(path.back());
-	}
-
-	std::reverse(path.begin(), path.end());
-
-	return path;
-}
-
-std::vector<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
-{
-	std::map<Pos2D, Pos2D> previous;
 	std::queue<Pos2D> queue;
+	if(start == destination) {
+		queue.push(start);
+		return queue;
+	}
+	std::cout << "(" << start.x << "," << start.y << ") ";
+	std::cout << "(" << destination.x << "," << destination.y << ") ";
+	std::cout << "." << std::endl;
+	
+	std::queue<Pos2D> empty;
+	std::map<Pos2D, Pos2D> previous;
 	std::vector<Pos2D> neighbours(4);
-	std::vector<Pos2D> path;
 	Pos2D currentPos;
 	std::vector<Tile> surroundings;
 
-	if(start == destination) {
-		path.push_back(start);
-		return path;
-	}
-
 	queue.push(start);
+	previous.emplace(start, Pos2D {-1, -1});
 
 	while(!queue.empty())
 	{
 		currentPos = queue.front();
 		queue.pop();
-		previous.emplace(start, Pos2D {-1, -1});
+
+		
+		std::cout << "***" << currentPos.x << "," << currentPos.y << "***" << std::endl;
+		for (int i = 0; i < queue.size(); i++) {
+			Pos2D pos = queue.front();
+			queue.pop();
+			std::cout << "(" << pos.x << "," << pos.y << ") ";
+			queue.push(pos);
+		}
+		std::cout << " -> queue." << std::endl;
+		
 
 		neighbours[0] = currentPos + directionToPos(Orientation::North);
 		neighbours[1] = currentPos + directionToPos(Orientation::South);
@@ -281,19 +345,53 @@ std::vector<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
 
 		for(Pos2D voisin : neighbours)
 		{
+			
+			for (auto& p : previous)
+        	{
+				std::cout << p.first.x << "," << p.first.y << " : ";
+				std::cout << p.second.x << "," << p.second.y << ". ";
+			}
+			std::cout << " -> voisins." << std::endl;
+			
+			std::cout << currentPos.x << "," << currentPos.y << " : ";
+			std::cout << voisin.x << "," << voisin.y << " -> ";
+			std::cout << previous.contains(voisin) << " et " << mentalMap_[calculateIndex(voisin, mapInfo_)].isSolid() << std::endl;
+			
+			if(voisin == destination)
+			{
+				previous.emplace(voisin, currentPos);
+				Pos2D pred = voisin;
+				std::vector<Pos2D> toReverse;
+				std::cout << "chemin trouve" << std::endl;
+				while(previous.at(pred) != start)
+				{
+					//std::cout << pred.x << "," << pred.y << std::endl;
+					pred = previous.at(pred);
+					toReverse.push_back(pred);
+				}
+
+				std::swap(queue, empty);
+				for(size_t i = toReverse.size()-1; i > 0; i--)
+					queue.push(toReverse[i]);
+				for (int i = 0; i < queue.size(); i++) {
+					Pos2D pos = queue.front();
+					queue.pop();
+					std::cout << "(" << pos.x << "," << pos.y << ") ";
+					queue.push(pos);
+				}
+				std::cout << "." << std::endl;
+				return queue;
+			}
+			
 			if(!previous.contains(voisin) && !(mentalMap_[calculateIndex(voisin, mapInfo_)].isSolid()))
 			{
 				previous.emplace(voisin, currentPos);
-				if(voisin == destination)
-					return reconstructPath(previous, voisin);
+				queue.push(voisin);
 			}
-			queue.push(voisin);
 		}
 	}
-
-	path.clear(); // clear ???
-
-	return path;
+	std::swap(queue, empty);
+	return queue;
 }
 
 std::queue<Pos2D> Brain::closetPath()

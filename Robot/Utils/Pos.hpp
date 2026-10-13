@@ -14,7 +14,9 @@ struct Pos2D
 
 	bool operator<(Pos2D const & rhs) const
 	{
-		return (x < rhs.x && y < rhs.y) || (x == rhs.x && y < rhs.y) || (x < rhs.x && y == rhs.y);
+		if (x != rhs.x)
+        	return x < rhs.x;
+		return y < rhs.y;
 	}
 
 	Pos2D & operator+=(Pos2D const & rhs)

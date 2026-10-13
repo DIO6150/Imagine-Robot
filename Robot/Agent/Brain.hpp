@@ -39,8 +39,9 @@ public:
 
 private:
 	void initalizeMentalMap();
+	void simulationProgress();
 
-	std::vector<Pos2D> shortestPath(Pos2D start, Pos2D destination);
+	std::queue<Pos2D> shortestPath(Pos2D start, Pos2D destination);
 	std::queue<Pos2D> closetPath();
 
 private:
@@ -48,7 +49,8 @@ private:
 	std::vector<Request> requestList_;
 	int                  currentReq_;
 	std::vector<Tile>    mentalMap_;
-	std::vector<Pos2D>   currentPath_;
+	std::queue<Pos2D>    currentPath_;
+	bool                 destinationReached_;
 	Emotion              currentSearchedEmotion_;
 	Intensity            currentSearchedIntensity_;
 	std::queue<Pos2D>    drawerCheckQueue_;
