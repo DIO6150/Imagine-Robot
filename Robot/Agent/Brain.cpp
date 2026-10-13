@@ -82,9 +82,18 @@ void Brain::start(std::vector<Request> requestList, MapInfo info, Pos2D casierDe
 	requestList_ = requestList;
 	currentReq_ = 0;
 	currentObjective_ = Objective::ReachDictionary;
-	//currentPath_ = shortestPath(pos_, mapInfo_.dictionaryPos);
-	destinationReached_ = false;
 }
+
+struct DeducedStates
+{
+	bool perceptionChanged = false;
+	bool  shouldMove = false;
+	Pos2D shouldMoveWhere;
+	bool shouldTakeItem = false;
+	bool shouldGiveItem = false;
+	bool shouldConsult  = false;
+	bool shouldSearch   = false;
+};
 
 void Brain::tick()
 {
@@ -92,9 +101,11 @@ void Brain::tick()
 	std::cout << pos_.x << "," << pos_.y << std::endl;
 	std::cout << "Agent perception." << std::endl;
 	// PERCEVOIR
-	auto result = body_->see();
+	DeducedStates reasoning;
 
-	if (result != CommandStatus::Ok)
+	auto nwse = body_->see();
+
+	if (!nwse)
 	{
 		return;
 	}
@@ -105,59 +116,54 @@ void Brain::tick()
 
 	for (auto i = 0; i < directions.size(); ++i)
 	{
-		auto tile = result.get()[i];
+		auto tile = nwse.get()[i];
 		
 		if (inRect(tile.pos_, 0, mapInfo_.width, 0, mapInfo_.height))
 			continue;
 		
 		auto index = calculateIndex(tile.pos_, mapInfo_);
 
+		if (mentalMap_.at(index) != tile)
+		{
+			reasoning.perceptionChanged = true;
+		}
+
 		mentalMap_[index] = tile;
 	}
 
 	std::cout << "Agent decision." << std::endl;
 	// DECIDER
-	bool shouldMove       = false;
-	bool shouldConsult    = false;
-	bool shouldSearch     = false;
-	bool shouldTakeItem   = false;
-	bool shouldGiveItem   = false;
-	Pos2D where;
-	// idk if its the right design choice
-	// could have an empty std::function here instead
-	// we fill it below then execute it in AGIR
-
 	switch (currentObjective_)
 	{
 	case Objective::ReachDictionary:
-		shouldMove = true;
-		where = mapInfo_.dictionaryPos;
+		reasoning.shouldMove      = true;
+		reasoning.shouldMoveWhere = mapInfo_.dictionaryPos;
 		break;
 
 	case Objective::InterpretRequest:
-		shouldConsult = true;
+		reasoning.shouldConsult = true;
 		break;
 
 	case Objective::ReachCloset:
-		shouldMove = true;
-		where = mapInfo_.stashPos;
+		reasoning.shouldMove = true;
+		reasoning.shouldMoveWhere = mapInfo_.stashPos;
 		break;
 	
 	case Objective::FindItem:
-		shouldSearch = true;
+		reasoning.shouldSearch = true;
 		break;
 
 	case Objective::TakeItem:
-		shouldTakeItem = true;
+		reasoning.shouldTakeItem = true;
 		break;
 	
 	case Objective::ReachResident:
-		shouldMove = true;
-		where = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
+		reasoning.shouldMove      = true;
+		reasoning.shouldMoveWhere = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
 		break;
 
 	case Objective::GiveItem:
-		shouldGiveItem = true;
+		reasoning.shouldGiveItem = true;
 		break;
 	
 	default:
@@ -166,37 +172,60 @@ void Brain::tick()
 
 	std::cout << "Agent action." << std::endl;
 	// AGIR
-	if (shouldMove)
+	if (reasoning.shouldMove)
 	{
-		currentPath_ = shortestPath(pos_, where);
-		auto next = currentPath_.front();
-		std::cout << "(" << next.x << "," << next.y << ")" << std::endl;
-		auto direction = findDirection(next, pos_);
-
-		auto result = body_->move(direction);
-
-		pos_ += directionToPos(direction);
-
-		for (auto dir : directions)
+		if (reasoning.perceptionChanged || currentPath_.empty())
 		{
-			destinationReached_ = ((pos_ + directionToPos(dir) == where) ? true : destinationReached_);
+			currentPath_ = shortestPath(pos_, reasoning.shouldMoveWhere);
 		}
 
-		if (destinationReached_)
+		if (currentPath_.empty())
 		{
-			if (currentObjective_ == Objective::ReachDictionary)
-				currentObjective_ = Objective::InterpretRequest;
-			if (currentObjective_ == Objective::ReachCloset)
+			// target reached or no valid path
+			bool reached = false;
+			for (auto dir : directions)
 			{
-				currentObjective_ = Objective::FindItem;
-				drawerCheckQueue_ = closetPath();
+				reached = ((pos_ + directionToPos(dir) == reasoning.shouldMoveWhere) ? true : reached);
 			}
-			if (currentObjective_ == Objective::ReachResident)
-				currentObjective_ = Objective::GiveItem;
-			simulationProgress();
+
+			if (reached)
+			{
+				// target reached
+				if (currentObjective_ == Objective::ReachDictionary)
+					currentObjective_ = Objective::InterpretRequest;
+				if (currentObjective_ == Objective::ReachCloset)
+				{
+					currentObjective_ = Objective::FindItem;
+					drawerCheckQueue_ = closetPath();
+				}
+				if (currentObjective_ == Objective::ReachResident)
+					currentObjective_ = Objective::GiveItem;
+			}
+			else
+			{
+				// no valid path
+				body_->onAgentFail(AgentFailureType::Move, "No valid path to reach target");
+			}
+		}
+		else
+		{
+			auto direction = findDirection(pos_, currentPath_[0]); // findDirection is maybe wrong
+	
+			auto result = body_->move(direction);
+	
+			if (result)
+			{
+				pos_ += directionToPos(direction); // ajust mental position
+				currentPath_.erase(currentPath_.begin());
+			}
+			else
+			{
+				body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
+			}
 		}
 	}
-	if (shouldConsult)
+
+	if (reasoning.shouldConsult)
 	{
 		auto result = body_->consult();
 		if (result != CommandStatus::Ok)
@@ -208,7 +237,8 @@ void Brain::tick()
 		destinationReached_ = false;
 		simulationProgress();
 	}
-	if (shouldSearch)
+
+	if (reasoning.shouldSearch)
 	{
 		auto drawerDestination = drawerCheckQueue_.front();
 		while(drawersContainsItem_[drawerDestination.x*3 + drawerDestination.y] == -1)
@@ -244,7 +274,8 @@ void Brain::tick()
     		std::swap(drawerCheckQueue_, empty);
 		}
 	}
-	if (shouldTakeItem)
+
+	if (reasoning.shouldTakeItem)
 	{
 		auto result = body_->take(itemName_);
 		drawersContainsItem_[casier_.x*3 + casier_.y] = -1;
@@ -255,7 +286,8 @@ void Brain::tick()
 		destinationReached_ = false;
 		simulationProgress();
 	}
-	if (shouldGiveItem)
+
+	if (reasoning.shouldGiveItem)
 	{
 		auto result = body_->give(itemName_);
 		itemName_ = "vide";

@@ -90,3 +90,8 @@ Tile::Tile(TileProperty const & property, Pos2D pos)
 {
 
 }
+
+bool Tile::operator==(Tile const & other) const
+{
+    return flags_ == other.flags_ && pos_ == other.pos_;
+}

@@ -2,10 +2,11 @@
 #include <iostream>
 #include <fstream>
 
-#include <Robot/Agent/AgentController.hpp>
 #include <Robot/Simulation/Playground.hpp>
 
 #include <vendor/nlohmann/json.hpp>
+
+#include <GLFW/glfw3.h>
 
 
 Playground::Playground()
@@ -14,7 +15,7 @@ Playground::Playground()
 	view_  = std::make_unique<PlaygroundView> (this);
 }
 
-void Playground::start(Directive const & instructions)
+void Playground::start(GLFWwindow * window, Directive const & instructions)
 {
 	JSONParserStatus status;
 	
@@ -37,11 +38,28 @@ void Playground::start(Directive const & instructions)
 	if (status != JSONParserStatus::Ok)	return;
 
 	agent_->start(script_.getRequests(), map_.generateInfo(), closet_.getCasierDepart());
+
+	view_->init();
 }
 
 void Playground::tick()
 {
 	agent_->tick();
+
+	if (!animationStack_.empty())
+	{
+		auto & currentAnimation = animationStack_.at(0);
+
+		auto result = currentAnimation();
+		if (result == Stop) animationStack_.erase(animationStack_.begin());
+	}
+
+	view_->update();
+}
+
+void Playground::draw()
+{
+	view_->draw();
 }
 
 bool Playground::agentIsOver()
@@ -49,7 +67,8 @@ bool Playground::agentIsOver()
 	return agent_->requestsOver();
 }
 
-bool Playground::agentCanMove()
+
+bool Playground::canMove()
 {
 	bool canMove = true;
 	Pos2D pos = agent_->getPosition();
@@ -68,7 +87,7 @@ bool Playground::agentCanMove()
 	return canMove;
 }
 
-std::vector<Tile> Playground::agentSee()
+std::vector<Tile> Playground::see()
 {
 	std::vector<Orientation> const directions = { North, West, South, East };
 
@@ -96,20 +115,20 @@ std::vector<Tile> Playground::agentSee()
 	return result;
 }
 
-std::tuple<Emotion, Intensity> Playground::agentConsult(std::string message)
+std::tuple<Emotion, Intensity> Playground::consult(std::string message)
 {
 	std::tuple<Emotion, Intensity> result = dictionary_.identifEmoIntens(message);
 	return result;
 }
 
-int Playground::agentSearch(Pos2D posDrawer)
+int Playground::search(Pos2D posDrawer)
 {
 	return ((closet_.getItem(posDrawer) == "vide") ? -1 : 1);
 }
 
-void Playground::agentTake(Pos2D posDrawer, std::string itemName)
+bool Playground::take(Pos2D posDrawer, std::string itemName)
 {
-	closet_.removeItem(posDrawer, itemName);
+	return closet_.removeItem(posDrawer, itemName);
 }
 
 JSONParserStatus Playground::parse(std::string const & path, std::string toFill)
@@ -127,3 +146,42 @@ JSONParserStatus Playground::parse(std::string const & path, std::string toFill)
 	return status;
 }
 
+void Playground::onMapInit(std::vector<Tile> map, MapInfo info)
+{
+
+}
+
+void Playground::onAgentMove(Pos2D newPos)
+{
+
+}
+
+void Playground::onAgentTakeItem(Item item)
+{
+
+}
+
+void Playground::onAgentGiveItem(Item item)
+{
+
+}
+
+void Playground::onAgentStashOpen ()
+{
+
+}
+
+void Playground::onAgentStashClose()
+{
+
+}
+
+void Playground::onAgentConsult()
+{
+
+}
+
+void Playground::onAgentSelect(Pos2D cursor)
+{
+
+}

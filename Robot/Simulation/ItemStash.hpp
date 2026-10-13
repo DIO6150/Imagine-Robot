@@ -32,7 +32,7 @@ public:
 	std::string getItem(Pos2D pos);
 	Pos2D getCasierDepart();
 	void closetInfos();
-	void removeItem(Pos2D posDrawer, std::string itemName);
+	bool removeItem(Pos2D posDrawer, std::string itemName);
 
 private:
 	std::string name_;

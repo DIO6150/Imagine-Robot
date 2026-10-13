@@ -4,6 +4,7 @@
 
 #include <Robot/Utils/Pos.hpp>
 
+#include <map>
 #include <vector>
 
 struct MapInfo

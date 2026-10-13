@@ -7,7 +7,6 @@
 
 #include <Robot/Common/Tile.hpp>
 #include <Robot/Common/Item.hpp>
-#include <Robot/Simulation/Playground.hpp>
 
 enum Orientation
 {
