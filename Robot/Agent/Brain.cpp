@@ -14,7 +14,7 @@ inline int32_t calculateIndex(Pos2D pos, MapInfo info)
 
 inline bool inRect(Pos2D pos, uint32_t bottom, uint32_t up, uint32_t left, uint32_t right)
 {
-	if (pos.x < left || pos.y < bottom || pos.x >= right || pos.y >= up) return false;
+	if (pos.y < bottom || pos.y >= up || pos.x < left || pos.x >= right) return false;
 
 	return true;
 }
@@ -209,14 +209,14 @@ void Brain::tick()
 		}
 		else
 		{
-			auto direction = findDirection(pos_, currentPath_[0]); // findDirection is maybe wrong
+			auto direction = findDirection(pos_, currentPath_.front()); // findDirection is maybe wrong
 	
 			auto result = body_->move(direction);
 	
 			if (result)
 			{
 				pos_ += directionToPos(direction); // ajust mental position
-				currentPath_.erase(currentPath_.begin());
+				currentPath_.pop();
 			}
 			else
 			{
@@ -320,6 +320,9 @@ void Brain::initalizeMentalMap()
 			{
 				mentalMap_[index].setSolid(true);
 			}
+
+			if(pos.x == 5 && pos.y == 8)
+				std::cout << mentalMap_[109].isSolid() << std::endl;
 		}
 	}
 
