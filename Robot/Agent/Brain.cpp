@@ -128,6 +128,7 @@ void Brain::tick()
 
 		if (result)
 		{
+			pos_ += directionToPos(direction); // ajust mental position
 			currentPath_.erase(currentPath_.begin());
 		}
 		else
