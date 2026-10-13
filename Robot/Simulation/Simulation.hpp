@@ -6,7 +6,7 @@
 #include <Robot/Errors/Error.hpp>
 
 #include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 class Simulation
 {
