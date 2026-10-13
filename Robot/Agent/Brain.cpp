@@ -14,7 +14,7 @@ inline int32_t calculateIndex(Pos2D pos, MapInfo info)
 
 inline bool inRect(Pos2D pos, uint32_t bottom, uint32_t up, uint32_t left, uint32_t right)
 {
-	if (pos.x < left || pos.y < bottom || pos.x >= right || pos.y >= up) return false;
+	if (pos.y < bottom || pos.y >= up || pos.x < left || pos.x >= right) return false;
 
 	return true;
 }
@@ -288,7 +288,11 @@ void Brain::initalizeMentalMap()
 			{
 				mentalMap_[index].setSolid(true);
 			}
+
+			if(pos.x == 6)
+			std::cout << mentalMap_[index].isSolid();
 		}
+		std::cout << " " << std::endl;
 	}
 
 	mentalMap_[calculateIndex(mapInfo_.robotStartPos, mapInfo_)].setAgentStart(true);
