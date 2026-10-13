@@ -32,9 +32,20 @@ void Brain::start(MapInfo info, std::vector<Request> requestList)
 	currentObjective_ = Objective::FindDictionary;
 }
 
+struct DeducedStates
+{
+	bool perceptionChanged = false;
+	bool  shouldMove = false;
+	Pos2D shouldMoveWhere;
+	bool shouldTakeItem = false;
+	bool shouldGiveItem = false;
+};
+
 void Brain::tick()
 {
 	// PERCEVOIR
+	DeducedStates reasoning;
+
 	auto nwse = body_->see();
 
 	if (!nwse)
@@ -54,17 +65,15 @@ void Brain::tick()
 		
 		auto index = calculateIndex(tile.pos_, mapInfo_);
 
+		if (mentalMap_.at(index) != tile)
+		{
+			reasoning.perceptionChanged = true;
+		}
+
 		mentalMap_[index] = tile;
 	}
 
 	// DECIDER
-	bool shouldMove     = false;
-	bool shouldTakeItem = false;
-	bool shouldGiveItem = false;
-	Pos2D where;
-	// idk if its the right design choice
-	// could have an empty std::function here instead
-	// we fill it below then execute it in AGIR
 
 	switch (currentObjective_)
 	{
@@ -91,12 +100,40 @@ void Brain::tick()
 	}
 
 	// AGIR
-	if (shouldMove)
+	if (reasoning.shouldMove)
 	{
-		auto path      = shortestPath (pos_, where);
-		auto direction = findDirection(pos_, path[0]);
+		if (reasoning.perceptionChanged)
+		{
+			currentPath_ = shortestPath(pos_, reasoning.shouldMoveWhere);
+		}
 
-		move(direction);
+		if (currentPath_.empty())
+		{
+			// target reached or no valid path
+
+			if (pos_ == reasoning.shouldMoveWhere)
+			{
+				// target reached
+			}
+			else
+			{
+				// no valid path
+				body_->onAgentFail(AgentFailureType::Move, "No valid path to reach target");
+			}
+		}
+
+		auto direction = findDirection(pos_, currentPath_[0]); // findDirection is maybe wrong
+
+		auto result = move(direction);
+
+		if (result)
+		{
+			currentPath_.erase(currentPath_.begin());
+		}
+		else
+		{
+			body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
+		}
 	}
 }
 

@@ -22,7 +22,7 @@ public:
 	bool isItemPickup() const;
 	bool isRecord() const;
 
-private:
+protected:
 	enum : uint64_t
     {
         Solid        = 1ull << 0,
@@ -41,6 +41,8 @@ struct Tile: public TileProperty
 	Tile(Tile & rhs) = default;
 	Tile(Tile const & rhs) = default;
 	Tile(TileProperty const & property, Pos2D pos);
+
+	bool operator==(Tile const & other) const;
 
 	Pos2D pos_;
 };

@@ -39,9 +39,11 @@ target_include_directories(${PROJECT_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include
 )
 
-find_package(glfw3 REQUIRED)
+add_subdirectory(vendor/glfw)
+add_subdirectory(vendor/glm)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
 	glfw
+	glm::glm
 	stdc++exp
 )
