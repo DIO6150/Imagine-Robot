@@ -1,6 +1,8 @@
 
 #include <Robot/Agent/Brain.hpp>
 
+#include <glad/glad.h>
+
 inline int32_t calculateIndex(Pos2D pos, MapInfo info)
 {
 	return pos.y * info.height + pos.x;
@@ -157,7 +159,8 @@ std::vector<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
 	Pos2D currentPos;
 	std::vector<Tile> surroundings;
 
-	if(start == destination) {
+	if(start == destination)
+	{
 		path.push_back(start);
 		return path;
 	}
@@ -180,16 +183,17 @@ std::vector<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
 			if(!previous.contains(voisin) && !(mentalMap_[calculateIndex(voisin, mapInfo_)].isSolid()))
 			{
 				previous.emplace(voisin, currentPos);
+
 				if(voisin == destination)
+				{
 					return reconstructPath(previous, voisin);
+				}
 			}
 			queue.push(voisin);
 		}
 	}
 
-	path.clear(); // clear ???
-
-	return path;
+	return {};
 }
 
 bool Brain::move(Orientation direction)

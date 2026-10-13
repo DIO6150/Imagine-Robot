@@ -14,15 +14,34 @@
 
 #include <Robot/Render/PlaygroundView.hpp>
 
+#include <Robot/Utils/Animation.hpp>
+
+class GLFWwindow;
+
 class Playground : public PlaygroundViewListener
 {
 public:
 	Playground();
 	
 	// Presenter Code
-	void start(Directive const & instructions);
+	void start(GLFWwindow * window, Directive const & instructions);
 	void tick();
 	void draw();
+
+public:
+	void onMapInit(std::vector<Tile> map, MapInfo info) override;
+
+	void onAgentMove(Pos2D newPos) override;
+
+	void onAgentTakeItem(Item item) override;
+	void onAgentGiveItem(Item item) override;
+
+	void onAgentStashOpen () override;
+	void onAgentStashClose() override;
+
+	void onAgentConsult() override;
+
+	void onAgentSelect(Pos2D cursor) override;
 	
 private:
 	JSONParserStatus parse(std::string const & path, std::string toFill);
@@ -32,6 +51,9 @@ private:
 	Map map_;
 	ItemStash closet_;
 	Dictionary dictionary_;
+
+	GLFWwindow * window_;
+	std::vector<Animation> animationStack_;
 
 private:
 	std::unique_ptr<AgentController> agent_;

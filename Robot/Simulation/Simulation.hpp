@@ -5,6 +5,9 @@
 
 #include <Robot/Errors/Error.hpp>
 
+#include <glad/glad.h>
+#include <glfw/glfw3.h>
+
 class Simulation
 {
 public:
@@ -12,5 +15,7 @@ public:
 
 private:
 	Playground playground_;
+
+	GLFWwindow * window_;
 };
 

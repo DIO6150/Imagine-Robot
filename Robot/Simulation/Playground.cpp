@@ -7,6 +7,8 @@
 
 #include <vendor/nlohmann/json.hpp>
 
+#include <GLFW/glfw3.h>
+
 
 Playground::Playground()
 {
@@ -14,7 +16,7 @@ Playground::Playground()
 	view_  = std::make_unique<PlaygroundView> (this);
 }
 
-void Playground::start(Directive const & instructions)
+void Playground::start(GLFWwindow * window, Directive const & instructions)
 {
 	JSONParserStatus status;
 	
@@ -36,11 +38,28 @@ void Playground::start(Directive const & instructions)
 	if (status != JSONParserStatus::Ok)	return;
 
 	agent_->start(script_.getRequests());
+
+	view_->init();
 }
 
 void Playground::tick()
 {
 	agent_->tick();
+
+	if (!animationStack_.empty())
+	{
+		auto & currentAnimation = animationStack_.at(0);
+
+		auto result = currentAnimation();
+		if (result == Stop) animationStack_.erase(animationStack_.begin());
+	}
+
+	view_->update();
+}
+
+void Playground::draw()
+{
+	view_->draw();
 }
 
 JSONParserStatus Playground::parse(std::string const & path, std::string toFill)
@@ -56,4 +75,44 @@ JSONParserStatus Playground::parse(std::string const & path, std::string toFill)
 	else std::cout << "incorrect element to fill" << std::endl;
 
 	return status;
+}
+
+void Playground::onMapInit(std::vector<Tile> map, MapInfo info)
+{
+
+}
+
+void Playground::onAgentMove(Pos2D newPos)
+{
+
+}
+
+void Playground::onAgentTakeItem(Item item)
+{
+
+}
+
+void Playground::onAgentGiveItem(Item item)
+{
+
+}
+
+void Playground::onAgentStashOpen ()
+{
+
+}
+
+void Playground::onAgentStashClose()
+{
+
+}
+
+void Playground::onAgentConsult()
+{
+
+}
+
+void Playground::onAgentSelect(Pos2D cursor)
+{
+
 }
