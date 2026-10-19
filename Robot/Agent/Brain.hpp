@@ -49,6 +49,7 @@ private:
 	std::vector<Request> requestList_;
 	int                  currentReq_;
 	std::vector<Tile>    mentalMap_;
+	std::vector<bool>    isVisited_;
 	std::queue<Pos2D>    currentPath_;
 	bool                 destinationReached_;
 	Emotion              currentSearchedEmotion_;

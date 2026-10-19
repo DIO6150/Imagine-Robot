@@ -64,7 +64,7 @@ CommandResult<std::tuple<Emotion, Intensity>> AgentController::consult()
 CommandResult<int> AgentController::search(Orientation direction)
 {
 	casier_ = casier_ + directionToPos(direction);
-	casier_.x = casier_.x % 8;
+	casier_.c = casier_.c % 8;
 	auto result = listener_->search(casier_);
 
 	return result;

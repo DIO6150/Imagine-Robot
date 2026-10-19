@@ -33,11 +33,11 @@ inline Orientation findDirection(Pos2D a, Pos2D b)
 {
 	auto dir = a - b;
 
-	if (dir.y > 0) return North;
-	else if (dir.y < 0) return South;
+	if (dir.c > 0) return North;
+	else if (dir.c < 0) return South;
 
-	if (dir.x > 0) return East;
-	else if (dir.x < 0) return West;
+	if (dir.l > 0) return East;
+	else if (dir.l < 0) return West;
 
 	return North;
 }

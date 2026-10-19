@@ -67,7 +67,6 @@ bool Playground::agentIsOver()
 	return agent_->requestsOver();
 }
 
-
 bool Playground::canMove()
 {
 	bool canMove = true;

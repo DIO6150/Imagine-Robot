@@ -70,8 +70,8 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 			[&stash](json const & object)
 			{
 				Pos2D drawerStart; // obviously should check if its a list and if it has size == 2
-				drawerStart.x = object.at(0).get<int>();
-				drawerStart.y = object.at(1).get<int>();
+				drawerStart.l = object.at(0).get<int>();
+				drawerStart.c = object.at(1).get<int>();
 
 				stash.casierDepart_ = drawerStart;
 
@@ -85,8 +85,8 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 				{
 					Drawer drawer;
 
-					drawer.location_.x   = nested.at("colonne").get<int>();
-					drawer.location_.y   = nested.at("ligne").get<int>();
+					drawer.location_.l   = nested.at("colonne").get<int>();
+					drawer.location_.c   = nested.at("ligne").get<int>();
 
 					std::string emotionName_ = nested.at("emotion").get<std::string>();
 					drawer.emotion_ = stash.stringToEmotions_[emotionName_];

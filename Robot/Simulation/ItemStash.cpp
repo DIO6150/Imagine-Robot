@@ -17,21 +17,21 @@ void ItemStash::closetInfos()
 	std::cout << "Nom armoire : " << name_ << std::endl;
 	for (Drawer draw : drawers_)
 	{
-		std::cout << "Casier " << draw.location_.x << "," << draw.location_.y << std::endl;
+		std::cout << "Casier " << draw.location_.l << "," << draw.location_.c << std::endl;
 		std::cout << "Contenu : " << draw.item_ << std::endl;
 	}
 }
 
 std::string ItemStash::getItem(Pos2D pos)
 {
-	return drawers_[pos.x*3 + pos.y].item_;
+	return drawers_[pos.c*3 + pos.l].item_;
 }
 
 bool ItemStash::removeItem(Pos2D posDrawer, std::string itemName)
 {
-	if(drawers_[posDrawer.x*3 + posDrawer.y].item_ == itemName)
+	if(drawers_[posDrawer.c*3 + posDrawer.l].item_ == itemName)
 	{
-		drawers_[posDrawer.x*3 + posDrawer.y].item_ = "vide";
+		drawers_[posDrawer.c*3 + posDrawer.l].item_ = "vide";
 		return true;
 	}
 

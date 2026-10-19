@@ -57,17 +57,17 @@ MapParser::MapParser(Map & map, json const & object)
 		Field::fill("grille",
 			[&map](json const & object)
 			{
-				for (int32_t y = 0; y < map.height_; ++y)
+				for (int32_t l = 0; l < map.height_; ++l)
 				{
-					std::string const & row = object.at(y).get_ref<std::string const &>();
+					std::string const & row = object.at(l).get_ref<std::string const &>();
 
-					for (int32_t x = 0; x < map.width_; ++x)
+					for (int32_t c = 0; c < map.width_; ++c)
 					{
-						auto tileID = row.at(x);
+						auto tileID = row.at(c);
 
 						if (!map.charProperties_.contains(tileID)) return JSONParserStatus::UnknownProperty;
 
-						map.tiles_.emplace_back(Tile { map.charProperties_.at(tileID), Pos2D {x, y} });
+						map.tiles_.emplace_back(Tile { map.charProperties_.at(tileID), Pos2D {l, c} });
 					}
 				}
 
@@ -78,8 +78,8 @@ MapParser::MapParser(Map & map, json const & object)
 			[&map](json const & object)
 			{
 				Pos2D robotStart; // obviously should check if its a list and if it has size == 2
-				robotStart.x = object.at(0).get<int>();
-				robotStart.y = object.at(1).get<int>();
+				robotStart.l = object.at(0).get<int>();
+				robotStart.c = object.at(1).get<int>();
 
 				auto tile  = map.getTile(robotStart);
 
@@ -95,8 +95,8 @@ MapParser::MapParser(Map & map, json const & object)
 			[&map](json const & object)
 			{
 				Pos2D stash; // obviously should check A LOT OF STUFF (btw when i say check, i mean add a validator, that way everything is separate)
-				stash.x = object.at("position").at(0).get<int>();
-				stash.y = object.at("position").at(1).get<int>();
+				stash.l = object.at("position").at(0).get<int>();
+				stash.c = object.at("position").at(1).get<int>();
 
 				auto tile = map.getTile(stash);
 
@@ -112,8 +112,8 @@ MapParser::MapParser(Map & map, json const & object)
 			[&map](json const & object)
 			{
 				Pos2D dict; // obviously should check A LOT OF STUFF (btw when i say check, i mean add a validator, that way everything is separate)
-				dict.x = object.at("position").at(0).get<int>();
-				dict.y = object.at("position").at(1).get<int>();
+				dict.l = object.at("position").at(0).get<int>();
+				dict.c = object.at("position").at(1).get<int>();
 
 				auto tile = map.getTile(dict);
 
@@ -133,8 +133,8 @@ MapParser::MapParser(Map & map, json const & object)
 					Resident resident;
 
 					resident.name_ = nested.at("nom").get<std::string>();
-					resident.pos_.x = nested.at("position").at(0).get<int>();
-					resident.pos_.y = nested.at("position").at(1).get<int>();
+					resident.pos_.l = nested.at("position").at(0).get<int>();
+					resident.pos_.c = nested.at("position").at(1).get<int>();
 
 					auto tile = map.getTile(resident.pos_);
 

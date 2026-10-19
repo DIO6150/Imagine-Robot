@@ -47,7 +47,7 @@ DirectiveTrace Simulation::executeDirective(Directive instructions)
 	std::cout << "Script, environnement and agent ready." << std::endl;
 	playground_.start(window_, instructions);
 
-	while(1)
+	while(!playground_.agentIsOver())
 	{
 		playground_.tick();
 
