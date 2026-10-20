@@ -120,9 +120,9 @@ std::tuple<Emotion, Intensity> Playground::consult(std::string message)
 	return result;
 }
 
-int Playground::search(Pos2D posDrawer)
+std::string Playground::search(Pos2D posDrawer)
 {
-	return ((closet_.getItem(posDrawer) == "vide") ? -1 : 1);
+	return closet_.getItem(posDrawer);
 }
 
 bool Playground::take(Pos2D posDrawer, std::string itemName)

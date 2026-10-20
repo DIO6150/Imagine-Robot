@@ -28,6 +28,7 @@ void Brain::simulationProgress()
 	{
 	case Objective::ReachDictionary:
 		std::cout << "Reach the dictionary." << std::endl;
+		std::cout << "Current position : (" << pos_.l << "," << pos_.c << ")." << std::endl;
 		break;
 
 	case Objective::InterpretRequest:
@@ -36,10 +37,14 @@ void Brain::simulationProgress()
 
 	case Objective::ReachCloset:
 		std::cout << "Reach the closet." << std::endl;
+		std::cout << "Current position : (" << pos_.l << "," << pos_.c << ")." << std::endl;
+		std::cout << "Emotion : " << emotionToInt(currentSearchedEmotion_);
+		std::cout << ", Intensity : " << intensityToInt(currentSearchedIntensity_) << std::endl;
 		break;
 	
 	case Objective::FindItem:
 		std::cout << "Find comfort item." << std::endl;
+		std::cout << "Current drawer : (" << casier_.l << "," << casier_.c << ")." << std::endl; 
 		break;
 
 	case Objective::TakeItem:
@@ -48,6 +53,8 @@ void Brain::simulationProgress()
 	
 	case Objective::ReachResident:
 		std::cout << "Reach the resident." << std::endl;
+		std::cout << "Item retrieved : " << itemName_ << std::endl;
+		std::cout << "Current position : (" << pos_.l << "," << pos_.c << ")." << std::endl;
 		break;
 
 	case Objective::GiveItem:
@@ -81,6 +88,8 @@ void Brain::start(std::vector<Request> requestList, MapInfo info, Pos2D casierDe
 	casier_ = casierDepart;
 	requestList_ = requestList;
 	currentReq_ = 0;
+	currentSearchedEmotion_ = Emotion::Unidentified;
+	currentSearchedIntensity_ = Intensity::Unidentified;
 	currentObjective_ = Objective::ReachDictionary;
 }
 
@@ -238,7 +247,7 @@ void Brain::tick()
 	if (reasoning.shouldConsult)
 	{
 		auto result = body_->consult();
-		if (result != CommandStatus::Ok)
+		//if (result != CommandStatus::Ok)
 		
 		currentSearchedEmotion_ = std::get<0>(result.get());
 		currentSearchedIntensity_ = std::get<1>(result.get());
@@ -250,44 +259,53 @@ void Brain::tick()
 	if (reasoning.shouldSearch)
 	{
 		auto drawerDestination = drawerCheckQueue_.front();
-		while(drawersContainsItem_[drawerDestination.c*3 + drawerDestination.l] == -1)
+		while(drawersContainsItem_[drawerDestination.l*8 + drawerDestination.c] == "vide")
 		{
 			drawerCheckQueue_.pop();
 			drawerDestination = drawerCheckQueue_.front();
 		}
 
 		Orientation dirDrawer;
+		//std::cout << "des : " << drawerDestination.l << ", cas : " << casier_.l << std::endl;
 		if(drawerDestination.l != casier_.l)
 		{
+			//std::cout << "Nord/Sud" << std::endl;
 			dirDrawer = findDirection(drawerDestination, casier_);
 		}
 		else
 		{
-			if((drawerDestination.c - casier_.c)%8 < 4)
+			//std::cout << "Est/Ouest" << std::endl;
+			if((drawerDestination.c - casier_.c + 8)%8 < 4)
 				dirDrawer = Orientation::East;
 			else
 				dirDrawer = Orientation::West;
 		}
-		
-		CommandResult<int> result = body_->search(dirDrawer);
-		casier_ = casier_ + directionToPos(dirDrawer);
-		casier_.c = casier_.c%8;
-		drawersContainsItem_[casier_.c*3 + casier_.l] = result.get();
-		if(casier_ == drawerDestination)
-			drawerCheckQueue_.pop();
 
-		if (result.get() == 1) {
-			currentObjective_ = Objective::TakeItem;
-			simulationProgress();
-			std::queue<Pos2D> empty;
-    		std::swap(drawerCheckQueue_, empty);
+		casier_ = casier_ + directionToPos(dirDrawer);
+		casier_.c = (casier_.c + 8)%8;
+		CommandResult<std::string> result = body_->search(dirDrawer);
+		std::cout << "(" << casier_.l << "," << casier_.c << "), content : " << result.get() << std::endl;
+		drawersContainsItem_[casier_.l*8 + casier_.c] = result.get();
+
+		if (casier_ == drawerDestination) {
+			std::cout << "(" << drawerDestination.l << "," << drawerDestination.c << ") : " << result.get() << std::endl;
+			if (result.get() != "vide")
+			{
+				currentObjective_ = Objective::TakeItem;
+				simulationProgress();
+				std::queue<Pos2D> empty;
+				std::swap(drawerCheckQueue_, empty);
+			}
+			else
+				drawerCheckQueue_.pop();
 		}
 	}
 
 	if (reasoning.shouldTakeItem)
 	{
-		auto result = body_->take(itemName_);
-		drawersContainsItem_[casier_.c*3 + casier_.l] = -1;
+		std::cout << "item to take : " << drawersContainsItem_[casier_.l*8 + casier_.c] << std::endl;
+		auto result = body_->take(drawersContainsItem_[casier_.l*8 + casier_.c]);
+		drawersContainsItem_[casier_.l*8 + casier_.c] = "vide";
 		carryItem_ = true;
 		currentObjective_ = Objective::ReachResident;
 		Pos2D residentPos = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
@@ -414,13 +432,16 @@ std::queue<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
 				std::swap(queue, empty);
 				for(int i = toReverse.size()-1; i >= 0; i--)
 					queue.push(toReverse[i]);
+				
+				/*
 				for (int i = 0; i < queue.size(); i++) {
 					Pos2D pos = queue.front();
 					queue.pop();
-					//std::cout << "(" << pos.l << "," << pos.c << ") ";
+					std::cout << "(" << pos.l << "," << pos.c << ") ";
 					queue.push(pos);
 				}
-				//std::cout << "." << std::endl;
+				std::cout << "." << std::endl;
+				*/
 				return queue;
 			}
 			
@@ -439,36 +460,49 @@ std::queue<Pos2D> Brain::closetPath()
 {
 	int line = intensityToInt(currentSearchedIntensity_), column = emotionToInt(currentSearchedEmotion_);
 	int emo_vois1d = (column + 1)%8, emo_vois1g = (column - 1)%8, emo_vois2d = (column + 2)%8, emo_vois2g = (column - 2)%8;
-	std::vector<int> intensityOrder(3, 0);
+	std::vector<int> intensityOrder(2);
 	std::queue<Pos2D> queueDrawer;
 	switch(line)
 	{
 		case 0:
-			intensityOrder[1] = 1;
-			intensityOrder[2] = 2;
-		case 1:
 			intensityOrder[0] = 1;
-			intensityOrder[2] = 2;
+			intensityOrder[1] = 2;
+			break;
+		case 1:
+			intensityOrder[0] = 0;
+			intensityOrder[1] = 2;
+			break;
 		case 2:
-			intensityOrder[0] = 2;
-			intensityOrder[1] = 1;
+			intensityOrder[0] = 1;
+			intensityOrder[1] = 0;
+			break;
 		default:
+			std::cout << "invalide :" << line << std::endl;
 			break;
 	}
-	queueDrawer.push(Pos2D{column, intensityOrder[0]});
-	queueDrawer.push(Pos2D{column, intensityOrder[1]});
-	queueDrawer.push(Pos2D{column, intensityOrder[2]});
-	queueDrawer.push(Pos2D{emo_vois1d, intensityOrder[0]});
-	queueDrawer.push(Pos2D{emo_vois1g, intensityOrder[0]});
-	queueDrawer.push(Pos2D{emo_vois1d, intensityOrder[1]});
-	queueDrawer.push(Pos2D{emo_vois1g, intensityOrder[1]});
-	queueDrawer.push(Pos2D{emo_vois1d, intensityOrder[2]});
-	queueDrawer.push(Pos2D{emo_vois1g, intensityOrder[2]});
-	queueDrawer.push(Pos2D{emo_vois2d, intensityOrder[0]});
-	queueDrawer.push(Pos2D{emo_vois2g, intensityOrder[0]});
-	queueDrawer.push(Pos2D{emo_vois2d, intensityOrder[1]});
-	queueDrawer.push(Pos2D{emo_vois2g, intensityOrder[1]});
-	queueDrawer.push(Pos2D{emo_vois2d, intensityOrder[2]});
-	queueDrawer.push(Pos2D{emo_vois2g, intensityOrder[2]});
+	queueDrawer.push(Pos2D{line, column});
+	queueDrawer.push(Pos2D{intensityOrder[0], column});
+	queueDrawer.push(Pos2D{intensityOrder[1], column});
+	queueDrawer.push(Pos2D{line, emo_vois1d});
+	queueDrawer.push(Pos2D{line, emo_vois1g});
+	queueDrawer.push(Pos2D{intensityOrder[0], emo_vois1d});
+	queueDrawer.push(Pos2D{intensityOrder[0], emo_vois1g});
+	queueDrawer.push(Pos2D{intensityOrder[1], emo_vois1d});
+	queueDrawer.push(Pos2D{intensityOrder[1], emo_vois1g});
+	queueDrawer.push(Pos2D{line, emo_vois2d});
+	queueDrawer.push(Pos2D{line, emo_vois2g});
+	queueDrawer.push(Pos2D{intensityOrder[0], emo_vois2d});
+	queueDrawer.push(Pos2D{intensityOrder[0], emo_vois2g});
+	queueDrawer.push(Pos2D{intensityOrder[1], emo_vois2d});
+	queueDrawer.push(Pos2D{intensityOrder[1], emo_vois2g});
+
+	for (int i = 0; i < queueDrawer.size(); i++) {
+		Pos2D pos = queueDrawer.front();
+		queueDrawer.pop();
+		std::cout << "(" << pos.l << "," << pos.c << ") ";
+		queueDrawer.push(pos);
+	}
+	std::cout << "." << std::endl;
+
 	return queueDrawer;
 }

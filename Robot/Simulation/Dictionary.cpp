@@ -32,14 +32,17 @@ std::tuple<Emotion, Intensity> Dictionary::identifEmoIntens(std::string message)
 	std::vector<std::string> liste_mots = normalize(message);
 	std::tuple<Emotion, Intensity> EmoIntens;
 	for(std::string mot : liste_mots) {
+		//std::cout << "word " << mot << " : ";
 		for(Entree entree : entrees_) {
 			if(count(entree.formes_.begin(), entree.formes_.end(), mot) > 0)
 			{
 				std::get<0>(EmoIntens) = entree.emotion_;
 				std::get<1>(EmoIntens) = entree.intensity_;
+				//std::cout << "found : " << emotionToInt(std::get<0>(EmoIntens)) << "," << intensityToInt(std::get<1>(EmoIntens)) << std::endl;
 				return EmoIntens;
 			}
 		}
+		//std::cout << " no entry for this word." << std::endl;
 	}
 	std::get<0>(EmoIntens) = Emotion::Unidentified;
 	std::get<1>(EmoIntens) = Intensity::Unidentified;

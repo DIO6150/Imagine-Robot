@@ -61,11 +61,12 @@ CommandResult<std::tuple<Emotion, Intensity>> AgentController::consult()
 	return result;
 }
 
-CommandResult<int> AgentController::search(Orientation direction)
+CommandResult<std::string> AgentController::search(Orientation direction)
 {
 	casier_ = casier_ + directionToPos(direction);
-	casier_.c = casier_.c % 8;
-	auto result = listener_->search(casier_);
+	//std::cout << "prochain casier : " << directionToPos(direction).l << "," << directionToPos(direction).c << std::endl;
+	casier_.c = (casier_.c + 8) % 8;
+	std::string result = listener_->search(casier_);
 
 	return result;
 }

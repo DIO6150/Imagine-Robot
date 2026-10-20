@@ -31,7 +31,7 @@ private:
 	CommandResult<void> move(Orientation direction) override;
 	
 	CommandResult<std::tuple<Emotion, Intensity>> consult() override;
-	CommandResult<int> search(Orientation direction) override;
+	CommandResult<std::string> search(Orientation direction) override;
 
 	CommandResult<void> take(std::string itemName) override;
 	CommandResult<void> give(std::string itemName) override;

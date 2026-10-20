@@ -93,7 +93,7 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 					std::string intensityName_ = nested.at("intensite").get<std::string>();
 					drawer.intensity_ = stash.stringToIntensities_[intensityName_];
 					drawer.item_ = ((nested.at("objet").is_null()) ? "vide" : nested.at("objet").get<std::string>());
-
+				
 					stash.drawers_.push_back(drawer);
 				}
 

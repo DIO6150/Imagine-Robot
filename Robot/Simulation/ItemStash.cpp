@@ -24,7 +24,7 @@ void ItemStash::closetInfos()
 
 std::string ItemStash::getItem(Pos2D pos)
 {
-	return drawers_[pos.c*3 + pos.l].item_;
+	return drawers_[pos.l*8 + pos.c].item_;
 }
 
 bool ItemStash::removeItem(Pos2D posDrawer, std::string itemName)

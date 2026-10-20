@@ -46,16 +46,16 @@ private:
 
 private:
 	MapInfo mapInfo_;
-	std::vector<Request> requestList_;
-	int                  currentReq_;
-	std::vector<Tile>    mentalMap_;
-	std::vector<bool>    isVisited_;
-	std::queue<Pos2D>    currentPath_;
-	bool                 destinationReached_;
-	Emotion              currentSearchedEmotion_;
-	Intensity            currentSearchedIntensity_;
-	std::queue<Pos2D>    drawerCheckQueue_;
-	std::vector<int>     drawersContainsItem_ = std::vector<int>(24, 0);
+	std::vector<Request>      requestList_;
+	int                       currentReq_;
+	std::vector<Tile>         mentalMap_;
+	std::vector<bool>         isVisited_;
+	std::queue<Pos2D>         currentPath_;
+	bool                      destinationReached_;
+	Emotion                   currentSearchedEmotion_;
+	Intensity                 currentSearchedIntensity_;
+	std::queue<Pos2D>         drawerCheckQueue_;
+	std::vector<std::string>  drawersContainsItem_ = std::vector<std::string>(24, "not seen");
 
 
 	Objective currentObjective_ = Objective::ReachDictionary;

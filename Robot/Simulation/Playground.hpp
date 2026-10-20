@@ -51,7 +51,7 @@ private:
 	bool canMove() override;
 	std::vector<Tile> see() override;
 	std::tuple<Emotion, Intensity> consult(std::string message) override;
-	int search(Pos2D posDrawer) override;
+	std::string search(Pos2D posDrawer) override;
 	bool take(Pos2D posDrawer, std::string itemName) override;
 	
 private:
