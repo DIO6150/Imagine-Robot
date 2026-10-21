@@ -7,6 +7,7 @@
 #include <Robot/Common/Request.hpp>
 #include <Robot/Common/PlaygroundAgentListener.hpp>
 #include <Robot/Common/MapInfo.hpp>
+#include <Robot/Common/TraceElement.hpp>
 #include <Robot/Agent/AgentControllerListener.hpp>
 #include <Robot/Agent/Brain.hpp>
 
@@ -24,6 +25,9 @@ public:
 	void start(std::vector<Request> requestList, MapInfo map, Pos2D casierDepart);
 	void tick();
 	bool requestsOver();
+
+	std::vector<Pas> returnSteps();
+	std::vector<Livraison> returnDeliveries();
 
 private:
 

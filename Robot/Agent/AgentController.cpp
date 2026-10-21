@@ -32,6 +32,16 @@ bool AgentController::requestsOver()
 	return brain_->noRequestsLeft();
 }
 
+std::vector<Pas> AgentController::returnSteps()
+{
+	return brain_->getSteps();
+}
+
+std::vector<Livraison> AgentController::returnDeliveries()
+{
+	return brain_->getDeliveries();
+}
+
 CommandResult<std::vector<Tile>> AgentController::see()
 {
 	std::vector<Tile> perception = listener_->see();

@@ -10,6 +10,7 @@
 
 #include <Robot/Common/PlaygroundAgentListener.hpp>
 #include <Robot/Common/PlaygroundViewListener.hpp>
+#include <Robot/Common/TraceElement.hpp>
 
 #include <Robot/Render/PlaygroundView.hpp>
 
@@ -30,6 +31,12 @@ public:
 	void draw();
 
 public:
+	std::vector<Pas> steps();
+	std::vector<Livraison> deliveries();
+	
+	std::string getScriptName();
+	std::string getMapName();
+	
 	void onMapInit(std::vector<Tile> map, MapInfo info) override;
 
 	void onAgentMove(Pos2D newPos) override;

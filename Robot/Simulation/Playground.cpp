@@ -67,6 +67,26 @@ bool Playground::agentIsOver()
 	return agent_->requestsOver();
 }
 
+std::vector<Pas> Playground::steps()
+{
+	return agent_->getSteps();
+}
+
+std::vector<Livraison> Playground::deliveries()
+{
+	return agent_->getDeliveries();
+}
+
+std::string Playground::getScriptName()
+{
+	return script_.getName();
+}
+
+std::string Playground::getMapName()
+{
+	return map_.getName();
+}
+
 bool Playground::canMove()
 {
 	bool canMove = true;

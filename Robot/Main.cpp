@@ -8,6 +8,7 @@ int main(int argc, char ** argv)
 	instructions.map    = "data/cartes/appartement_01.json";
 	instructions.script = "data/cartes/scenario_01.json";
 	instructions.data   = "data/donnees";
+	instructions.trace  = "trace.json";
 	
 	Simulation sim;
 	auto result = sim.executeDirective(instructions);

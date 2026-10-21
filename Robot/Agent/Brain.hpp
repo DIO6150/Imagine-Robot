@@ -8,9 +8,10 @@
 #include <cstdint>
 
 #include <Robot/Agent/AgentController.hpp>
+#include <Robot/Common/Item.hpp>
 #include <Robot/Common/MapInfo.hpp>
 #include <Robot/Common/Request.hpp>
-#include <Robot/Common/Item.hpp>
+#include <Robot/Common/TraceElement.hpp>
 #include <Robot/Simulation/Map.hpp>
 
 enum class Objective : int32_t
@@ -34,6 +35,9 @@ public:
 	void start(std::vector<Request> requestList, MapInfo info, Pos2D casierDepart);
 	void tick();
 
+	std::vector<Pas> getSteps();
+	std::vector<Livraison> getDeliveries();
+
 	std::string getCurrentMessage();
 	bool noRequestsLeft();
 
@@ -41,21 +45,31 @@ private:
 	void initalizeMentalMap();
 	void simulationProgress();
 
+	void addStep();
+	void addDelivery();
+
 	std::queue<Pos2D> shortestPath(Pos2D start, Pos2D destination);
 	std::queue<Pos2D> closetPath();
 
 private:
-	MapInfo mapInfo_;
-	std::vector<Request>      requestList_;
-	int                       currentReq_;
-	std::vector<Tile>         mentalMap_;
-	std::vector<bool>         isVisited_;
-	std::queue<Pos2D>         currentPath_;
-	bool                      destinationReached_;
-	Emotion                   currentSearchedEmotion_;
-	Intensity                 currentSearchedIntensity_;
-	std::queue<Pos2D>         drawerCheckQueue_;
-	std::vector<std::string>  drawersContainsItem_ = std::vector<std::string>(24, "not seen");
+	std::vector<Pas>		  	 steps_;
+	std::vector<Livraison>   	 deliveries_;
+
+	uint32_t                  	 nSteps_;
+	uint32_t                  	 nStepsRequest_;
+	MapInfo					 	 mapInfo_;
+	std::vector<Request>      	 requestList_;
+	int                       	 currentReq_;
+	std::vector<Tile>    		 mentalMap_;
+	std::vector<bool>            isVisited_;
+	std::map<Orientation, Tile>  currentPerception_;
+	std::queue<Pos2D>            currentPath_;
+	bool                 	     destinationReached_;
+	bool						 deliverySuccess_;
+	Emotion               	     currentSearchedEmotion_;
+	Intensity                	 currentSearchedIntensity_;
+	std::queue<Pos2D>         	 drawerCheckQueue_;
+	std::vector<std::string>  	 drawersContainsItem_ = std::vector<std::string>(24, "not seen");
 
 
 	Objective currentObjective_ = Objective::ReachDictionary;

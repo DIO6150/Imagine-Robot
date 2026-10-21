@@ -44,8 +44,12 @@ DirectiveTrace Simulation::executeDirective(Directive instructions)
 	/* OPENGL INITIALISATION */
 	initOpenGLContext(window_, "Imagine Robot", 900, 900);
 
-	std::cout << "Script, environnement and agent ready." << std::endl;
+	//std::cout << "Script, environnement and agent ready." << std::endl;
 	playground_.start(window_, instructions);
+
+	DirectiveTrace trace;
+	trace.carte = playground_.getMapName();
+	trace.scenario = playground_.getScriptName();
 
 	while(!playground_.agentIsOver())
 	{
@@ -59,6 +63,9 @@ DirectiveTrace Simulation::executeDirective(Directive instructions)
 		playground_.draw();
 		glfwSwapBuffers(window_);
 	}
+
+	trace.pas = playground_.steps();
+	trace.livraisons = playground_.deliveries();
 	
 	return DirectiveTrace {};
 }
