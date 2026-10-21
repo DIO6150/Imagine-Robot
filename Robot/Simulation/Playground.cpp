@@ -69,12 +69,12 @@ bool Playground::agentIsOver()
 
 std::vector<Pas> Playground::steps()
 {
-	return agent_->getSteps();
+	return agent_->returnSteps();
 }
 
 std::vector<Livraison> Playground::deliveries()
 {
-	return agent_->getDeliveries();
+	return agent_->returnDeliveries();
 }
 
 std::string Playground::getScriptName()

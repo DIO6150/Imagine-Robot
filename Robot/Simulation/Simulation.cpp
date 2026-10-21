@@ -67,5 +67,5 @@ DirectiveTrace Simulation::executeDirective(Directive instructions)
 	trace.pas = playground_.steps();
 	trace.livraisons = playground_.deliveries();
 	
-	return DirectiveTrace {};
+	return trace;
 }

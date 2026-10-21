@@ -45,7 +45,7 @@ private:
 	void initalizeMentalMap();
 	void simulationProgress();
 
-	void addStep();
+	void addStep(Orientation dir);
 	void addDelivery();
 
 	std::queue<Pos2D> shortestPath(Pos2D start, Pos2D destination);
@@ -61,7 +61,6 @@ private:
 	std::vector<Request>      	 requestList_;
 	int                       	 currentReq_;
 	std::vector<Tile>    		 mentalMap_;
-	std::vector<bool>            isVisited_;
 	std::map<Orientation, Tile>  currentPerception_;
 	std::queue<Pos2D>            currentPath_;
 	bool                 	     destinationReached_;

@@ -69,13 +69,14 @@ void Brain::simulationProgress()
 	
 }
 
-void Brain::addStep()
+void Brain::addStep(Orientation dir)
 {
 	Pas curStep;
 	curStep.t = nSteps_;
 	curStep.demande = currentReq_ + 1;
-	curStep.position = pos_;;
+	curStep.position = pos_;
 	curStep.casier = casier_;
+	curStep.argument = "null";
 	switch (currentObjective_)
 	{
 		case Objective::InterpretRequest:
@@ -100,8 +101,19 @@ void Brain::addStep()
 			curStep.action = "AVANCER";
 			break;
 	}
-    curStep.perception = currentPerception_;
-	curStep.contenu_casier = ((currentObjective_ == FindItem || currentObjective_ == Objective::TakeItem) ? drawersContainsItem_[casier_.l*8 + casier_.c] : "null");
+	curStep.argument = ((currentObjective_ != Objective::InterpretRequest && currentObjective_ != Objective::TakeItem && currentObjective_ != Objective::GiveItem) ? directionToArg(dir) : curStep.argument);
+
+	for (auto& curPer : currentPerception_)
+	{
+		std::string contenuCase;
+		if (curPer.second.isPerson()) 			contenuCase = "resident";
+		else if (curPer.second.isItemPickup())  contenuCase = "armoire";
+		else if (curPer.second.isRecord()) 		contenuCase = "dictionnaire";
+		else 									contenuCase = ((curPer.second.isSolid()) ? "mur" : "libre");
+		curStep.perception[directionToArg(curPer.first)] = contenuCase;
+	}
+
+	curStep.contenu_casier = ((currentObjective_ == Objective::FindItem || currentObjective_ == Objective::TakeItem) ? drawersContainsItem_[casier_.l*8 + casier_.c] : "null");
     curStep.commentaire = "null";
 	steps_.push_back(curStep);
 }
@@ -111,8 +123,22 @@ void Brain::addDelivery()
 	Livraison curDelivery;
 	curDelivery.demande = requestList_[currentReq_].getId();
 	curDelivery.resident = requestList_[currentReq_].getIdResident();
-	curDelivery.emotion = currentSearchedEmotion_;
-	curDelivery.intensity = currentSearchedIntensity_;
+
+	if (currentSearchedEmotion_ == Emotion::Joy)               curDelivery.emotion = "joie";
+	else if (currentSearchedEmotion_ == Emotion::Confidence)   curDelivery.emotion = "confiance";
+	else if (currentSearchedEmotion_ == Emotion::Fear)         curDelivery.emotion = "peur";
+	else if (currentSearchedEmotion_ == Emotion::Surprised)    curDelivery.emotion = "surprise";
+	else if (currentSearchedEmotion_ == Emotion::Sadness)      curDelivery.emotion = "tristesse";
+	else if (currentSearchedEmotion_ == Emotion::Disgust)      curDelivery.emotion = "degout";
+	else if (currentSearchedEmotion_ == Emotion::Anger)        curDelivery.emotion = "colere";
+	else if (currentSearchedEmotion_ == Emotion::Anticipation) curDelivery.emotion = "anticipation";
+	else                                                       curDelivery.emotion = "null";
+	
+	if (currentSearchedIntensity_ == Intensity::Small)         curDelivery.intensity = "faible";
+	else if (currentSearchedIntensity_ == Intensity::Mid)      curDelivery.intensity = "moyenne";
+	else if (currentSearchedIntensity_ == Intensity::Strong)   curDelivery.intensity = "forte";
+	else                                                       curDelivery.intensity = "null";
+	
 	curDelivery.casier_choisi = casier_;
 	curDelivery.repli = "aucun";
     curDelivery.objet = itemName_;
@@ -154,11 +180,11 @@ void Brain::start(std::vector<Request> requestList, MapInfo info, Pos2D casierDe
 	currentReq_ = 0;
 	nSteps_ = 0;
 	nStepsRequest_ = 0;
-	currentPerception_.emplace_back(Orientation::North, Tile());
-	currentPerception_.emplace_back(Orientation::West, Tile());
-	currentPerception_.emplace_back(Orientation::South, Tile());
-	currentPerception_.emplace_back(Orientation::East, Tile());
-	nStepsRequest_ = false;
+	currentPerception_[Orientation::North] = Tile();
+	currentPerception_[Orientation::West] = Tile();
+	currentPerception_[Orientation::South] = Tile();
+	currentPerception_[Orientation::East] = Tile();
+	deliverySuccess_ = false;
 	currentSearchedEmotion_ = Emotion::Unidentified;
 	currentSearchedIntensity_ = Intensity::Unidentified;
 	currentObjective_ = Objective::ReachDictionary;
@@ -184,42 +210,37 @@ void Brain::tick()
 	std::vector<Orientation> const directions = { North, West, South, East };
  
 	//std::cout << isVisited_[pos_.l * mapInfo_.width + pos_.c] << std::endl;
-	if(!isVisited_[pos_.l * mapInfo_.width + pos_.c])
+	auto nwse = body_->see();
+
+	if (!nwse)
 	{
-		isVisited_[pos_.l * mapInfo_.width + pos_.c] = true;
-
-		auto nwse = body_->see();
-
-		if (!nwse)
-		{
-			return;
-		}
+		return;
+	}
 
 	// MEMORISER
 	
-		for (auto i = 0; i < directions.size(); ++i)
-		{
-			auto tile = nwse.get()[i];
-			
-			if (!inRect(tile.pos_, 0, mapInfo_.height, 0, mapInfo_.width))
-				continue;
+	for (auto i = 0; i < directions.size(); ++i)
+	{
+		auto tile = nwse.get()[i];
+		
+		if (!inRect(tile.pos_, 0, mapInfo_.height, 0, mapInfo_.width))
+			continue;
 
-			mentalMap_[calculateIndex(tile.pos_, mapInfo_)] = tile;
-			currentPerception_[directions[i]] = tile;
-			//std::cout << tile.pos_.l << "," << tile.pos_.c << " : " << mentalMap_[calculateIndex(tile.pos_, mapInfo_)].isSolid() << std::endl;
-		}
+		mentalMap_[calculateIndex(tile.pos_, mapInfo_)] = tile;
+		currentPerception_[directions[i]] = tile;
+		//std::cout << tile.pos_.l << "," << tile.pos_.c << " : " << mentalMap_[calculateIndex(tile.pos_, mapInfo_)].isSolid() << std::endl;
+	}
 
-		if (!currentPath_.empty())
+	if (!currentPath_.empty())
+	{
+		Pos2D curStep;
+		for(int istep = 0; istep < currentPath_.size(); istep++)
 		{
-			Pos2D curStep;
-			for(int istep = 0; istep < currentPath_.size(); istep++)
-			{
-				curStep = currentPath_.front();
-				currentPath_.pop();
-				//std::cout << curStep.l << "," << curStep.c << " : " << mentalMap_[calculateIndex(curStep, mapInfo_)].isSolid() << std::endl;
-				reasoning.needReplan = ((mentalMap_[calculateIndex(curStep, mapInfo_)].isSolid()) ? true : reasoning.needReplan);
-				currentPath_.push(curStep);
-			}
+			curStep = currentPath_.front();
+			currentPath_.pop();
+			//std::cout << curStep.l << "," << curStep.c << " : " << mentalMap_[calculateIndex(curStep, mapInfo_)].isSolid() << std::endl;
+			reasoning.needReplan = ((mentalMap_[calculateIndex(curStep, mapInfo_)].isSolid()) ? true : reasoning.needReplan);
+			currentPath_.push(curStep);
 		}
 	}
 
@@ -261,8 +282,6 @@ void Brain::tick()
 		break;
 	}
 
-	addStep();
-
 	// AGIR
 	if (reasoning.shouldMove)
 	{
@@ -270,6 +289,25 @@ void Brain::tick()
 		if (reasoning.needReplan || currentPath_.empty())
 		{
 			currentPath_ = shortestPath(pos_, reasoning.shouldMoveWhere);
+		}
+
+		if (!currentPath_.empty())
+		{
+			auto direction = findDirection(currentPath_.front(), pos_); // findDirection is maybe wrong
+			
+			addStep(direction);
+	
+			auto result = body_->move(direction);
+	
+			if (result)
+			{
+				pos_ += directionToPos(direction); // ajust mental position
+				currentPath_.pop();
+			}
+			else
+			{
+				body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
+			}
 		}
 
 		if (currentPath_.empty())
@@ -300,26 +338,12 @@ void Brain::tick()
 				body_->onAgentFail(AgentFailureType::Move, "No valid path to reach target");
 			}
 		}
-		else
-		{
-			auto direction = findDirection(currentPath_.front(), pos_); // findDirection is maybe wrong
-	
-			auto result = body_->move(direction);
-	
-			if (result)
-			{
-				pos_ += directionToPos(direction); // ajust mental position
-				currentPath_.pop();
-			}
-			else
-			{
-				body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
-			}
-		}
 	}
 
 	if (reasoning.shouldConsult)
 	{
+		addStep(Orientation::North);
+		
 		auto result = body_->consult();
 		//if (result != CommandStatus::Ok)
 		
@@ -355,6 +379,8 @@ void Brain::tick()
 				dirDrawer = Orientation::West;
 		}
 
+		addStep(dirDrawer);
+
 		casier_ = casier_ + directionToPos(dirDrawer);
 		casier_.c = (casier_.c + 8)%8;
 		CommandResult<std::string> result = body_->search(dirDrawer);
@@ -377,6 +403,8 @@ void Brain::tick()
 
 	if (reasoning.shouldTakeItem)
 	{
+		addStep(Orientation::North);
+
 		itemName_ = drawersContainsItem_[casier_.l*8 + casier_.c];
 		auto result = body_->take(itemName_);
 		carryItem_ = true;
@@ -392,14 +420,16 @@ void Brain::tick()
 
 	if (reasoning.shouldGiveItem)
 	{
+		addStep(Orientation::North);
+
 		auto result = body_->give(itemName_);
-		nStepsRequest_ = true;
+		deliverySuccess_ = true;
 		addDelivery();
 		itemName_ = "vide";
 		carryItem_ = false;
 		currentReq_++;
 		currentObjective_ = ((noRequestsLeft()) ? Objective::NoObjective : Objective::ReachDictionary);
-		nStepsRequest_ = false;
+		deliverySuccess_ = false;
 		destinationReached_ = false;
 		nStepsRequest_ = 0;
 		simulationProgress();
@@ -412,7 +442,6 @@ void Brain::initalizeMentalMap()
 {
 	mentalMap_.clear();
 	mentalMap_.resize(mapInfo_.width * mapInfo_.height);
-	isVisited_ = std::vector(mapInfo_.width * mapInfo_.height, false);
 
 	TileProperty empty;
 

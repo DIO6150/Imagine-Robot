@@ -22,6 +22,19 @@ inline Pos2D directionToPos(Orientation direction)
 	return Pos2D {0, 0};
 }
 
+inline std::string directionToArg(Orientation direction)
+{
+	switch (direction)
+	{
+	case North: return "N";
+	case South: return "S";
+	case West:  return "W";
+	case East:  return "E";
+	}
+
+	return "null";
+}
+
 inline Orientation findDirection(Pos2D a, Pos2D b)
 {
 	auto dir = a - b;

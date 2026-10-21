@@ -11,7 +11,6 @@ struct Directive
 	std::string map;
 	std::string script;
 	std::string data;
-	std::string trace;
 };
 
 struct DirectiveTrace
