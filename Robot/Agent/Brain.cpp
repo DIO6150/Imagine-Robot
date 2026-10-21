@@ -59,6 +59,7 @@ void Brain::simulationProgress()
 
 	case Objective::GiveItem:
 		std::cout << "Give item to resident." << std::endl;
+		std::cout << "Item given : " << itemName_ << std::endl;
 		break;
 
 	default:
@@ -284,7 +285,7 @@ void Brain::tick()
 		casier_ = casier_ + directionToPos(dirDrawer);
 		casier_.c = (casier_.c + 8)%8;
 		CommandResult<std::string> result = body_->search(dirDrawer);
-		std::cout << "(" << casier_.l << "," << casier_.c << "), content : " << result.get() << std::endl;
+		//std::cout << "(" << casier_.l << "," << casier_.c << "), content : " << result.get() << std::endl;
 		drawersContainsItem_[casier_.l*8 + casier_.c] = result.get();
 
 		if (casier_ == drawerDestination) {
@@ -303,10 +304,11 @@ void Brain::tick()
 
 	if (reasoning.shouldTakeItem)
 	{
-		std::cout << "item to take : " << drawersContainsItem_[casier_.l*8 + casier_.c] << std::endl;
-		auto result = body_->take(drawersContainsItem_[casier_.l*8 + casier_.c]);
-		drawersContainsItem_[casier_.l*8 + casier_.c] = "vide";
+		itemName_ = drawersContainsItem_[casier_.l*8 + casier_.c];
+		auto result = body_->take(itemName_);
 		carryItem_ = true;
+		drawersContainsItem_[casier_.l*8 + casier_.c] = "vide";
+		std::cout << "item taken : " << itemName_ << std::endl;
 		currentObjective_ = Objective::ReachResident;
 		Pos2D residentPos = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
 		destinationReached_ = false;
@@ -459,7 +461,7 @@ std::queue<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination)
 std::queue<Pos2D> Brain::closetPath()
 {
 	int line = intensityToInt(currentSearchedIntensity_), column = emotionToInt(currentSearchedEmotion_);
-	int emo_vois1d = (column + 1)%8, emo_vois1g = (column - 1)%8, emo_vois2d = (column + 2)%8, emo_vois2g = (column - 2)%8;
+	int emo_vois1d = (column + 1)%8, emo_vois1g = (column - 1 + 8)%8, emo_vois2d = (column + 2)%8, emo_vois2g = (column - 2 + 8)%8;
 	std::vector<int> intensityOrder(2);
 	std::queue<Pos2D> queueDrawer;
 	switch(line)
