@@ -39,15 +39,16 @@ inline void initOpenGLContext(GLFWwindow *& window, std::string title, uint32_t 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 }
 
-DirectiveTrace Simulation::executeDirective(Directive instructions)
+int Simulation::executeDirective(Directive instructions, DirectiveTrace & trace)
 {
 	/* OPENGL INITIALISATION */
 	initOpenGLContext(window_, "Imagine Robot", 900, 900);
 
 	//std::cout << "Script, environnement and agent ready." << std::endl;
-	playground_.start(window_, instructions);
+	int statusStart = playground_.start(window_, instructions);
+	if (statusStart != 0)
+		return statusStart;
 
-	DirectiveTrace trace;
 	trace.carte = playground_.getMapName();
 	trace.scenario = playground_.getScriptName();
 
@@ -67,5 +68,5 @@ DirectiveTrace Simulation::executeDirective(Directive instructions)
 	trace.pas = playground_.steps();
 	trace.livraisons = playground_.deliveries();
 	
-	return trace;
+	return 0;
 }

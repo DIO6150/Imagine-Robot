@@ -16,7 +16,10 @@ int main(int argc, char ** argv)
 	std::string traceFileName  = "trace.json";
 	
 	Simulation sim;
-	auto result = sim.executeDirective(instructions);
+	DirectiveTrace trace;
+	int statusSim = sim.executeDirective(instructions, trace);
+	if (statusSim != 0)
+		return statusSim;
 
 	// do something with the trace
 	std::ofstream traceFile(traceFileName);
@@ -26,16 +29,16 @@ int main(int argc, char ** argv)
 	}
 	ordered_json dataTrace;
 
-	dataTrace["format"] = result.format;
-	dataTrace["version"] = result.version;
-	dataTrace["carte"] = result.carte;
-	dataTrace["scenario"] = result.scenario;
-	dataTrace["equipe"] = result.equipe;
+	dataTrace["format"] = trace.format;
+	dataTrace["version"] = trace.version;
+	dataTrace["carte"] = trace.carte;
+	dataTrace["scenario"] = trace.scenario;
+	dataTrace["equipe"] = trace.equipe;
 
 	dataTrace["pas"] = json::array();
 
 	ordered_json jpas, jpas_perc;
-	for (Pas pas : result.pas)
+	for (Pas pas : trace.pas)
 	{
 		jpas["t"] = pas.t;
 		jpas["demande"] = pas.demande;
@@ -56,7 +59,7 @@ int main(int argc, char ** argv)
 	ordered_json jliv;
 	dataTrace["livraison"] = json::array();
 	int nbSucces = 0;
-	for (Livraison livraison : result.livraisons)
+	for (Livraison livraison : trace.livraisons)
 	{
 		jliv["demande"] = livraison.demande;
 		jliv["resident"] = livraison.resident;
@@ -72,10 +75,10 @@ int main(int argc, char ** argv)
 		dataTrace["livraison"].push_back(jliv);
 	}
 
-	dataTrace["resume"]["demandes"] = result.livraisons.size();
+	dataTrace["resume"]["demandes"] = trace.livraisons.size();
 	dataTrace["resume"]["reussies"] = nbSucces;
-	dataTrace["resume"]["echecs"] = result.livraisons.size() - nbSucces;
-	dataTrace["resume"]["pas_total"] = result.pas[result.pas.size()-1].t + 1;
+	dataTrace["resume"]["echecs"] = trace.livraisons.size() - nbSucces;
+	dataTrace["resume"]["pas_total"] = trace.pas[trace.pas.size()-1].t + 1;
 
 	traceFile << dataTrace.dump(4);
 

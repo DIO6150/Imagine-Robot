@@ -140,7 +140,19 @@ void Brain::addDelivery()
 	else                                                       curDelivery.intensity = "null";
 	
 	curDelivery.casier_choisi = casier_;
-	curDelivery.repli = "aucun";
+	if (casier_.c == emotionToInt(currentSearchedEmotion_)) {
+		if (casier_.l == intensityToInt(currentSearchedIntensity_))
+			curDelivery.repli = "aucun";
+		else
+			curDelivery.repli = "intensite";
+	}
+	else if ((casier_.c + 1)%8 == emotionToInt(currentSearchedEmotion_) || (casier_.c - 1)%8 == emotionToInt(currentSearchedEmotion_))
+		curDelivery.repli = "voisine_1";
+	else if ((casier_.c + 2)%8 == emotionToInt(currentSearchedEmotion_) || (casier_.c - 2)%8 == emotionToInt(currentSearchedEmotion_))
+		curDelivery.repli = "voisine_1";
+	else
+		curDelivery.repli = "casiers_vides";
+
     curDelivery.objet = itemName_;
     curDelivery.pas_utilises = nStepsRequest_;
     curDelivery.succes = deliverySuccess_;

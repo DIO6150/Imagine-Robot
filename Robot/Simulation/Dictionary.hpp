@@ -18,8 +18,7 @@
 
 struct Entree
 {
-	std::vector<std::string> formes_;
-    Emotion emotion_;
+	Emotion emotion_;
     Intensity intensity_;
 };
 
@@ -32,7 +31,7 @@ public:
 
 private:
 	std::string name_;
-	std::vector<Entree> entrees_;
+	std::map<std::string, Entree> entrees_;
 	
 	std::string const FORMAT_  = "robot-reconfort/dictionnaire";
 	int         const VERSION_ = 1;

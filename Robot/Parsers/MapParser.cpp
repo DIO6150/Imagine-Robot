@@ -57,9 +57,17 @@ MapParser::MapParser(Map & map, json const & object)
 		Field::fill("grille",
 			[&map](json const & object)
 			{
+				uint32_t nElementsInLine = (object.at(0).get<std::string>()).size();
+				uint32_t nLines = object.size();
+
+				if(nLines != map.height_ || nElementsInLine != map.width_)
+					return JSONParserStatus::InacurrateDimensions;
+				
 				for (int32_t l = 0; l < map.height_; ++l)
 				{
-					std::string const & row = object.at(l).get_ref<std::string const &>();
+					std::string const & row = object.at(l).get<std::string>();
+					if (row.size() != nElementsInLine)
+						return JSONParserStatus::GridNotRectangular;
 
 					for (int32_t c = 0; c < map.width_; ++c)
 					{
@@ -84,7 +92,10 @@ MapParser::MapParser(Map & map, json const & object)
 				auto tile  = map.getTile(robotStart);
 
 				if (!tile.isAgentStart())
-					return JSONParserStatus::IncoherentData;
+					return JSONParserStatus::InacurratePosition;
+
+				if (!map.isInside(robotStart))
+					return JSONParserStatus::PositionOutOfGrid;
 
 				map.robotStartPos_ = robotStart;
 
@@ -101,7 +112,10 @@ MapParser::MapParser(Map & map, json const & object)
 				auto tile = map.getTile(stash);
 
 				if (!tile.isItemPickup())
-					return JSONParserStatus::IncoherentData; // obv not everyhing is checkable at validator layer so eeeh
+					return JSONParserStatus::InacurratePosition; // obv not everyhing is checkable at validator layer so eeeh
+
+				if (!map.isInside(stash))
+					return JSONParserStatus::PositionOutOfGrid;
 
 				map.stashPos_ = stash;
 
@@ -118,7 +132,10 @@ MapParser::MapParser(Map & map, json const & object)
 				auto tile = map.getTile(dict);
 
 				if (!tile.isRecord())
-					return JSONParserStatus::IncoherentData; // obv not everyhing is checkable at validator layer so eeeh
+					return JSONParserStatus::InacurratePosition; // obv not everyhing is checkable at validator layer so eeeh
+
+				if (!map.isInside(dict))
+					return JSONParserStatus::PositionOutOfGrid;
 
 				map.dictionaryPos_ = dict;
 
@@ -139,7 +156,13 @@ MapParser::MapParser(Map & map, json const & object)
 					auto tile = map.getTile(resident.pos_);
 
 					if (!tile.isPerson())
-						return JSONParserStatus::IncoherentData;
+						return JSONParserStatus::InacurratePosition;
+
+					if (!map.isInside(resident.pos_))
+						return JSONParserStatus::PositionOutOfGrid;
+
+					if(map.residents_.contains(nested.at("id").get<std::string>()))
+						return JSONParserStatus::ResidentSharedId;
 					
 					map.residents_.emplace(nested.at("id").get<std::string>(), resident);
 				}

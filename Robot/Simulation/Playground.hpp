@@ -26,7 +26,7 @@ public:
 	Playground();
 	
 	// Presenter Code
-	void start(GLFWwindow * window, Directive const & instructions);
+	int start(GLFWwindow * window, Directive const & instructions);
 	void tick();
 	void draw();
 

@@ -62,7 +62,15 @@ Pos2D Map::getDictionaryPos() const
 
 Resident Map::atResident(std::string idRes) const
 {
-	return residents_.at(idRes);
+	Resident retour;
+	if(residents_.contains(idRes)) 
+		retour = residents_.at(idRes);
+	else
+	{
+		retour.name_ = "Non identifie";
+		retour.pos_  = Pos2D {-1, -1};
+	}
+	return retour;
 }
 
 MapInfo Map::generateInfo() const
