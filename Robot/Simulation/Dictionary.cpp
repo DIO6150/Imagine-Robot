@@ -27,16 +27,21 @@ std::vector<std::string> normalize(std::string message)
 	return liste_mots;
 }
 
-std::tuple<Emotion, Intensity> Dictionary::identifEmoIntens(std::string message)
+std::map<std::string, Entree> Dictionary::getEntrees()
+{
+	return entrees_;
+}
+
+std::tuple<Emotion, Intensity> Dictionary::identifEmoIntens(std::string message, std::map<std::string, Entree> givenRecord)
 {
 	std::vector<std::string> liste_mots = normalize(message);
 	std::tuple<Emotion, Intensity> EmoIntens;
 	std::get<0>(EmoIntens) = Emotion::Unidentified;
 	std::get<1>(EmoIntens) = Intensity::Unidentified;
 	for(std::string mot : liste_mots) {
-		if (entrees_.contains(mot))
+		if (givenRecord.contains(mot))
 		{
-			Entree entree = entrees_.at(mot);
+			Entree entree = givenRecord.at(mot);
 			//std::cout << mot << " : " << emotionToInt(entree.emotion_) << "," << intensityToInt(entree.intensity_) << std::endl;
 			std::get<0>(EmoIntens) = entree.emotion_;
 			std::get<1>(EmoIntens) = entree.intensity_;
@@ -53,6 +58,6 @@ void Dictionary::dictionaryInfos()
 	for (auto & entree : entrees_)
 	{
 		std::cout << "Mot : " << entree.first << ", emotion : " << emotionToInt(entree.second.emotion_);
-		std::cout << ", intensite" << intensityToInt(entree.second.intensity_) << std::endl;
+		std::cout << ", intensite : " << intensityToInt(entree.second.intensity_) << std::endl;
 	}
 }

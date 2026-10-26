@@ -126,7 +126,7 @@ std::vector<Tile> Playground::see()
 
 std::tuple<Emotion, Intensity> Playground::consult(std::string message)
 {
-	std::tuple<Emotion, Intensity> result = dictionary_.identifEmoIntens(message);
+	std::tuple<Emotion, Intensity> result = dictionary_.identifEmoIntens(message, dictionary_.getEntrees());
 	return result;
 }
 

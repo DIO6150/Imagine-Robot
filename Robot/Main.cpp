@@ -6,10 +6,8 @@
 using ordered_json = nlohmann::ordered_json;
 using json = nlohmann::json;
 
-void testPlanification()
+std::vector<Tile> initReducedMap(Pos2D robotPos, Pos2D resPos, std::vector<Pos2D> extraWalls)
 {
-	std::cout << "Tests de planification de chemin :\n" << std::endl;
-
 	int nlines = 7, ncolumns = 10;
 	std::vector<Tile> reducedMap = std::vector<Tile>(10*7);
 	TileProperty empty;
@@ -23,20 +21,23 @@ void testPlanification()
 			reducedMap.at(index) = Tile {empty, pos};
 
 			bool inside = (pos.l < 1 || pos.l >= nlines - 1 || pos.c < 1 || pos.c >= ncolumns - 1);
-			bool wallRes = ((pos.l == 2 && pos.c <= 5 ) || pos == Pos2D{3,5} || pos == Pos2D{4,5} || pos == Pos2D{4,6} || pos == Pos2D{4,7});
-			if (inside || wallRes)
-			{
-				reducedMap[index].setSolid(true);
-			}
+			bool isWall = (inside || count(extraWalls.begin(), extraWalls.end(), pos) > 0);
+			reducedMap[index].setSolid(isWall);
 		}
 	}
-	reducedMap[12].setAgentStart(true);
-	reducedMap[27].setSolid(true).setPerson(true);
-	std::cout << "Tests de destination inaccessible :\n" << std::endl;
+	reducedMap[robotPos.l * 10 + robotPos.c].setAgentStart(true);
+	reducedMap[resPos.l * 10 + resPos.c].setSolid(true).setPerson(true);
+	return reducedMap;
+}
+
+void testPlanification()
+{
+	std::vector<Pos2D> testWalls = {Pos2D {2,1}, Pos2D {2,2}, Pos2D {2,3}, Pos2D {2,4}, Pos2D {3,4}, Pos2D {4,4}, Pos2D {4,5}, Pos2D {4,6}};
+	std::vector<Tile> reducedMap = initReducedMap(Pos2D {1,2}, Pos2D {3,2}, testWalls);
 	std::cout << "Carte mentale:" << std::endl;
-	std::cout << "##########\n#.R......#\n######...#\n#.P..#...#\n";
-	std::cout << "#....###.#\n#........#\n##########\n" << std::endl;
-	std::queue chemin = Brain::shortestPath(Pos2D {1, 2}, Pos2D {3, 2}, reducedMap, ncolumns);
+	std::cout << "##########\n#.R......#\n#####....#\n#.P.#....#\n";
+	std::cout << "#...###..#\n#........#\n##########\n" << std::endl;
+	std::queue chemin = Brain::shortestPath(Pos2D {1,2}, Pos2D {3,2}, reducedMap, 10);
 	std::cout << "Chemin trouve : ";
 	for (int i = 0; i < chemin.size(); i++) {
 		Pos2D pos = chemin.front();
@@ -50,35 +51,106 @@ void testPlanification()
 void testReplanification()
 {
 	std::cout << "Tests de replanification de chemin :" << std::endl;
+
+	std::vector<Pos2D> testWalls = {Pos2D {2,1}, Pos2D {2,2}, Pos2D {2,3}, Pos2D {2,4}};
+	std::vector<Tile> reducedMap = initReducedMap(Pos2D {3,3}, Pos2D {3,1}, testWalls);
+	std::cout << "Carte mentale avant perception :" << std::endl;
+	std::cout << "##########\n#........#\n#####....#\n#.P..R...#\n";
+	std::cout << "#........#\n#........#\n##########\n" << std::endl;
+	std::queue chemin = Brain::shortestPath(Pos2D {3,5}, Pos2D {3,2}, reducedMap, 10);
+	std::cout << "Chemin trouve : ";
+	for (int i = 0; i < chemin.size(); i++) {
+		Pos2D pos = chemin.front();
+		chemin.pop();
+		std::cout << "(" << pos.l << "," << pos.c << ") ";
+		chemin.push(pos);
+	}
+	std::cout << "\n" << std::endl;
+
+	reducedMap[34].setSolid(true);
+	reducedMap[45].setSolid(true);
+
+	std::cout << "Carte mentale apres perception :" << std::endl;
+	std::cout << "##########\n#........#\n#####....#\n#.P.#R...#\n";
+	std::cout << "#....#...#\n#........#\n##########\n" << std::endl;
+
+	chemin = Brain::shortestPath(Pos2D {3,5}, Pos2D {3,2}, reducedMap, 10);
+	std::cout << "Chemin trouve : ";
+	for (int i = 0; i < chemin.size(); i++) {
+		Pos2D pos = chemin.front();
+		chemin.pop();
+		std::cout << "(" << pos.l << "," << pos.c << ") ";
+		chemin.push(pos);
+	}
+	std::cout << "\n" << std::endl;
 }
 
-void singleTestLectureDictionnaire(Dictionary dictioTest, std::string messageTest, int emoAtt, int intensAtt)
+void testCaseInccessible()
+{
+	std::vector<Pos2D> testWalls = {Pos2D {2,1}, Pos2D {2,2}, Pos2D {2,3}, Pos2D {2,4}, Pos2D {3,4}, Pos2D {4,4}, Pos2D {4,3}, Pos2D {4,2}, Pos2D {4,1}};
+	std::vector<Tile> reducedMap = initReducedMap(Pos2D {3,5}, Pos2D {3,2}, testWalls);
+	std::cout << "Tests de destination inaccessible :\n" << std::endl;
+	std::cout << "Carte mentale :" << std::endl;
+	std::cout << "##########\n#........#\n#####....#\n#.P.#R...#\n";
+	std::cout << "#####....#\n#........#\n##########\n" << std::endl;
+	std::queue chemin = Brain::shortestPath(Pos2D {3,5}, Pos2D {3,2}, reducedMap, 10);
+	std::cout << "L'agent peut rejoindre le resident ? ";
+	std::cout << ((chemin.empty()) ? "non" : "oui") << "\n" << std::endl;
+}
+
+void singleTestLectureDictionnaire(std::map<std::string, Entree> record, std::string messageTest, int emoAtt, int intensAtt)
 {
 	std::cout << "Message d'entree : " << messageTest << std::endl;
-	std::cout << "Emotion et intensite attendues : (" << emoAtt << "," << intensAtt << ")" << std::endl;
-	std::tuple<Emotion, Intensity> retour = dictioTest.identifEmoIntens(messageTest);
+	std::cout << "Emotion attendue : " << emoAtt << ", intensite attendue : " << intensAtt << std::endl;
+	std::tuple<Emotion, Intensity> retour = Dictionary::identifEmoIntens(messageTest, record);
 	int emotionRetour = emotionToInt(get<0>(retour));
 	int intensityRetour = intensityToInt(get<1>(retour));
-	std::cout << "Emotion et intensite identifiees : (" << emotionRetour << ",";
-	std::cout << intensityRetour << ")\n" << std::endl;
+	std::cout << "Emotion identifiee : " << emotionRetour << ", intensite identifiee : ";
+	std::cout << intensityRetour << "\n" << std::endl;
 }
 
 void testLectureDictionnaire()
 {
-	Dictionary dictioTest;
-	JSONParserStatus status = Playground::parse<Dictionary>("data/donnees/dictionnaire.json", dictioTest);
+	std::map<std::string, Entree> reducedDictio;
+	reducedDictio.emplace("sourire", Entree{Emotion::Joy, Intensity::Mid});
+	reducedDictio.emplace("accepte", Entree{Emotion::Confidence, Intensity::Small});
+	reducedDictio.emplace("terrifie", Entree{Emotion::Fear, Intensity::Strong});
+	reducedDictio.emplace("etrange", Entree{Emotion::Surprised, Intensity::Small});
+	reducedDictio.emplace("desespoir", Entree{Emotion::Sadness, Intensity::Strong});
+	reducedDictio.emplace("fade", Entree{Emotion::Disgust, Intensity::Small});
+	reducedDictio.emplace("scandaleux", Entree{Emotion::Anger, Intensity::Strong});
+	reducedDictio.emplace("impatiente", Entree{Emotion::Anticipation, Intensity::Mid});
+	reducedDictio.emplace("calme", Entree{Emotion::Joy, Intensity::Small});
+	reducedDictio.emplace("panique", Entree{Emotion::Fear, Intensity::Strong});
 	std::cout << "Tests de la lecture du message dans le dictionnaire :\n" << std::endl;
+
+	std::cout << "Entrees du dictionnaire : " << std::endl;
+	for (auto & entree : reducedDictio)
+	{
+		std::cout << "Mot : " << entree.first << ", emotion : " << emotionToInt(entree.second.emotion_);
+		std::cout << ", intensite : " << intensityToInt(entree.second.intensity_) << std::endl;
+	}
+	std::cout << "\n" << std::endl;
 	
-	singleTestLectureDictionnaire(dictioTest, "Te voir me donne le sourire.", 0, 1);
-	singleTestLectureDictionnaire(dictioTest, "J'accepte ma destinée.", 1, 0);
-	singleTestLectureDictionnaire(dictioTest, "Je suis terrifie.", 2, 2);
-	singleTestLectureDictionnaire(dictioTest, "N'y a t'il pas quelque chose d'etrange ici?", 3, 0);
-	singleTestLectureDictionnaire(dictioTest, "Je nage dans le desespoir...", 4, 2);
-	singleTestLectureDictionnaire(dictioTest, "J'ai mange quelque chose de fade ce midi.", 5, 0);
-	singleTestLectureDictionnaire(dictioTest, "C'est scandaleux de ne pas pouvoir respirer!", 6, 2);
-	singleTestLectureDictionnaire(dictioTest, "Je suis impatiente d'en finir avec ce projet...", 7, 1);
-	singleTestLectureDictionnaire(dictioTest, "Je suis calme, et certainement pas en panique.", 0, 0);
-	singleTestLectureDictionnaire(dictioTest, "Ne cherchez pas d'emotion dans ce messgage, il n'y en a pas", -1, -1);
+	singleTestLectureDictionnaire(reducedDictio, "Te voir me donne le sourire.", 0, 1);
+	singleTestLectureDictionnaire(reducedDictio, "J'accepte ma destinée.", 1, 0);
+	singleTestLectureDictionnaire(reducedDictio, "Je suis terrifie.", 2, 2);
+	singleTestLectureDictionnaire(reducedDictio, "N'y a t'il pas quelque chose d'etrange ici?", 3, 0);
+	singleTestLectureDictionnaire(reducedDictio, "Je nage dans le desespoir...", 4, 2);
+	singleTestLectureDictionnaire(reducedDictio, "J'ai mange quelque chose de fade ce midi.", 5, 0);
+	singleTestLectureDictionnaire(reducedDictio, "C'est scandaleux de ne pas pouvoir respirer!", 6, 2);
+	singleTestLectureDictionnaire(reducedDictio, "Je suis impatiente d'en finir avec ce projet...", 7, 1);
+	singleTestLectureDictionnaire(reducedDictio, "Je suis calme, et certainement pas en panique.", 0, 0);
+	singleTestLectureDictionnaire(reducedDictio, "Ne cherchez pas d'emotion dans ce messgage, il n'y en a pas", -1, -1);
+}
+
+void singleTestDeplacementSelecteur(Pos2D casierTest, int iOrient)
+{
+	std::vector<Orientation> dir = {North, West, South, East};
+	std::vector<std::string> dirToString = {"Nord", "Ouest", "Sud", "Est"};
+	std::cout << "Deplacement " << dirToString[iOrient] << " : ";
+	AgentController::moveDrawerSelect(casierTest, dir[iOrient]);
+	std::cout << "Casier en position (intensite = " << casierTest.l << ", emotion = " << casierTest.c << ")" << std::endl;
 }
 
 void testDeplacementSelecteur()
@@ -86,62 +158,36 @@ void testDeplacementSelecteur()
 	std::cout << "Tests de deplacement du curseur dans l'armoire :\n" << std::endl;
 	Pos2D casierTest = Pos2D {0, 0};
 	std::cout << "Casier en position (intensite = " << casierTest.l << ", emotion = " << casierTest.c << ")" << std::endl;
-	std::cout << "Deplacement Nord : ";
-	AgentController::moveDrawerSelect(casierTest, Orientation::North);
-	std::cout << "Casier en position (intensite = " << casierTest.l << ", emotion = " << casierTest.c << ")" << std::endl;
-	std::cout << "Deplacement Ouest : ";
-	AgentController::moveDrawerSelect(casierTest, Orientation::West);
-	std::cout << "Casier en position (intensite = " << casierTest.l << ", emotion = " << casierTest.c << ")" << std::endl;
-	std::cout << "Deplacement Sud : ";
-	AgentController::moveDrawerSelect(casierTest, Orientation::South);
-	std::cout << "Casier en position (intensite = " << casierTest.l << ", emotion = " << casierTest.c << ")" << std::endl;
-	std::cout << "Deplacement Est : ";
-	AgentController::moveDrawerSelect(casierTest, Orientation::East);
-	std::cout << "Casier en position (intensite = " << casierTest.l << ", emotion = " << casierTest.c << ")" << std::endl;
-	std::cout << "Deplacement Sud : ";
-	AgentController::moveDrawerSelect(casierTest, Orientation::South);
-	std::cout << "Casier en position (intensite = " << casierTest.l << ", emotion = " << casierTest.c << ")" << std::endl;
-	std::cout << "Deplacement Sud : ";
-	AgentController::moveDrawerSelect(casierTest, Orientation::South);
-	std::cout << "Casier en position (intensite = " << casierTest.l << ", emotion = " << casierTest.c << ")\n" << std::endl;
+	
+	singleTestDeplacementSelecteur(casierTest, 1);
+	singleTestDeplacementSelecteur(casierTest, 2);
+	singleTestDeplacementSelecteur(casierTest, 3);
+	singleTestDeplacementSelecteur(casierTest, 4);
+	singleTestDeplacementSelecteur(casierTest, 3);
+	singleTestDeplacementSelecteur(casierTest, 3);
+}
+
+void singleTestDeplacementSelecteur(Pos2D casierChoisi, Emotion emoRecherche, Intensity intensRecherche, std::string repliAtt)
+{
+	std::cout << "Casier fourni choisi : (intensite = " << casierChoisi.l << ", emotion = " << casierChoisi.c << ")" << std::endl;
+	std::cout << "Repli attendu : " << repliAtt << std::endl;
+	std::string repliRetour = Brain::determineRepli(casierChoisi, emoRecherche, intensRecherche);
+	std::cout << "Repli determine : " << repliRetour << "\n" << std::endl;
 }
 
 void testRegleRepli()
 {
-	std::cout << "Tests de la regle de repli :" << std::endl;
-}
+	std::cout << "Tests de la regle de repli :\n" << std::endl;
+	Emotion emoRecherche = Emotion::Joy;
+	Intensity intensRecherche = Intensity::Strong;
+	std::cout << "Emotion recherchee : " << emotionToInt(emoRecherche);
+	std::cout << ", intensite recherchee : " << intensityToInt(intensRecherche) << std::endl;
 
-void testCaseInccessible()
-{
-	int nlines = 7, ncolumns = 10;
-	std::vector<Tile> reducedMap = std::vector<Tile>(10*7);
-	TileProperty empty;
-	Pos2D pos;
-	for(pos.l = 0; pos.l < nlines; ++pos.l)
-	{
-		for (pos.c = 0; pos.c < ncolumns; ++pos.c)
-		{
-			auto index = pos.l * ncolumns + pos.c;
-
-			reducedMap.at(index) = Tile {empty, pos};
-
-			bool inside = (pos.l < 1 || pos.l >= nlines - 1 || pos.c < 1 || pos.c >= ncolumns - 1);
-			bool wallRes = ((pos.l <= 4 && pos.c == 5 ) || (pos.l == 4 && pos.c > 5));
-			if (inside || wallRes)
-			{
-				reducedMap[index].setSolid(true);
-			}
-		}
-	}
-	reducedMap[12].setAgentStart(true);
-	reducedMap[27].setSolid(true).setPerson(true);
-	std::cout << "Tests de destination inaccessible :\n" << std::endl;
-	std::cout << "Carte mentale :" << std::endl;
-	std::cout << "##########\n#.R..#...#\n#....#.P.#\n#....#...#\n";
-	std::cout << "#....#####\n#........#\n##########\n" << std::endl;
-	std::queue chemin = Brain::shortestPath(Pos2D {1, 2}, Pos2D {2, 7}, reducedMap, ncolumns);
-	std::cout << "L'agent peut rejoindre le resident ? ";
-	std::cout << ((chemin.empty()) ? "non" : "oui") << "\n" << std::endl;
+	singleTestDeplacementSelecteur(Pos2D{2, 0}, emoRecherche, intensRecherche, "aucun");
+	singleTestDeplacementSelecteur(Pos2D{0, 0}, emoRecherche, intensRecherche, "intensite");
+	singleTestDeplacementSelecteur(Pos2D{2, 1}, emoRecherche, intensRecherche, "voisine_1");
+	singleTestDeplacementSelecteur(Pos2D{1, 6}, emoRecherche, intensRecherche, "voisine_2");
+	singleTestDeplacementSelecteur(Pos2D{1, 3}, emoRecherche, intensRecherche, "casiers_vides");
 }
 
 void testValidationFichiers()
@@ -152,7 +198,10 @@ void testValidationFichiers()
 void testOne(std::string testType)
 {
 	if (testType == "tests_plan")
+	{
+		std::cout << "Tests de planification de chemin :\n" << std::endl;
 		testPlanification();
+	}
 	else if (testType == "tests_replan")
 		testReplanification();
 	else if (testType == "tests_lecture")
@@ -167,6 +216,7 @@ void testOne(std::string testType)
 		testValidationFichiers();
 	else if (testType == "tests_tous")
 	{
+		std::cout << "Tests de planification de chemin :\n" << std::endl;
 		testPlanification();
 		testReplanification();
 		testLectureDictionnaire();

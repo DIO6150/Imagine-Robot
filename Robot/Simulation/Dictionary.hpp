@@ -26,7 +26,8 @@ class Dictionary
 {
 public:
 	JSONParserStatus parseJSON(json const & object);
-	std::tuple<Emotion, Intensity> identifEmoIntens(std::string message);
+	std::map<std::string, Entree> getEntrees();
+	static std::tuple<Emotion, Intensity> identifEmoIntens(std::string message, std::map<std::string, Entree> givenRecord);
 	void dictionaryInfos();
 
 private:

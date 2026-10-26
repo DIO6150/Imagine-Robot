@@ -37,6 +37,7 @@ public:
 
 	std::vector<Pas> getSteps();
 	std::vector<Livraison> getDeliveries();
+	static std::string determineRepli(Pos2D casierChoisi, Emotion emoCherchee, Intensity intensCherchee);
 
 	std::string getCurrentMessage();
 	bool noRequestsLeft();

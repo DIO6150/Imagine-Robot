@@ -118,40 +118,42 @@ void Brain::addStep(Orientation dir)
 	steps_.push_back(curStep);
 }
 
+std::string Brain::determineRepli(Pos2D casierChoisi, Emotion emoCherchee, Intensity intensCherchee)
+{
+	std::string repli;
+	
+	if (casierChoisi.c == emotionToInt(emoCherchee)) {
+		if (casierChoisi.l == intensityToInt(intensCherchee))
+			repli = "aucun";
+		else
+			repli = "intensite";
+	}
+	else if ((casierChoisi.c + 1)%8 == emotionToInt(emoCherchee) || (casierChoisi.c - 1)%8 == emotionToInt(emoCherchee))
+		repli = "voisine_1";
+	else if ((casierChoisi.c + 2)%8 == emotionToInt(emoCherchee) || (casierChoisi.c - 2)%8 == emotionToInt(emoCherchee))
+		repli = "voisine_2";
+	else
+		repli = "casiers_vides";
+
+	return repli;
+}
+
 void Brain::addDelivery(std::string motif)
 {
 	Livraison curDelivery;
 	curDelivery.demande = requestList_[currentReq_].getId();
 	curDelivery.resident = requestList_[currentReq_].getIdResident();
 
-	if (currentSearchedEmotion_ == Emotion::Joy)               curDelivery.emotion = "joie";
-	else if (currentSearchedEmotion_ == Emotion::Confidence)   curDelivery.emotion = "confiance";
-	else if (currentSearchedEmotion_ == Emotion::Fear)         curDelivery.emotion = "peur";
-	else if (currentSearchedEmotion_ == Emotion::Surprised)    curDelivery.emotion = "surprise";
-	else if (currentSearchedEmotion_ == Emotion::Sadness)      curDelivery.emotion = "tristesse";
-	else if (currentSearchedEmotion_ == Emotion::Disgust)      curDelivery.emotion = "degout";
-	else if (currentSearchedEmotion_ == Emotion::Anger)        curDelivery.emotion = "colere";
-	else if (currentSearchedEmotion_ == Emotion::Anticipation) curDelivery.emotion = "anticipation";
-	else                                                       curDelivery.emotion = "null";
-	
-	if (currentSearchedIntensity_ == Intensity::Small)         curDelivery.intensity = "faible";
-	else if (currentSearchedIntensity_ == Intensity::Mid)      curDelivery.intensity = "moyenne";
-	else if (currentSearchedIntensity_ == Intensity::Strong)   curDelivery.intensity = "forte";
-	else                                                       curDelivery.intensity = "null";
-	
+	std::vector<std::string> emotionToString = {"joie", "confiance", "peur", "surprise", "tristesse", "degout", "colere", "anticipation"};
+	std::vector<std::string> intensityToString = {"faible", "moyenne", "forte"};
+
+	int iEmotion = emotionToInt(currentSearchedEmotion_);
+	curDelivery.emotion = ((iEmotion == -1) ? "null" : emotionToString[iEmotion]);
+	int iIntensity = intensityToInt(currentSearchedIntensity_);
+	curDelivery.intensity = ((iIntensity == -1) ? "null" : intensityToString[iIntensity]);
+
 	curDelivery.casier_choisi = casier_;
-	if (casier_.c == emotionToInt(currentSearchedEmotion_)) {
-		if (casier_.l == intensityToInt(currentSearchedIntensity_))
-			curDelivery.repli = "aucun";
-		else
-			curDelivery.repli = "intensite";
-	}
-	else if ((casier_.c + 1)%8 == emotionToInt(currentSearchedEmotion_) || (casier_.c - 1)%8 == emotionToInt(currentSearchedEmotion_))
-		curDelivery.repli = "voisine_1";
-	else if ((casier_.c + 2)%8 == emotionToInt(currentSearchedEmotion_) || (casier_.c - 2)%8 == emotionToInt(currentSearchedEmotion_))
-		curDelivery.repli = "voisine_1";
-	else
-		curDelivery.repli = "casiers_vides";
+	curDelivery.repli = determineRepli(casier_, currentSearchedEmotion_, currentSearchedIntensity_);
 
     curDelivery.objet = itemName_;
     curDelivery.pas_utilises = nStepsRequest_;
