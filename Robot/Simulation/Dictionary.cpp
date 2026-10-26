@@ -31,17 +31,19 @@ std::tuple<Emotion, Intensity> Dictionary::identifEmoIntens(std::string message)
 {
 	std::vector<std::string> liste_mots = normalize(message);
 	std::tuple<Emotion, Intensity> EmoIntens;
+	std::get<0>(EmoIntens) = Emotion::Unidentified;
+	std::get<1>(EmoIntens) = Intensity::Unidentified;
 	for(std::string mot : liste_mots) {
 		if (entrees_.contains(mot))
 		{
 			Entree entree = entrees_.at(mot);
+			//std::cout << mot << " : " << emotionToInt(entree.emotion_) << "," << intensityToInt(entree.intensity_) << std::endl;
 			std::get<0>(EmoIntens) = entree.emotion_;
 			std::get<1>(EmoIntens) = entree.intensity_;
+			//std::cout << emotionToInt(std::get<0>(EmoIntens)) << "," << intensityToInt(std::get<1>(EmoIntens)) << std::endl;
 			return EmoIntens;
 		}
 	}
-	std::get<0>(EmoIntens) = Emotion::Unidentified;
-	std::get<1>(EmoIntens) = Intensity::Unidentified;
 	return EmoIntens;
 }
 

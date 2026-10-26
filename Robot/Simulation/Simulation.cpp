@@ -39,14 +39,14 @@ inline void initOpenGLContext(GLFWwindow *& window, std::string title, uint32_t 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 }
 
-int Simulation::executeDirective(Directive instructions, DirectiveTrace & trace)
+JSONParserStatus Simulation::executeDirective(Directive instructions, DirectiveTrace & trace)
 {
 	/* OPENGL INITIALISATION */
 	initOpenGLContext(window_, "Imagine Robot", 900, 900);
 
 	//std::cout << "Script, environnement and agent ready." << std::endl;
-	int statusStart = playground_.start(window_, instructions);
-	if (statusStart != 0)
+	JSONParserStatus statusStart = playground_.start(window_, instructions);
+	if (statusStart != JSONParserStatus::Ok)
 		return statusStart;
 
 	trace.carte = playground_.getMapName();
@@ -68,5 +68,5 @@ int Simulation::executeDirective(Directive instructions, DirectiveTrace & trace)
 	trace.pas = playground_.steps();
 	trace.livraisons = playground_.deliveries();
 	
-	return 0;
+	return JSONParserStatus::Ok;
 }

@@ -96,7 +96,7 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 
 					for (Drawer dr : stash.drawers_)
 					{
-						if (dr.location_.c == drawer.location_.c || dr.location_.l == drawer.location_.l)
+						if (dr.location_.c == drawer.location_.c && dr.location_.l == drawer.location_.l)
 							return JSONParserStatus::DoubleDrawer;
 					}
 

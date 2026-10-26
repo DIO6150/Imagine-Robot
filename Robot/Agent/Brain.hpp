@@ -41,14 +41,16 @@ public:
 	std::string getCurrentMessage();
 	bool noRequestsLeft();
 
+	static std::queue<Pos2D> shortestPath(Pos2D start, Pos2D destination, std::vector<Tile> givenMap, uint32_t width);
+
 private:
 	void initalizeMentalMap();
 	void simulationProgress();
 
 	void addStep(Orientation dir);
-	void addDelivery();
+	void addDelivery(std::string motif);
+	void nextRequest(std::string motif);
 
-	std::queue<Pos2D> shortestPath(Pos2D start, Pos2D destination);
 	std::queue<Pos2D> closetPath();
 
 private:

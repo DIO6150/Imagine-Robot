@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 
 enum class JSONParserStatus: int
 {
@@ -10,7 +11,7 @@ enum class JSONParserStatus: int
 	IncorrectPath				= 3,
 	WrongFormat					= 4,
 	WrongVersion				= 5,
-	IncorrectArgument			= 6,
+	InvalidJson					= 6,
 	MissingField				= 7,
 	WrongType					= 8,
 	WrongValue					= 9,
@@ -29,6 +30,86 @@ enum class JSONParserStatus: int
 	InaccurateDrawerPosition	= 22,
 	WordTwiceDefined			= 23,
 };
+
+inline void printError(JSONParserStatus error)
+{
+	std::cout << "Erreur " << static_cast<int>(error) << " : ";
+	switch (error)
+		{
+			case JSONParserStatus::FileNotFound :
+				std::cout << "Fichier absent";
+				break;
+			case JSONParserStatus::NotUTF8 :
+				std::cout << "Fichier non encodé en UTF-8";
+				break;
+			case JSONParserStatus::IncorrectPath :
+				std::cout << "Fichier non lisible";
+				break;
+			case JSONParserStatus::WrongFormat :
+				std::cout << "Format inattendu";
+				break;
+			case JSONParserStatus::WrongVersion :
+				std::cout << "Version inattendu";
+				break;
+			case JSONParserStatus::InvalidJson :
+				std::cout << "JSON syntaxiquement invalide";
+				break;
+			case JSONParserStatus::MissingField :
+				std::cout << "Champ obligatoire absent";
+				break;
+			case JSONParserStatus::WrongType :
+				std::cout << "Champ du mauvais type";
+				break;
+			case JSONParserStatus::WrongValue :
+				std::cout << "Champ obligatoire avec une valeur inadequate";
+				break;
+			case JSONParserStatus::PositionOutOfGrid :
+				std::cout << "Position hors de la grille";
+				break;
+			case JSONParserStatus::GridNotRectangular :
+				std::cout << "Grille non rectangulaire";
+				break;
+			case JSONParserStatus::InacurrateDimensions :
+				std::cout << "Dimensions de grille non conformes";
+				break;
+			case JSONParserStatus::UnknownProperty :
+				std::cout << "Symbole de grille inconnu";
+				break;
+			case JSONParserStatus::UnknownEmotion :
+				std::cout << "Emotion inconnue";
+				break;
+			case JSONParserStatus::UnknownIntensity :
+				std::cout << "Intensite inconnue";
+				break;
+			case JSONParserStatus::InacurratePosition :
+				std::cout << "Position de grille non conforme";
+				break;
+			case JSONParserStatus::ResidentSharedId :
+				std::cout << "Deux residents possedent le meme identifiant";
+				break;
+			case JSONParserStatus::ConflictingRequirement :
+				std::cout << "Carte en entree differente de carte attendue";
+				break;
+			case JSONParserStatus::DrawerStartOutOfCloset :
+				std::cout << "Casier de depart hors de l'armoire";
+				break;
+			case JSONParserStatus::DrawerPositionOutOfCloset :
+				std::cout << "Casier hors de l'armoire";
+				break;
+			case JSONParserStatus::DoubleDrawer :
+				std::cout << "Deux casier possedent la meme emotion et intensite";
+				break;
+			case JSONParserStatus::InaccurateDrawerPosition :
+				std::cout << "Position de casier non conforme";
+				break;
+			case JSONParserStatus::WordTwiceDefined :
+				std::cout << "Mot defini pour des emotions ou intensites differentes";
+				break;
+			default :
+				std::cout << "erreur inconnue";
+		}
+		std::cout << ". Pas de trace ecrite" << std::endl;
+}
 
 enum class CommandStatus
 {
@@ -106,17 +187,18 @@ private:
 
 enum class AgentFailureType
 {
-	GivingItem,
 	Move,
-	
+	Consult,
+	Search,
 };
 
 inline std::string failureToString(AgentFailureType type)
 {
 	switch (type)
 	{
-	case AgentFailureType::GivingItem: return "Giving Item";
-	case AgentFailureType::Move: return "Move";
-	default: return "Unkwown Failure";
+		case AgentFailureType::Move: return "AVANCER";
+		case AgentFailureType::Consult: return "CONSULTER";
+		case AgentFailureType::Search: return "CHERCHER";
+		default: return "Aucun echec d'action";
 	}
 }

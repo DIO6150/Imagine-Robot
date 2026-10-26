@@ -29,6 +29,7 @@ public:
 	std::vector<Pas> returnSteps();
 	std::vector<Livraison> returnDeliveries();
 
+	static void moveDrawerSelect(Pos2D & casier, Orientation direction);
 private:
 
 	CommandResult<std::vector<Tile>> see() override;

@@ -26,7 +26,7 @@ public:
 	Playground();
 	
 	// Presenter Code
-	int start(GLFWwindow * window, Directive const & instructions);
+	JSONParserStatus start(GLFWwindow * window, Directive const & instructions);
 	void tick();
 	void draw();
 
@@ -36,6 +36,11 @@ public:
 	
 	std::string getScriptName();
 	std::string getMapName();
+
+	JSONParserStatus loadData(Directive const & instructions);
+
+	template <class EnvElem>
+	static JSONParserStatus parse(std::string const & path, EnvElem & toFill);
 	
 	void onMapInit(std::vector<Tile> map, MapInfo info) override;
 
