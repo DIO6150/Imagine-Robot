@@ -8,7 +8,7 @@ AgentController::AgentController(PlaygroundAgentListener * listener)
 	brain_ = std::make_unique<Brain>(this);
 }
 
-Pos2D AgentController::getPosition()
+Pos2D AgentController::getPosition() const
 {
 	return pos_;
 }
@@ -69,6 +69,8 @@ CommandResult<void> AgentController::move(Orientation direction)
 		return CommandStatus::AgentMovementObstructed;
 
 	pos_ = pos;
+
+	listener_->onAgentMove(pos_);
 
 	return CommandStatus::Ok;
 }

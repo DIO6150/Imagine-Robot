@@ -27,7 +27,8 @@ public:
 	
 	// Presenter Code
 	JSONParserStatus start(GLFWwindow * window, Directive const & instructions);
-	void tick();
+	void update();
+	void fixedUpdate(double deltaTime);
 	void draw();
 
 public:

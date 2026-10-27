@@ -54,13 +54,24 @@ JSONParserStatus Simulation::executeDirective(Directive instructions, DirectiveT
 
 	while(!glfwWindowShouldClose(window_))
 	{
-		playground_.tick();
-
+		currentTime_ = glfwGetTime();
+		deltaTime_ = currentTime_ - lastTime_;
 		glfwPollEvents();
+		lastTime_ = currentTime_;
+
+		playground_.update();
 		
+		playground_.fixedUpdate(deltaTime_);
+		
+		if (currentTime_ - lastRenderTime_ < targetFrameTime_) continue;
+		
+
 		glClear(GL_COLOR_BUFFER_BIT);
+
 		playground_.draw();
+
 		glfwSwapBuffers(window_);
+		lastRenderTime_ = currentTime_;
 	}
 
 	trace.pas = playground_.steps();

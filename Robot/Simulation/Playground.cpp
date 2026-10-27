@@ -27,15 +27,18 @@ JSONParserStatus Playground::start(GLFWwindow * window, Directive const & instru
 
 	agent_->start(script_.getRequests(), map_.generateInfo(), closet_.getCasierDepart());
 
-	view_->init(map_);
+	view_->init(map_, agent_.get());
 
 	return status;
 }
 
-void Playground::tick()
+void Playground::update()
 {
 	agent_->tick();
+}
 
+void Playground::fixedUpdate(double deltaTime)
+{
 	if (!animationStack_.empty())
 	{
 		auto & currentAnimation = animationStack_.at(0);
@@ -44,7 +47,7 @@ void Playground::tick()
 		if (result == Stop) animationStack_.erase(animationStack_.begin());
 	}
 
-	view_->update();
+	view_->update(deltaTime);
 }
 
 void Playground::draw()
@@ -192,7 +195,7 @@ void Playground::onMapInit(std::vector<Tile> map, MapInfo info)
 
 void Playground::onAgentMove(Pos2D newPos)
 {
-
+	animationStack_.emplace_back(view_->moveAgent(newPos));
 }
 
 void Playground::onAgentTakeItem(Item item)

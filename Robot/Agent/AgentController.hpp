@@ -20,7 +20,7 @@ class AgentController: public AgentControllerListener
 {
 public:
 	AgentController(PlaygroundAgentListener * listener);
-	Pos2D getPosition();
+	Pos2D getPosition() const;
 
 	void start(std::vector<Request> requestList, MapInfo map, Pos2D casierDepart);
 	void tick();

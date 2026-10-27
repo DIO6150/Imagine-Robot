@@ -16,6 +16,9 @@ public:
 	void init();
 	
 	void setMap(std::vector<Tile> const & map, uint32_t width, uint32_t height);
+	void setAgentPosition(Pos2D pos);
+	void setAgentPosition(glm::vec2 pos);
+	void setAgentColor(glm::vec3 color);
 
 	void draw();
 	
@@ -29,14 +32,21 @@ private:
 
 	std::vector<MapTile> tileList_;
 
+	MapTile agent_;
+
 private:
+	uint32_t mapWidth_  = 0;
+	uint32_t mapHeight_ = 0;
+
 	enum TextureType
 	{
 		Custommer,
 		Empty,
 		Dictionary,
 		Wall,
-		Blank
+		Blank,
+		Agent,
+		Chest,
 	};
 
 	GLuint gridVao_;

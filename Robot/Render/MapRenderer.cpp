@@ -126,12 +126,13 @@ void MapRenderer::init()
 
 	stbi_set_flip_vertically_on_load(true);
 
-	Image blank, wall, dictionnary, empty, custommer;
+	Image blank, wall, dictionnary, empty, custommer, chest;
 	
 	custommer  .load("data/assets/textures/guy.png");
 	dictionnary.load("data/assets/textures/dictionnary.png");
 	empty      .load("data/assets/textures/empty.png");
 	wall       .load("data/assets/textures/wall.png");
+	chest      .load("data/assets/textures/chest.png");
 	blank      .loadSinglePixelTexture({1.f, 1.f, 1.f});
 
 	textures_[Custommer]  = custommer  .createTexture();
@@ -139,10 +140,18 @@ void MapRenderer::init()
 	textures_[Empty]      = empty      .createTexture();
 	textures_[Wall]       = wall       .createTexture();
 	textures_[Blank]      = blank      .createTexture();
+	textures_[Agent]      = textures_[Custommer];
+	textures_[Chest]      = chest      .createTexture();
+
+	agent_.albedoTexture = textures_[Agent];
+	agent_.albedoColor   = {1.0, 0.0, 0.0};
 }
 
 void MapRenderer::setMap(std::vector<Tile> const & map, uint32_t width, uint32_t height)
 {
+	mapWidth_  = width;
+	mapHeight_ = height;
+
 	tileList_.clear();
 	tileList_.reserve(map.size());
 	
@@ -158,16 +167,29 @@ void MapRenderer::setMap(std::vector<Tile> const & map, uint32_t width, uint32_t
 		if (tile.isEmpty())
 			obj.albedoTexture = textures_[Empty];
 		else if (tile.isPerson())
+		{
+			obj.albedoColor   = {0.f, 0.f, 1.f};
 			obj.albedoTexture = textures_[Custommer];
+		}
 		else if (tile.isRecord())
 			obj.albedoTexture = textures_[Dictionary];
 		else if (tile.isAgentStart())
-			obj.albedoColor = {1.0, 0.0, 0.0};
+		{
+			obj.albedoTexture = textures_[Empty];
+			agent_.position = obj.position;
+		}
 		else if (tile.isItemPickup())
-			obj.albedoColor = {0.0, 1.0, 0.0};
+			obj.albedoTexture = textures_[Chest];
 		else if (tile.isSolid())
 			obj.albedoTexture = textures_[Wall];
 
+		if (tile.isPerson())
+		{
+			MapTile floor;
+			floor.position = obj.position;
+			floor.albedoTexture = textures_[Empty];
+			tileList_.push_back(floor);
+		}
 		tileList_.push_back(obj);
 	}
 
@@ -192,6 +214,23 @@ void MapRenderer::setMap(std::vector<Tile> const & map, uint32_t width, uint32_t
 	);
 }
 
+void MapRenderer::setAgentPosition(Pos2D newPos)
+{
+	agent_.position.x = newPos.c;
+	agent_.position.y = (mapHeight_ - 1) - newPos.l;
+}
+
+void MapRenderer::setAgentPosition(glm::vec2 pos)
+{
+	agent_.position.x = pos.x;
+	agent_.position.y = static_cast<float>(mapHeight_ - 1) - pos.y;
+}
+
+void MapRenderer::setAgentColor(glm::vec3 color)
+{
+	agent_.albedoColor = color;
+}
+
 void MapRenderer::draw()
 {
 	// draw grid here
@@ -200,6 +239,8 @@ void MapRenderer::draw()
 	// draw map data here
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindVertexArray(tileVao_);
 	tileProgram_.use();
 	for (auto tile : tileList_)
@@ -222,5 +263,16 @@ void MapRenderer::draw()
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
+
+	glm::mat4 transform = glm::translate(mapTransform_, glm::vec3 {agent_.position, 0.0f});
+	tileProgram_.uploadMatrix4("u_transform", transform);
+	if (agent_.albedoTexture)
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, agent_.albedoTexture);
+	}
+	tileProgram_.upload3fv("u_color", agent_.albedoColor);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
 	glUseProgram(0);
 }
