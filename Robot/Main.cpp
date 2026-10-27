@@ -209,7 +209,9 @@ void testValidationFichiers()
 	for (auto const& dir_entry : std::filesystem::directory_iterator{testsFiles})
 	{
 		std::cout << "Fichier : " << dir_entry.path() << std::endl;
-		statusTest = Playground::extractAndDetermineParsing(dir_entry.path(), parsingType, dataToParse);
+		std::string strPath {dir_entry.path().string()};
+
+		statusTest = Playground::extractAndDetermineParsing(strPath, parsingType, dataToParse);
 		if (statusTest != JSONParserStatus::Ok)
 		{
 			printError(statusTest);

@@ -142,7 +142,6 @@ bool Playground::take(Pos2D posDrawer, std::string itemName)
 
 JSONParserStatus Playground::extractAndDetermineParsing(std::string const & path, int & parsingType, json & data)
 {
-	json data;
 	JSONParserStatus status = readJsonFile(path, data);
 	if(status != JSONParserStatus::Ok)
 		return status;
@@ -175,8 +174,6 @@ JSONParserStatus Playground::extract(std::string const & path, EnvElem & toFill)
 		return status;
 	
 	status = Playground::parse<EnvElem>(data, toFill);
-
-	stream.close();
 
 	return status;
 }

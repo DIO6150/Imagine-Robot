@@ -118,7 +118,7 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 				return JSONParserStatus::Ok;
 			}
 		),
-		Field::validate("casier_depart",
+		Field::validate("casiers",
 			[&stash](json const & object) 
 			{ 
 				bool isCorrectType = object.is_array();
@@ -127,6 +127,9 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 				
 				for (auto const & nested : object)
 				{
+					if (!nested.is_object())
+						return false;
+
 					if (nested.contains("ligne") || !nested.at("colonne").is_number_integer())
 						return false;
 					if (nested.contains("colonne") || !nested.at("ligne").is_number_integer())
