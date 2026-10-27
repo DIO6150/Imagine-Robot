@@ -9,23 +9,23 @@ JSONParserStatus Map::parseJSON(nlohmann::json const & object)
 }
 
 // TODO: what do we do when an invalid position is inputed
-Tile Map::getTile(int32_t x, int32_t y) const
+Tile Map::getTile(int32_t l, int32_t c) const
 {
-	auto index = x * width_ + y;
+	auto index = l * width_ + c;
 	return tiles_.at(index);
 }
 
 Tile Map::getTile(Pos2D pos) const
 {
-	return getTile(pos.x, pos.y);
+	return getTile(pos.l, pos.c);
 }
 
 bool Map::isInside(Pos2D pos) const
 {
-	if (pos.x < 0 || pos.y < 0)
+	if (pos.c < 0 || pos.l < 0)
 		return false;
 
-	if (pos.x >= width_ || pos.y >= height_)
+	if (pos.c >= width_ || pos.l >= height_)
 		return false;
 
 	return true;
@@ -62,7 +62,15 @@ Pos2D Map::getDictionaryPos() const
 
 Resident Map::atResident(std::string idRes) const
 {
-	return residents_.at(idRes);
+	Resident retour;
+	if(residents_.contains(idRes)) 
+		retour = residents_.at(idRes);
+	else
+	{
+		retour.name_ = "Non identifie";
+		retour.pos_  = Pos2D {-1, -1};
+	}
+	return retour;
 }
 
 MapInfo Map::generateInfo() const
@@ -82,10 +90,10 @@ void Map::printInfo() const
 {
 	std::cout << "Nom carte : "         << name_  << std::endl;
 	std::cout << "Dimensions : "        << width_ << "*" << height_ << std::endl;
-	std::cout << "Depart Robot : "      << robotStartPos_.x << "," << robotStartPos_.y << std::endl;
-	std::cout << "Case armoire : "      << stashPos_     .x << "," << stashPos_     .y << std::endl;
-	std::cout << "Case dictionnaire : " << dictionaryPos_.x << "," << dictionaryPos_.y << std::endl;
+	std::cout << "Depart Robot : "      << robotStartPos_.l << "," << robotStartPos_.c << std::endl;
+	std::cout << "Case armoire : "      << stashPos_     .l << "," << stashPos_     .c << std::endl;
+	std::cout << "Case dictionnaire : " << dictionaryPos_.l << "," << dictionaryPos_.c << std::endl;
 
 	for (auto & res : residents_)
-		std::cout << "Resident " << res.second.pos_.x << "," << res.second.pos_.y << std::endl;
+		std::cout << "Resident " << res.second.pos_.l << "," << res.second.pos_.c << std::endl;
 }

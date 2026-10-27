@@ -70,8 +70,11 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 			[&stash](json const & object)
 			{
 				Pos2D drawerStart; // obviously should check if its a list and if it has size == 2
-				drawerStart.x = object.at(0).get<int>();
-				drawerStart.y = object.at(1).get<int>();
+				drawerStart.l = object.at(0).get<int>();
+				drawerStart.c = object.at(1).get<int>();
+
+				if (drawerStart.c < 0 || drawerStart.c > 7 || drawerStart.c < 0 || drawerStart.c > 2)
+					return JSONParserStatus::DrawerStartOutOfCloset;
 
 				stash.casierDepart_ = drawerStart;
 
@@ -85,15 +88,28 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 				{
 					Drawer drawer;
 
-					drawer.location_.x   = nested.at("colonne").get<int>();
-					drawer.location_.y   = nested.at("ligne").get<int>();
+					drawer.location_.c   = nested.at("colonne").get<int>();
+					drawer.location_.l   = nested.at("ligne").get<int>();
+
+					if (drawer.location_.c < 0 || drawer.location_.c > 7 || drawer.location_.l < 0 || drawer.location_.l > 2)
+						return JSONParserStatus::DrawerStartOutOfCloset;
+
+					for (Drawer dr : stash.drawers_)
+					{
+						if (dr.location_.c == drawer.location_.c && dr.location_.l == drawer.location_.l)
+							return JSONParserStatus::DoubleDrawer;
+					}
 
 					std::string emotionName_ = nested.at("emotion").get<std::string>();
 					drawer.emotion_ = stash.stringToEmotions_[emotionName_];
 					std::string intensityName_ = nested.at("intensite").get<std::string>();
 					drawer.intensity_ = stash.stringToIntensities_[intensityName_];
-					drawer.item_ = ((nested.at("objet").is_null()) ? "vide" : nested.at("objet").get<std::string>());
 
+					if (drawer.location_.c != emotionToInt(drawer.emotion_) || drawer.location_.l != intensityToInt(drawer.intensity_))
+						return JSONParserStatus::InaccurateDrawerPosition;
+
+					drawer.item_ = ((nested.at("objet").is_null()) ? "vide" : nested.at("objet").get<std::string>());
+				
 					stash.drawers_.push_back(drawer);
 				}
 

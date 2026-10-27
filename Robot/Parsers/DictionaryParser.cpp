@@ -1,11 +1,6 @@
 
 
 #include <Robot/Parsers/DictionaryParser.hpp>
-#include <Robot/Simulation/Dictionary.hpp>
-
-#include <Robot/Utils/JSONParser.hpp>
-
-#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
@@ -71,17 +66,18 @@ DictionaryParser::DictionaryParser(Dictionary & dictionary, json const & object)
 				{
 					Entree entree;
 
-                    for (auto const & form : nested.at("formes"))
-                    {
-                        entree.formes_.push_back(form.get<std::string>());
-                    }
-
 					std::string emotionName_ = nested.at("emotion").get<std::string>();
 					entree.emotion_ = dictionary.stringToEmotions_[emotionName_];
 					std::string intensityName_ = nested.at("intensite").get<std::string>();
 					entree.intensity_ = dictionary.stringToIntensities_[intensityName_];
 
-					dictionary.entrees_.push_back(entree);
+                    for (auto const & form : nested.at("formes"))
+                    {
+						std::string mot = form.get<std::string>();
+						if (dictionary.entrees_.contains(mot))
+							return JSONParserStatus::WordTwiceDefined;
+						dictionary.entrees_.emplace(mot, entree);
+                    }
 				}
 
 				return JSONParserStatus::Ok;

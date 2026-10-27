@@ -7,6 +7,7 @@
 #include <Robot/Common/Request.hpp>
 #include <Robot/Common/PlaygroundAgentListener.hpp>
 #include <Robot/Common/MapInfo.hpp>
+#include <Robot/Common/TraceElement.hpp>
 #include <Robot/Agent/AgentControllerListener.hpp>
 #include <Robot/Agent/Brain.hpp>
 
@@ -25,13 +26,17 @@ public:
 	void tick();
 	bool requestsOver();
 
+	std::vector<Pas> returnSteps();
+	std::vector<Livraison> returnDeliveries();
+
+	static void moveDrawerSelect(Pos2D & casier, Orientation direction);
 private:
 
 	CommandResult<std::vector<Tile>> see() override;
 	CommandResult<void> move(Orientation direction) override;
 	
 	CommandResult<std::tuple<Emotion, Intensity>> consult() override;
-	CommandResult<int> search(Orientation direction) override;
+	CommandResult<std::string> search(Orientation direction) override;
 
 	CommandResult<void> take(std::string itemName) override;
 	CommandResult<void> give(std::string itemName) override;

@@ -99,7 +99,11 @@ JSONParserStatus JSONParser::checkFields(nlohmann::json const & object, std::vec
 		if (field.validator_)
 		{
 			if (!field.validator_(currentObject))
-				return JSONParserStatus::WrongValue;
+			{
+				if (field.name_ == "format") return JSONParserStatus::WrongFormat;
+				else if (field.name_ == "version") return JSONParserStatus::WrongVersion;
+				else return JSONParserStatus::WrongValue;
+			}
 		}
 
 		if (!field.children_.empty())

@@ -18,8 +18,7 @@
 
 struct Entree
 {
-	std::vector<std::string> formes_;
-    Emotion emotion_;
+	Emotion emotion_;
     Intensity intensity_;
 };
 
@@ -27,12 +26,13 @@ class Dictionary
 {
 public:
 	JSONParserStatus parseJSON(json const & object);
-	std::tuple<Emotion, Intensity> identifEmoIntens(std::string message);
+	std::map<std::string, Entree> getEntrees();
+	static std::tuple<Emotion, Intensity> identifEmoIntens(std::string message, std::map<std::string, Entree> givenRecord);
 	void dictionaryInfos();
 
 private:
 	std::string name_;
-	std::vector<Entree> entrees_;
+	std::map<std::string, Entree> entrees_;
 	
 	std::string const FORMAT_  = "robot-reconfort/dictionnaire";
 	int         const VERSION_ = 1;

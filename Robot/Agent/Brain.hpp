@@ -8,9 +8,10 @@
 #include <cstdint>
 
 #include <Robot/Agent/AgentController.hpp>
+#include <Robot/Common/Item.hpp>
 #include <Robot/Common/MapInfo.hpp>
 #include <Robot/Common/Request.hpp>
-#include <Robot/Common/Item.hpp>
+#include <Robot/Common/TraceElement.hpp>
 #include <Robot/Simulation/Map.hpp>
 
 enum class Objective : int32_t
@@ -34,27 +35,43 @@ public:
 	void start(std::vector<Request> requestList, MapInfo info, Pos2D casierDepart);
 	void tick();
 
+	std::vector<Pas> getSteps();
+	std::vector<Livraison> getDeliveries();
+	static std::string determineRepli(Pos2D casierChoisi, Emotion emoCherchee, Intensity intensCherchee);
+
 	std::string getCurrentMessage();
 	bool noRequestsLeft();
+
+	static std::queue<Pos2D> shortestPath(Pos2D start, Pos2D destination, std::vector<Tile> givenMap, uint32_t width);
 
 private:
 	void initalizeMentalMap();
 	void simulationProgress();
 
-	std::queue<Pos2D> shortestPath(Pos2D start, Pos2D destination);
+	void addStep(Orientation dir);
+	void addDelivery(std::string motif);
+	void nextRequest(std::string motif);
+
 	std::queue<Pos2D> closetPath();
 
 private:
-	MapInfo mapInfo_;
-	std::vector<Request> requestList_;
-	int                  currentReq_;
-	std::vector<Tile>    mentalMap_;
-	std::queue<Pos2D>    currentPath_;
-	bool                 destinationReached_;
-	Emotion              currentSearchedEmotion_;
-	Intensity            currentSearchedIntensity_;
-	std::queue<Pos2D>    drawerCheckQueue_;
-	std::vector<int>     drawersContainsItem_ = std::vector<int>(24, 0);
+	std::vector<Pas>		  	 steps_;
+	std::vector<Livraison>   	 deliveries_;
+
+	uint32_t                  	 nSteps_;
+	uint32_t                  	 nStepsRequest_;
+	MapInfo					 	 mapInfo_;
+	std::vector<Request>      	 requestList_;
+	int                       	 currentReq_;
+	std::vector<Tile>    		 mentalMap_;
+	std::map<Orientation, Tile>  currentPerception_;
+	std::queue<Pos2D>            currentPath_;
+	bool                 	     destinationReached_;
+	bool						 deliverySuccess_;
+	Emotion               	     currentSearchedEmotion_;
+	Intensity                	 currentSearchedIntensity_;
+	std::queue<Pos2D>         	 drawerCheckQueue_;
+	std::vector<std::string>  	 drawersContainsItem_ = std::vector<std::string>(24, "not seen");
 
 
 	Objective currentObjective_ = Objective::ReachDictionary;

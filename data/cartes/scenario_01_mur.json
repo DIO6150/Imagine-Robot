@@ -1,0 +1,29 @@
+{
+  "format": "robot-reconfort/scenario",
+  "version": 1,
+  "nom": "scenario_01_mur",
+  "carte": "appartement_01_mur",
+  "armoire": "armoire_sans_joie",
+  "demandes": [
+    {
+      "numero": 1,
+      "resident": "R1",
+      "message": "Je me sens tellement seule ce soir que j'en suis abasourdie'."
+    },
+    {
+      "numero": 2,
+      "resident": "R2",
+      "message": "J'entends du bruit dans le couloir."
+    },
+    {
+      "numero": 3,
+      "resident": "R1",
+      "message": "Ce bouton est cassé, ça m'agace depuis hier."
+    },
+    {
+      "numero": 4,
+      "resident": "R2",
+      "message": "Ma fille a appelé, je suis vraiment heureux."
+    }
+  ]
+}

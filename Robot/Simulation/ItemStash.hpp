@@ -36,7 +36,7 @@ public:
 
 private:
 	std::string name_;
-	std::vector<Drawer> drawers_ = std::vector<Drawer>(24);
+	std::vector<Drawer> drawers_;
 	
 	std::string const FORMAT_  = "robot-reconfort/armoire";
 	int         const VERSION_ = 1;

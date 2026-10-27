@@ -4,33 +4,33 @@
 
 struct Pos2D
 {
-	int32_t x = 0;
-	int32_t y = 0;
+	int32_t l = 0;
+	int32_t c = 0;
 
 	bool operator==(Pos2D const & rhs) const
 	{
-		return x == rhs.x && y == rhs.y;
+		return l == rhs.l && c == rhs.c;
 	}
 
 	bool operator<(Pos2D const & rhs) const
 	{
-		if (x != rhs.x)
-        	return x < rhs.x;
-		return y < rhs.y;
+		if (l != rhs.l)
+        	return l < rhs.l;
+		return c < rhs.c;
 	}
 
 	Pos2D & operator+=(Pos2D const & rhs)
 	{
-		x += rhs.x;
-		y += rhs.y;
+		l += rhs.l;
+		c += rhs.c;
 
 		return *this;
 	}
 
 	Pos2D & operator-=(Pos2D const & rhs)
 	{
-		x -= rhs.x;
-		y -= rhs.y;
+		l -= rhs.l;
+		c -= rhs.c;
 
 		return *this;
 	}

@@ -11,7 +11,7 @@
 class Simulation
 {
 public:
-	DirectiveTrace executeDirective(Directive instructions);
+	JSONParserStatus executeDirective(Directive instructions, DirectiveTrace & trace);
 
 private:
 	Playground playground_;

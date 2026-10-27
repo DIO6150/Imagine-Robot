@@ -10,6 +10,7 @@
 
 #include <Robot/Common/PlaygroundAgentListener.hpp>
 #include <Robot/Common/PlaygroundViewListener.hpp>
+#include <Robot/Common/TraceElement.hpp>
 
 #include <Robot/Render/PlaygroundView.hpp>
 
@@ -25,11 +26,22 @@ public:
 	Playground();
 	
 	// Presenter Code
-	void start(GLFWwindow * window, Directive const & instructions);
+	JSONParserStatus start(GLFWwindow * window, Directive const & instructions);
 	void tick();
 	void draw();
 
 public:
+	std::vector<Pas> steps();
+	std::vector<Livraison> deliveries();
+	
+	std::string getScriptName();
+	std::string getMapName();
+
+	JSONParserStatus loadData(Directive const & instructions);
+
+	template <class EnvElem>
+	static JSONParserStatus parse(std::string const & path, EnvElem & toFill);
+	
 	void onMapInit(std::vector<Tile> map, MapInfo info) override;
 
 	void onAgentMove(Pos2D newPos) override;
@@ -51,7 +63,7 @@ private:
 	bool canMove() override;
 	std::vector<Tile> see() override;
 	std::tuple<Emotion, Intensity> consult(std::string message) override;
-	int search(Pos2D posDrawer) override;
+	std::string search(Pos2D posDrawer) override;
 	bool take(Pos2D posDrawer, std::string itemName) override;
 	
 private:

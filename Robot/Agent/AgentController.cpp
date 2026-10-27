@@ -32,6 +32,29 @@ bool AgentController::requestsOver()
 	return brain_->noRequestsLeft();
 }
 
+std::vector<Pas> AgentController::returnSteps()
+{
+	return brain_->getSteps();
+}
+
+std::vector<Livraison> AgentController::returnDeliveries()
+{
+	return brain_->getDeliveries();
+}
+
+void AgentController::moveDrawerSelect(Pos2D & givenDrawer, Orientation direction)
+{
+	if (givenDrawer.l == 2 && direction == Orientation::South)
+		std::cout << "Casier en intensite maximale, pas de deplacement" << std::endl;
+	else if (givenDrawer.l == 0 && direction == Orientation::North)
+		std::cout << "Casier en intensite minimale, pas de deplacement" << std::endl;
+	else
+	{
+		givenDrawer = givenDrawer + directionToPos(direction);
+		givenDrawer.c = (givenDrawer.c + 8) % 8;
+	}
+}
+
 CommandResult<std::vector<Tile>> AgentController::see()
 {
 	std::vector<Tile> perception = listener_->see();
@@ -61,11 +84,10 @@ CommandResult<std::tuple<Emotion, Intensity>> AgentController::consult()
 	return result;
 }
 
-CommandResult<int> AgentController::search(Orientation direction)
+CommandResult<std::string> AgentController::search(Orientation direction)
 {
-	casier_ = casier_ + directionToPos(direction);
-	casier_.x = casier_.x % 8;
-	auto result = listener_->search(casier_);
+	moveDrawerSelect(casier_, direction);
+	std::string result = listener_->search(casier_);
 
 	return result;
 }

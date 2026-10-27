@@ -15,31 +15,21 @@ Playground::Playground()
 	view_  = std::make_unique<PlaygroundView> (this);
 }
 
-void Playground::start(GLFWwindow * window, Directive const & instructions)
+JSONParserStatus Playground::start(GLFWwindow * window, Directive const & instructions)
 {
-	JSONParserStatus status;
-	
-	status = parse(instructions.script, "scenario");
-	if (status != JSONParserStatus::Ok) return;
+	std::cout << "Chargement des donness." << std::endl;
 
-	// TODO : DEBATE do we use the name in the script file or the name in the instruction set ?
-	std::string mapPath        = instructions.map;
-	std::string closetPath     = instructions.data + "/" + script_.getClosetName() + ".json";
-	std::string dictionaryPath = instructions.data + "/dictionnaire.json";
+	JSONParserStatus status = loadData(instructions);
+	if (status != JSONParserStatus::Ok)
+		return status;
 
-	status = parse(mapPath, "carte");
-	if (status != JSONParserStatus::Ok) return;
-	if (script_.getMapName() != map_.getName()) return;
-
-	status = parse(closetPath, "armoire");
-	if (status != JSONParserStatus::Ok) return;
-
-	status = parse(dictionaryPath, "dictionnaire");
-	if (status != JSONParserStatus::Ok)	return;
+	std::cout << "Donnees chargees." << std::endl;
 
 	agent_->start(script_.getRequests(), map_.generateInfo(), closet_.getCasierDepart());
 
 	view_->init();
+
+	return status;
 }
 
 void Playground::tick()
@@ -67,6 +57,25 @@ bool Playground::agentIsOver()
 	return agent_->requestsOver();
 }
 
+std::vector<Pas> Playground::steps()
+{
+	return agent_->returnSteps();
+}
+
+std::vector<Livraison> Playground::deliveries()
+{
+	return agent_->returnDeliveries();
+}
+
+std::string Playground::getScriptName()
+{
+	return script_.getName();
+}
+
+std::string Playground::getMapName()
+{
+	return map_.getName();
+}
 
 bool Playground::canMove()
 {
@@ -117,13 +126,13 @@ std::vector<Tile> Playground::see()
 
 std::tuple<Emotion, Intensity> Playground::consult(std::string message)
 {
-	std::tuple<Emotion, Intensity> result = dictionary_.identifEmoIntens(message);
+	std::tuple<Emotion, Intensity> result = dictionary_.identifEmoIntens(message, dictionary_.getEntrees());
 	return result;
 }
 
-int Playground::search(Pos2D posDrawer)
+std::string Playground::search(Pos2D posDrawer)
 {
-	return ((closet_.getItem(posDrawer) == "vide") ? -1 : 1);
+	return closet_.getItem(posDrawer);
 }
 
 bool Playground::take(Pos2D posDrawer, std::string itemName)
@@ -131,18 +140,48 @@ bool Playground::take(Pos2D posDrawer, std::string itemName)
 	return closet_.removeItem(posDrawer, itemName);
 }
 
-JSONParserStatus Playground::parse(std::string const & path, std::string toFill)
+template <class EnvElem>
+JSONParserStatus Playground::parse(std::string const & path, EnvElem & toFill)
 {
 	std::ifstream stream {path};
+	if (!stream.is_open())
+        return JSONParserStatus::FileNotFound;
 	json data   = json::parse(stream);
-	auto status = JSONParserStatus::IncorrectArgument;
+	auto status = toFill.parseJSON(data);
 
-	if      (toFill == "carte")        status = map_       .parseJSON(data);
-	else if (toFill == "scenario")     status = script_    .parseJSON(data);
-	else if (toFill == "armoire")      status = closet_    .parseJSON(data);
-	else if (toFill == "dictionnaire") status = dictionary_.parseJSON(data);
-	else std::cout << "incorrect element to fill" << std::endl;
+	stream.close();
 
+	return status;
+}
+
+JSONParserStatus Playground::loadData(Directive const & instructions)
+{
+	JSONParserStatus status = Playground::parse<Script>(instructions.script, script_);
+	if (status != JSONParserStatus::Ok) 
+		return status;
+
+	// TODO : DEBATE do we use the name in the script file or the name in the instruction set ?
+	std::string mapPath        = instructions.map;
+	std::string closetPath     = instructions.data + "/" + script_.getClosetName() + ".json";
+	std::string dictionaryPath = instructions.data + "/dictionnaire.json";
+
+	status = Playground::parse<Map>(mapPath, map_);
+	if (status != JSONParserStatus::Ok) 
+		return status;
+	if (script_.getMapName() != map_.getName())
+		return JSONParserStatus::ConflictingRequirement;
+	for (Request req : script_.getRequests())
+	{
+		if (map_.atResident(req.getIdResident()).name_ == "Non identifie")
+			return JSONParserStatus::ConflictingRequirement;
+	}
+
+	status = Playground::parse<ItemStash>(closetPath, closet_);
+	if (status != JSONParserStatus::Ok) 
+		return status;
+
+	status = Playground::parse<Dictionary>(dictionaryPath, dictionary_);
+	
 	return status;
 }
 
