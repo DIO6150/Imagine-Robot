@@ -19,7 +19,7 @@ struct DirectiveTrace
 	uint32_t version = 1;
 	std::string carte;
 	std::string scenario;
-	std::vector<std::string> equipe = {"EOUZAN Mael", "DOMBROWSKI Tahina"};
+	std::vector<std::string> equipe = {"DOMBROWSKI Tahina", "EOUZAN Mael"};
 	
 	std::vector<Pas> pas;
 	std::vector<Livraison> livraisons;

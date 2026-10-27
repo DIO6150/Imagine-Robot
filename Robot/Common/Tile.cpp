@@ -81,7 +81,7 @@ bool TileProperty::isRecord() const
 
 bool TileProperty::isEmpty() const
 {
-    return flags_ & 0;
+    return flags_ == 0;
 }
 
 Tile::Tile(TileProperty const & property, Pos2D pos)

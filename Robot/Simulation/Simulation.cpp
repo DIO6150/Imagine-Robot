@@ -52,13 +52,11 @@ JSONParserStatus Simulation::executeDirective(Directive instructions, DirectiveT
 	trace.carte = playground_.getMapName();
 	trace.scenario = playground_.getScriptName();
 
-	while(!playground_.agentIsOver())
+	while(!glfwWindowShouldClose(window_))
 	{
 		playground_.tick();
 
 		glfwPollEvents();
-		
-		if (glfwWindowShouldClose(window_)) break;
 		
 		glClear(GL_COLOR_BUFFER_BIT);
 		playground_.draw();

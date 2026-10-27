@@ -21,6 +21,9 @@ inline bool inRect(Pos2D pos, uint32_t down, uint32_t up, uint32_t left, uint32_
 
 void Brain::simulationProgress()
 {
+	if (currentReq_ >= requestList_.size())
+		return;
+
 	std::cout << "Total request : " << requestList_.size() << std::endl;
 	std::cout << "Request n" << requestList_[currentReq_].getId() << std::endl;
 	std::cout << "Current Objective : ";

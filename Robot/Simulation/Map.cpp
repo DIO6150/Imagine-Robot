@@ -73,6 +73,11 @@ Resident Map::atResident(std::string idRes) const
 	return retour;
 }
 
+std::vector<Tile> const & Map::rawTileMap() const
+{
+	return tiles_;
+}
+
 MapInfo Map::generateInfo() const
 {
 	MapInfo info;

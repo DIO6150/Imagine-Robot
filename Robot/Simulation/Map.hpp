@@ -35,6 +35,8 @@ public:
 	Pos2D getDictionaryPos() const;
 	Resident atResident(std::string idRes) const;
 
+	std::vector<Tile> const & rawTileMap() const;
+
 	MapInfo generateInfo() const;
 
 	void printInfo() const;

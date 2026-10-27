@@ -27,7 +27,7 @@ JSONParserStatus Playground::start(GLFWwindow * window, Directive const & instru
 
 	agent_->start(script_.getRequests(), map_.generateInfo(), closet_.getCasierDepart());
 
-	view_->init();
+	view_->init(map_);
 
 	return status;
 }

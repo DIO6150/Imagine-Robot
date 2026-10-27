@@ -20,6 +20,7 @@ target_sources(${PROJECT_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Parsers/DictionaryParser.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Parsers/ClosetParser.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/ShaderProgram.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/MapRenderer.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/PlaygroundView.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/Dictionary.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/ItemStash.cpp
@@ -30,6 +31,7 @@ target_sources(${PROJECT_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Utils/JSONParser.cpp
 
 		${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/src/glad.c
+		${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb/stb_image.c
 )
 
 target_include_directories(${PROJECT_NAME}

@@ -2,21 +2,21 @@
 
 #include <Robot/Common/PlaygroundViewListener.hpp>
 
-#include <Robot/Render/Meshes/TileMesh.hpp>
-#include <Robot/Render/Meshes/AgentMesh.hpp>
+#include <Robot/Render/MapRenderer.hpp>
+
+#include <Robot/Simulation/Map.hpp>
 
 class PlaygroundView
 {
 public:
 	PlaygroundView(PlaygroundViewListener * listener);
 
-	void init();
+	void init(Map const & map);
 	void update();
 	void draw();
 
 private:
-	std::vector<TileMesh> map_;
-	AgentMesh agent_;
+	MapRenderer physicalMap_;
 
 	bool itemStashFocus_ = false;
 

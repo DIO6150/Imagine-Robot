@@ -11,9 +11,10 @@ PlaygroundView::PlaygroundView(PlaygroundViewListener * listener)
 	
 }
 
-void PlaygroundView::init()
+void PlaygroundView::init(Map const & map)
 {
-
+	physicalMap_.init();
+	physicalMap_.setMap(map.rawTileMap(), map.getWidth(), map.getHeight());
 }
 
 void PlaygroundView::update()
@@ -26,15 +27,11 @@ void PlaygroundView::draw()
 	/*
 		Draw Map here
 	*/
-	for (auto const & tile : map_ )
-	{
-		tile.draw();
-	}
+	physicalMap_.draw();
 
 	/*
 		Draw Agent here
 	*/
-	agent_.draw();
 
 	/*
 		Draw Item Stash here
