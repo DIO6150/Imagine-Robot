@@ -14,101 +14,97 @@ enum class JSONParserStatus: int
 	InvalidJson					= 6,
 	MissingField				= 7,
 	WrongType					= 8,
-	WrongValue					= 9,
-	PositionOutOfGrid			= 10,
-	GridNotRectangular			= 11,
-	InacurrateDimensions		= 12,
-	UnknownProperty 			= 13,
-	UnknownEmotion				= 14,
-	UnknownIntensity			= 15,
-	InacurratePosition			= 16,
-	ResidentSharedId			= 17,
-	ConflictingRequirement		= 18,
-	DrawerStartOutOfCloset		= 19,
-	DrawerPositionOutOfCloset	= 20,
-	DoubleDrawer				= 21,
-	InaccurateDrawerPosition	= 22,
-	WordTwiceDefined			= 23,
+	PositionOutOfGrid			= 9,
+	GridNotRectangular			= 10,
+	InacurrateDimensions		= 11,
+	UnknownProperty				= 12,
+	UnknownEmotion 				= 13,
+	UnknownIntensity			= 14,
+	InacurratePosition			= 15,
+	ResidentSharedId			= 16,
+	ConflictingRequirement		= 17,
+	DrawerStartOutOfCloset		= 18,
+	DrawerPositionOutOfCloset	= 19,
+	DoubleDrawer				= 20,
+	InaccurateDrawerPosition	= 21,
+	WordTwiceDefined			= 22,
 };
 
 inline void printError(JSONParserStatus error)
 {
-	std::cout << "Erreur " << static_cast<int>(error) << " : ";
+	std::cerr << "Erreur " << static_cast<int>(error) << " : ";
 	switch (error)
 		{
 			case JSONParserStatus::FileNotFound :
-				std::cout << "Fichier absent";
+				std::cerr << "Fichier absent";
 				break;
 			case JSONParserStatus::NotUTF8 :
-				std::cout << "Fichier non encodé en UTF-8";
+				std::cerr << "Fichier non encodé en UTF-8";
 				break;
 			case JSONParserStatus::IncorrectPath :
-				std::cout << "Fichier non lisible";
+				std::cerr << "Fichier non lisible";
 				break;
 			case JSONParserStatus::WrongFormat :
-				std::cout << "Format inattendu";
+				std::cerr << "Format inattendu";
 				break;
 			case JSONParserStatus::WrongVersion :
-				std::cout << "Version inattendu";
+				std::cerr << "Version inattendu";
 				break;
 			case JSONParserStatus::InvalidJson :
-				std::cout << "JSON syntaxiquement invalide";
+				std::cerr << "JSON syntaxiquement invalide";
 				break;
 			case JSONParserStatus::MissingField :
-				std::cout << "Champ obligatoire absent";
+				std::cerr << "Champ obligatoire absent";
 				break;
 			case JSONParserStatus::WrongType :
-				std::cout << "Champ du mauvais type";
-				break;
-			case JSONParserStatus::WrongValue :
-				std::cout << "Champ obligatoire avec une valeur inadequate";
+				std::cerr << "Champ du mauvais type";
 				break;
 			case JSONParserStatus::PositionOutOfGrid :
-				std::cout << "Position hors de la grille";
+				std::cerr << "Position hors de la grille";
 				break;
 			case JSONParserStatus::GridNotRectangular :
-				std::cout << "Grille non rectangulaire";
+				std::cerr << "Grille non rectangulaire";
 				break;
 			case JSONParserStatus::InacurrateDimensions :
-				std::cout << "Dimensions de grille non conformes";
+				std::cerr << "Dimensions de grille non conformes";
 				break;
 			case JSONParserStatus::UnknownProperty :
-				std::cout << "Symbole de grille inconnu";
+				std::cerr << "Symbole de grille inconnu";
 				break;
 			case JSONParserStatus::UnknownEmotion :
-				std::cout << "Emotion inconnue";
+				std::cerr << "Emotion inconnue";
 				break;
 			case JSONParserStatus::UnknownIntensity :
-				std::cout << "Intensite inconnue";
+				std::cerr << "Intensite inconnue";
 				break;
 			case JSONParserStatus::InacurratePosition :
-				std::cout << "Position de grille non conforme";
+				std::cerr << "Position de grille non conforme";
 				break;
 			case JSONParserStatus::ResidentSharedId :
-				std::cout << "Deux residents possedent le meme identifiant";
+				std::cerr << "Deux residents possedent le meme identifiant";
 				break;
 			case JSONParserStatus::ConflictingRequirement :
-				std::cout << "Carte en entree differente de carte attendue";
+				std::cerr << "Carte en entree differente de carte attendue";
 				break;
 			case JSONParserStatus::DrawerStartOutOfCloset :
-				std::cout << "Casier de depart hors de l'armoire";
+				std::cerr << "Casier de depart hors de l'armoire";
 				break;
 			case JSONParserStatus::DrawerPositionOutOfCloset :
-				std::cout << "Casier hors de l'armoire";
+				std::cerr << "Casier hors de l'armoire";
 				break;
 			case JSONParserStatus::DoubleDrawer :
-				std::cout << "Deux casier possedent la meme emotion et intensite";
+				std::cerr << "Deux casier possedent la meme emotion et intensite";
 				break;
 			case JSONParserStatus::InaccurateDrawerPosition :
-				std::cout << "Position de casier non conforme";
+				std::cerr << "Position de casier non conforme";
 				break;
 			case JSONParserStatus::WordTwiceDefined :
-				std::cout << "Mot defini pour des emotions ou intensites differentes";
+				std::cerr << "Mot defini pour des emotions ou intensites differentes";
 				break;
 			default :
-				std::cout << "erreur inconnue";
+				std::cerr << "erreur inconnue";
 		}
-		std::cout << ". Pas de trace ecrite" << std::endl;
+		std::cerr << ". Pas de trace ecrite\n" << std::endl;
 }
 
 enum class CommandStatus

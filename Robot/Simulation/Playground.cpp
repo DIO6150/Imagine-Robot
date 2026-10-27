@@ -140,47 +140,89 @@ bool Playground::take(Pos2D posDrawer, std::string itemName)
 	return closet_.removeItem(posDrawer, itemName);
 }
 
-template <class EnvElem>
-JSONParserStatus Playground::parse(std::string const & path, EnvElem & toFill)
+JSONParserStatus Playground::extractAndDetermineParsing(std::string const & path, int & parsingType, json & data)
 {
-	std::ifstream stream {path};
-	if (!stream.is_open())
-        return JSONParserStatus::FileNotFound;
-	json data   = json::parse(stream);
-	auto status = toFill.parseJSON(data);
+	json data;
+	JSONParserStatus status = readJsonFile(path, data);
+	if(status != JSONParserStatus::Ok)
+		return status;
+
+	if(!data.contains("format"))
+		return JSONParserStatus::MissingField;
+
+	std::string typeToFill =  data["format"];
+	if(typeToFill == "robot-reconfort/scenario")
+		parsingType = 0;
+	else if(typeToFill == "robot-reconfort/carte")
+		parsingType = 1;
+	else if(typeToFill == "robot-reconfort/armoire")
+		parsingType = 2;
+	else if(typeToFill == "robot-reconfort/dictionnaire")
+		parsingType = 3;
+	else
+		status = JSONParserStatus::WrongFormat;
+	//std::cout << "Donnees determinees : " << parsingType << std::endl;
+
+	return status;
+}
+
+template <class EnvElem>
+JSONParserStatus Playground::extract(std::string const & path, EnvElem & toFill)
+{
+	json data;
+	JSONParserStatus status = readJsonFile(path, data);
+	if(status != JSONParserStatus::Ok)
+		return status;
+	
+	status = Playground::parse<EnvElem>(data, toFill);
 
 	stream.close();
 
 	return status;
 }
 
+template <class EnvElem>
+JSONParserStatus Playground::parse(json data, EnvElem & toFill)
+{
+	return toFill.parseJSON(data);
+}
+
+JSONParserStatus Playground::conformScriptMap(Script script, Map map)
+{
+	if (script.getMapName() != map.getName())
+		return JSONParserStatus::ConflictingRequirement;
+	for (Request req : script.getRequests())
+	{
+		if (map.atResident(req.getIdResident()).name_ == "Non identifie")
+			return JSONParserStatus::ConflictingRequirement;
+	}
+	return JSONParserStatus::Ok;
+}
+
 JSONParserStatus Playground::loadData(Directive const & instructions)
 {
-	JSONParserStatus status = Playground::parse<Script>(instructions.script, script_);
+	json data;
+	JSONParserStatus status = Playground::extract<Script>(instructions.script, script_);
+	if (status != JSONParserStatus::Ok) 
+		return status;
+
+	status = Playground::extract<Map>(instructions.map, map_);
+	if (status != JSONParserStatus::Ok) 
+		return status;
+	
+	status = Playground::conformScriptMap(script_, map_);
 	if (status != JSONParserStatus::Ok) 
 		return status;
 
 	// TODO : DEBATE do we use the name in the script file or the name in the instruction set ?
-	std::string mapPath        = instructions.map;
 	std::string closetPath     = instructions.data + "/" + script_.getClosetName() + ".json";
 	std::string dictionaryPath = instructions.data + "/dictionnaire.json";
 
-	status = Playground::parse<Map>(mapPath, map_);
-	if (status != JSONParserStatus::Ok) 
-		return status;
-	if (script_.getMapName() != map_.getName())
-		return JSONParserStatus::ConflictingRequirement;
-	for (Request req : script_.getRequests())
-	{
-		if (map_.atResident(req.getIdResident()).name_ == "Non identifie")
-			return JSONParserStatus::ConflictingRequirement;
-	}
-
-	status = Playground::parse<ItemStash>(closetPath, closet_);
+	status = Playground::extract<ItemStash>(closetPath, closet_);
 	if (status != JSONParserStatus::Ok) 
 		return status;
 
-	status = Playground::parse<Dictionary>(dictionaryPath, dictionary_);
+	status = Playground::extract<Dictionary>(dictionaryPath, dictionary_);
 	
 	return status;
 }

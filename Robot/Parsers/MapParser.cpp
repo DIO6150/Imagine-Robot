@@ -1,11 +1,6 @@
 
 
 #include <Robot/Parsers/MapParser.hpp>
-#include <Robot/Simulation/Map.hpp>
-
-#include <Robot/Utils/JSONParser.hpp>
-
-#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Robot/Simulation/ItemStash.hpp>
+#include <Robot/Utils/JSONParser.hpp>
 #include <Robot/Errors/Error.hpp>
-
-#include <nlohmann/json.hpp>
 
 class ItemStash;
 

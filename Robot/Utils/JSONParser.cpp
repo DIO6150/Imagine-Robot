@@ -61,15 +61,17 @@ JSONParserStatus JSONParser::fillFields(json const & object) const
 
 JSONParserStatus JSONParser::fillFields(json const & object, std::vector<Field> const & fields) const
 {
+	JSONParserStatus status = JSONParserStatus::Ok;
+
 	for (auto field : fields)
 	{
 		auto const & currentObject = object.at(field.name_);
 
 		if (field.filler_)
 		{
-			auto status = field.filler_(currentObject);
+			status = field.filler_(currentObject);
 
-			if ((int)status) return status;
+			if (status != JSONParserStatus::Ok) return status;
 		}
 
 		if (field.fillerNoError_)
@@ -79,16 +81,18 @@ JSONParserStatus JSONParser::fillFields(json const & object, std::vector<Field> 
 
 		if (!field.children_.empty())
 		{
-			auto status = fillFields(currentObject, field.children_);
-			if ((int)status) return status;
+			status = fillFields(currentObject, field.children_);
+			if (status != JSONParserStatus::Ok) return status;
 		}
 	}
 
-	return JSONParserStatus::Ok;
+	return status;
 }
 
 JSONParserStatus JSONParser::checkFields(nlohmann::json const & object, std::vector<Field> const & fields) const
 {
+	JSONParserStatus status = JSONParserStatus::Ok;
+	
 	for (auto const & field : fields)
 	{
 		if (!object.contains(field.name_))
@@ -101,17 +105,16 @@ JSONParserStatus JSONParser::checkFields(nlohmann::json const & object, std::vec
 			if (!field.validator_(currentObject))
 			{
 				if (field.name_ == "format") return JSONParserStatus::WrongFormat;
-				else if (field.name_ == "version") return JSONParserStatus::WrongVersion;
-				else return JSONParserStatus::WrongValue;
+				if (field.name_ == "version") return JSONParserStatus::WrongVersion;
 			}
 		}
 
 		if (!field.children_.empty())
 		{
-			auto result = checkFields(currentObject, field.children_);
-			if (!(int)result) return result;
+			status = checkFields(currentObject, field.children_);
+			if (status != JSONParserStatus::Ok) return status;
 		}
 	}
 
-	return JSONParserStatus::Ok;
+	return status;
 }

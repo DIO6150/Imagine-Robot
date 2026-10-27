@@ -17,6 +17,7 @@
 #include <Robot/Agent/AgentController.hpp>
 
 #include <Robot/Utils/Animation.hpp>
+#include <Robot/Utils/ReadFile.hpp>
 
 class GLFWwindow;
 
@@ -40,7 +41,13 @@ public:
 	JSONParserStatus loadData(Directive const & instructions);
 
 	template <class EnvElem>
-	static JSONParserStatus parse(std::string const & path, EnvElem & toFill);
+	static JSONParserStatus parse(json data, EnvElem & toFill);
+
+	static JSONParserStatus conformScriptMap(Script script, Map map);
+	static JSONParserStatus extractAndDetermineParsing(std::string const & path, int & parsingType, json & data);
+	
+	template <class EnvElem>
+	JSONParserStatus extract(std::string const & path, EnvElem & toFill);
 	
 	void onMapInit(std::vector<Tile> map, MapInfo info) override;
 
@@ -65,9 +72,6 @@ private:
 	std::tuple<Emotion, Intensity> consult(std::string message) override;
 	std::string search(Pos2D posDrawer) override;
 	bool take(Pos2D posDrawer, std::string itemName) override;
-	
-private:
-	JSONParserStatus parse(std::string const & path, std::string toFill);
 
 private:
 	Script script_;

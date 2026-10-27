@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <filesystem>
 #include <Robot/Simulation/Simulation.hpp>
 #include <vendor/nlohmann/json.hpp>
 
@@ -192,7 +193,50 @@ void testRegleRepli()
 
 void testValidationFichiers()
 {
-	std::cout << "Tests de validation des fichiers :" << std::endl;
+	std::cout << "Tests de validation des fichiers :\n" << std::endl;
+
+	Script testScript;
+	Map testMap;
+	ItemStash closetTest;
+	Dictionary dictionaryTest;
+
+	json dataToParse;
+	int parsingType = 0;
+	JSONParserStatus statusTest = JSONParserStatus::Ok;
+	
+	const std::filesystem::path testsFiles{"data/tests_fichiers"};
+
+	for (auto const& dir_entry : std::filesystem::directory_iterator{testsFiles})
+	{
+		std::cout << "Fichier : " << dir_entry.path() << std::endl;
+		statusTest = Playground::extractAndDetermineParsing(dir_entry.path(), parsingType, dataToParse);
+		if (statusTest != JSONParserStatus::Ok)
+		{
+			printError(statusTest);
+			continue;
+		}
+
+		//std::cout << "Type a parse : " << parsingType << std::endl;
+		switch (parsingType)
+		{
+			case 0:
+				statusTest = Playground::parse<Script>(dataToParse, testScript);
+				break;
+			case 1:
+				statusTest = Playground::parse<Map>(dataToParse, testMap);
+				break;
+			case 2:
+				statusTest = Playground::parse<ItemStash>(dataToParse, closetTest);
+				break;
+			case 3:
+				statusTest = Playground::parse<Dictionary>(dataToParse, dictionaryTest);
+				break;
+			default:
+				printError(JSONParserStatus::WrongFormat);
+				continue;
+		}
+		printError(statusTest);
+	}
 }
 
 void testOne(std::string testType)
@@ -228,11 +272,12 @@ void testOne(std::string testType)
 	else
 		std::cout << "Argument de test invalide." << std::endl; 
 
-	std::cout << "Execution des tests terminee." << std::endl;
+	std::cout << "Execution des tests terminee.\n" << std::endl;
 }
 
 int main(int argc, char ** argv)
 {
+
 	switch (argc)
 	{
 		case 2 :
@@ -250,6 +295,7 @@ int main(int argc, char ** argv)
 			std::cout << "\nLancer les tests :" << std::endl;
 			std::cout << "- argument 1 : tests_tous || tests_plan || tests_replan || tests_lecture";
 			std::cout << " || tests_select || tests_repli || tests_acces || tests_fichier" << std::endl;
+			//std::cout << "- argument 2 (si arg 1 = tests_acces || tests_fichier) : chemin du dossier de fichiers" << std::endl;
 			return 0;
 	}
 	

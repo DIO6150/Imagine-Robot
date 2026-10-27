@@ -1,14 +1,6 @@
 
 #include <Robot/Parsers/ClosetParser.hpp>
 
-
-#include <Robot/Parsers/MapParser.hpp>
-#include <Robot/Simulation/ItemStash.hpp>
-
-#include <Robot/Utils/JSONParser.hpp>
-
-#include <nlohmann/json.hpp>
-
 using json = nlohmann::json;
 
 ClosetParser::ClosetParser(ItemStash & stash, json const & object)
@@ -22,6 +14,21 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 		),
 		Field::fillNoError("nom",
 			[&stash](json const & object) { stash.name_ = object.get<std::string>(); }
+		),
+		Field::validate("emotions",
+			[&stash](json const & object) 
+			{ 
+				bool isCorrectType = object.is_array();
+				if (!isCorrectType)
+					return false;
+
+				for (auto const & nested : object)
+				{
+					if (!nested.is_string())
+						return false;
+				}
+				return isCorrectType;
+			}
 		),
 		Field::fill("emotions",
 			[&stash](json const & object)
@@ -47,6 +54,21 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 				return JSONParserStatus::Ok;
 			}
 		),
+		Field::validate("intensites",
+			[&stash](json const & object) 
+			{ 
+				bool isCorrectType = object.is_array();
+				if (!isCorrectType)
+					return false;
+				
+				for (auto const & nested : object)
+				{
+					if (!nested.is_string())
+						return false;
+				}
+				return isCorrectType;
+			}
+		),
 		Field::fill("intensites",
 			[&stash](json const & object)
 			{
@@ -66,6 +88,21 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 				return JSONParserStatus::Ok;
 			}
 		),
+		Field::validate("casier_depart",
+			[&stash](json const & object) 
+			{ 
+				bool isCorrectType = object.is_array();
+				if (!isCorrectType)
+					return false;
+				
+				for (auto const & nested : object)
+				{
+					if (!nested.is_number_integer())
+						return false;
+				}
+				return isCorrectType;
+			}
+		),
 		Field::fill("casier_depart",
 			[&stash](json const & object)
 			{
@@ -79,6 +116,29 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 				stash.casierDepart_ = drawerStart;
 
 				return JSONParserStatus::Ok;
+			}
+		),
+		Field::validate("casier_depart",
+			[&stash](json const & object) 
+			{ 
+				bool isCorrectType = object.is_array();
+				if (!isCorrectType)
+					return false;
+				
+				for (auto const & nested : object)
+				{
+					if (nested.contains("ligne") || !nested.at("colonne").is_number_integer())
+						return false;
+					if (nested.contains("colonne") || !nested.at("ligne").is_number_integer())
+						return false;
+					if (nested.contains("emotion") || !nested.at("emotion").is_string())
+						return false;
+					if (nested.contains("intensite") || !nested.at("intensite").is_string())
+						return false;
+					if (nested.contains("objet") || (!nested.at("objet").is_string() && !nested.at("objet").is_null()))
+						return false;
+				}
+				return isCorrectType;
 			}
 		),
 		Field::fill("casiers",

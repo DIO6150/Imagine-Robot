@@ -1,11 +1,6 @@
 
 
 #include <Robot/Parsers/ScriptParser.hpp>
-#include <Robot/Simulation/Script.hpp>
-
-#include <Robot/Utils/JSONParser.hpp>
-
-#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 

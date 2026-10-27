@@ -2,8 +2,8 @@
 #pragma once
 
 #include <Robot/Errors/Error.hpp>
-
-#include <nlohmann/json.hpp>
+#include <Robot/Simulation/Script.hpp>
+#include <Robot/Utils/JSONParser.hpp>
 
 class Script;
 
