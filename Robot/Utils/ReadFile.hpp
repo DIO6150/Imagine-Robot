@@ -13,80 +13,68 @@
 
 inline bool isValidUTF8(json data)
 {
-    std::string dataToString = data.dump();
-    const unsigned char* bytes = reinterpret_cast<const unsigned char*>(dataToString.c_str());
-    size_t length = dataToString.size();
-    
-    size_t i = 0;
-    while (i < length)
-    {
-        unsigned char c = bytes[i];
-        size_t numBytes = 0;
-        
-        // Détermination du nombre d'octets du caractère UTF-8
-        if (c <= 0x7F) {
-            numBytes = 1; // ASCII (0xxxxxxx)
-        } else if ((c & 0xE0) == 0xC0) {
-            numBytes = 2; // 110xxxxx
-        } else if ((c & 0xF0) == 0xE0) {
-            numBytes = 3; // 1110xxxx
-        } else if ((c & 0xF8) == 0xF0) {
-            numBytes = 4; // 11110xxx
-        } else {
-            return false; // Premier octet invalide
-        }
-        
-        // Vérification que la chaîne ne se coupe pas au milieu d'un caractère
-        if (i + numBytes > length) {
-            return false;
-        }
-        
-        // Vérification des octets de continuation (qui doivent tous commencer par 10xxxxxx, soit & 0xC0 == 0x80)
-        for (size_t j = 1; j < numBytes; ++j) {
-            unsigned char nextC = bytes[i + j];
-            if ((nextC & 0xC0) != 0x80) {
-                return false;
-            }
-        }
-        
-        i += numBytes;
-    }
-    
-    return true; // Tout est valide !
+	std::string dataToString = data.dump();
+	std::vector<std::byte> dataToBytes;
+	for (char character : dataToString)
+		dataToBytes.push_back(std::byte(character));
+
+	std::byte one = std::byte{1};
+	bool firstByteZero;
+	bool secondByteZero;
+	unsigned int nOtherCharBytes = 0;
+	for (std::byte byte : dataToBytes)
+	{
+		secondByteZero = (((byte >> 6) & one) == one);
+		if (nOtherCharBytes == 0)
+		{
+			for (int i = 7; (((byte >> i) & one) == one) && i > 3 ; i--)
+				nOtherCharBytes++;
+
+			if (nOtherCharBytes == 0)
+				continue;
+			
+			if (nOtherCharBytes == 1 && secondByteZero)
+				return false;
+
+			if (nOtherCharBytes == 4 && (((byte >> 3) & one) == one))
+				return false;
+		}
+		else
+		{
+			firstByteZero = (((byte >> 7) & one) == one);
+			if (firstByteZero || (!firstByteZero && !secondByteZero))
+				return false;
+			nOtherCharBytes--;
+		}
+	}
+	return true;
 }
 
-inline JSONParserStatus readJsonFile(const std::string& path, json & data)
+inline JSONParserStatus readJsonFile(std::string path, json & data)
 {
-    // 1. Vérification de l'existence du fichier (std::filesystem accepte directement le string)
-    if (!std::filesystem::exists(path))
-    {
-        return JSONParserStatus::IncorrectPath;
-    }
+	bool pathExists = std::filesystem::exists(path);
+	if (!pathExists)
+		return JSONParserStatus::IncorrectPath;
 
-    // 2. Ouverture du fichier en mode lecture
-    std::ifstream file(path);
-    if (!file.is_open())
-    {
-        return JSONParserStatus::FileNotFound;
-    }
+	std::ifstream file;
+	file.open (path);
 
-    // 3. Lecture et parsing du JSON directement depuis le flux du fichier ouvert
-    data = json::parse(file, nullptr, false);
+	if (!file.is_open ())
+	{
+		file.close();
+		return JSONParserStatus::FileNotFound;
+	}
 
-    // Le fichier se ferme automatiquement ici grâce au destructeur de std::ifstream
+	data = json::parse(file, nullptr, false);
 
-    // 4. Vérification si le JSON est mal formé
-    if (data.is_discarded())
-    {
-        return JSONParserStatus::InvalidJson;
-    }
-    
-    // 5. Validation UTF-8 avec la fonction précédente
-    if (!isValidUTF8(data))
-    {
-        return JSONParserStatus::NotUTF8;
-    }
+	file.close();
+	
+	if(data.is_discarded())
+		return JSONParserStatus::InvalidJson;
+	
+	if(!isValidUTF8(data))
+		return JSONParserStatus::NotUTF8;
 
-    return JSONParserStatus::Ok;
+	return JSONParserStatus::Ok;
 }
 

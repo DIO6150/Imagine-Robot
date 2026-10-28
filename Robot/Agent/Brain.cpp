@@ -144,9 +144,6 @@ void Brain::addDelivery(std::string motif)
 	curDelivery.demande = requestList_[currentReq_].getId();
 	curDelivery.resident = requestList_[currentReq_].getIdResident();
 
-	std::vector<std::string> emotionToString = {"joie", "confiance", "peur", "surprise", "tristesse", "degout", "colere", "anticipation"};
-	std::vector<std::string> intensityToString = {"faible", "moyenne", "forte"};
-
 	int iEmotion = emotionToInt(currentSearchedEmotion_);
 	curDelivery.emotion = ((iEmotion == -1) ? "null" : emotionToString[iEmotion]);
 	int iIntensity = intensityToInt(currentSearchedIntensity_);

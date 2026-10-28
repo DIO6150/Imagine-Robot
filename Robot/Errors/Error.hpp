@@ -28,6 +28,9 @@ enum class JSONParserStatus: int
 	DoubleDrawer				= 20,
 	InaccurateDrawerPosition	= 21,
 	WordTwiceDefined			= 22,
+	ArrayEmotions				= 23,
+	ArrayIntensity				= 24,
+	PositionWrongSize			= 25,
 };
 
 inline void printError(JSONParserStatus error)
@@ -100,6 +103,15 @@ inline void printError(JSONParserStatus error)
 				break;
 			case JSONParserStatus::WordTwiceDefined :
 				std::cerr << "Mot defini pour des emotions ou intensites differentes";
+				break;
+			case JSONParserStatus::ArrayEmotions :
+				std::cerr << "Surplus ou manque d'emotion dans la liste";
+				break;
+			case JSONParserStatus::ArrayIntensity :
+				std::cerr << "Surplus ou manque d'intensite dans la liste";
+				break;
+			case JSONParserStatus::PositionWrongSize :
+				std::cerr << "Une position donnee n'a pas deux coordonnees";
 				break;
 			default :
 				std::cerr << "erreur inconnue";

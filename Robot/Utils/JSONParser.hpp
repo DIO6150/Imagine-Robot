@@ -13,7 +13,7 @@ using json = nlohmann::json;
 class Field
 {
 public:
-	using Validator     = std::function<bool(json const & object)>;
+	using Validator     = std::function<JSONParserStatus(json const & object)>;
 	using Filler        = std::function<JSONParserStatus(json const & object)>;
 	using FillerNoError = std::function<void(json const & object)>;
 
@@ -40,13 +40,17 @@ private:
 class JSONParser
 {
 public:
-	JSONParser(std::initializer_list<Field> const fields);
+	JSONParser(std::initializer_list<std::string> const fieldsNames, std::initializer_list<Field> const fields);
+	static JSONParserStatus verifySimpleString(json const & object);
+	static JSONParserStatus verifySimplePos(json const & object);
 	JSONParserStatus fillFields(json const & object) const;
+	JSONParserStatus checkFields(json const & object) const;
 
 private:
 	JSONParserStatus fillFields(json const & object, std::vector<Field> const & fields) const;
 	JSONParserStatus checkFields(json const & object, std::vector<Field> const & fields) const;
 
 private:
+	std::vector<std::string> const fieldsNames_;
 	std::vector<Field> const fields_;
 };

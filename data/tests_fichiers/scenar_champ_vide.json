@@ -3,12 +3,12 @@
   "version": 1,
   "nom": "scenario_01",
   "carte": null,
-  "armoire": null,
+  "armoire": "armoire_standard",
   "demandes": [
     {
       "numero": 1,
       "resident": "R1",
-      "message": "Je me sens tellement seule ce soir, personne n'est passé."
+      "message": "Je me sens tellement seule ce soir, personne n'est passe."
     },
     {
       "numero": 2,
@@ -18,12 +18,12 @@
     {
       "numero": 3,
       "resident": "R1",
-      "message": "Ce bouton est cassé, ça m'agace depuis hier."
+      "message": "Ce bouton est casse, ca m'agace depuis hier."
     },
     {
       "numero": 4,
       "resident": "R2",
-      "message": "Ma fille a appelé, je suis vraiment heureux."
+      "message": "Ma fille a appele, je suis vraiment heureux."
     }
   ]
 }

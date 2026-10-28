@@ -7,30 +7,87 @@ using json = nlohmann::json;
 MapParser::MapParser(Map & map, json const & object)
 {
 	JSONParser parser {
+		{"format", "version", "nom", "dimensions", "legende", "grille",
+			"depart_robot", "armoire", "dictionnaire", "residents"},
+	{
 		Field::validate("format",
-			[&map](json const & object) { return object.get<std::string>() == map.FORMAT_; }
+			[&map](json const & object) 
+			{ 
+				if (!object.is_string())
+					return JSONParserStatus::WrongType;
+				if (object.get<std::string>() != map.FORMAT_)
+					return JSONParserStatus::WrongFormat;
+				return JSONParserStatus::Ok;
+			}
 		),
 		Field::validate("version",
-			[&map](json const & object) { return object.get<int>() == map.VERSION_; }
+			[&map](json const & object) 
+			{ 
+				if (!object.is_number_integer())
+					return JSONParserStatus::WrongType;
+				if (object.get<int>() != map.VERSION_)
+					return JSONParserStatus::WrongVersion;
+				return JSONParserStatus::Ok;
+			}
 		),
+		Field::validate("nom", JSONParser::verifySimpleString),
 		Field::fillNoError("nom",
 			[&map](json const & object) { map.name_ = object.get<std::string>(); }
 		),
 		Field::branch("dimensions",
-			{	// TODO: add type checking here
-				Field::fillNoError("hauteur",
-					[&map](json const & object) { map.height_ = static_cast<uint32_t>(object.get<int>()); }
+			{
+				Field::validate("hauteur",
+					[](json const & object) 
+					{ 
+						if (!object.is_number_integer())
+							return JSONParserStatus::WrongType;
+						if (object.get<int>() < 1)
+							return JSONParserStatus::GridNotRectangular;
+						return JSONParserStatus::Ok;
+					}
 				),
-				Field::fillNoError("largeur",
-					[&map](json const & object) { map.width_  = static_cast<uint32_t>(object.get<int>()); }
+				Field::validate("largeur",
+					[](json const & object) 
+					{ 
+						if (!object.is_number_integer())
+							return JSONParserStatus::WrongType;
+						if (object.get<int>() < 1)
+							return JSONParserStatus::GridNotRectangular;
+						return JSONParserStatus::Ok;
+					}
 				)
+			}
+		),
+		Field::validate("dimensions",
+			[](json const & object) 
+			{ 
+				if (!object.is_object())
+					return JSONParserStatus::WrongType;
+				
+				if(!object.contains("hauteur") || !object.contains("largeur"))
+					return JSONParserStatus::MissingField;
+				
+				return JSONParserStatus::Ok;
+			}
+		),
+		Field::fillNoError("dimensions",
+			[&map](json const & object)
+			{
+				map.height_ = static_cast<uint32_t>(object["hauteur"].get<int>());
+				map.width_  = static_cast<uint32_t>(object["largeur"].get<int>());
 			}
 		),
 		Field::fill("legende",
 			[&map](json const & object)
 			{
+				if(!object.is_object())
+					return JSONParserStatus::WrongType;
+				
 				for (auto const & nested : object.items())
 				{
+					if (!nested.value().is_string())
+						return JSONParserStatus::WrongType;
+
 					auto value = nested.value().get<std::string>();
 					TileProperty property;
 
@@ -43,15 +100,38 @@ MapParser::MapParser(Map & map, json const & object)
 					else return JSONParserStatus::UnknownProperty;
 
 					map.charProperties_.emplace(nested.key().at(0), property);
-
 				}
+				return JSONParserStatus::Ok;
+			}
+		),
+		Field::validate("grille",
+			[](json const & object)
+			{
+				if (!object.is_array() || object.empty())
+					return JSONParserStatus::WrongType;
 
+				int hauteurGrille = object.size();
+
+				if (object.at(0).empty())
+					return JSONParserStatus::GridNotRectangular;
+
+				int largeurGrille = object.at(0).get<std::string>().size();
+
+				for (int i = 0; i < hauteurGrille; i++)
+				{
+					if (!object.at(i).is_string())
+						return JSONParserStatus::WrongType;
+					if (object.at(i).get<std::string>().size() != largeurGrille)
+						return JSONParserStatus::GridNotRectangular;
+				}
 				return JSONParserStatus::Ok;
 			}
 		),
 		Field::fill("grille",
 			[&map](json const & object)
 			{
+				map.tiles_.clear();
+				
 				uint32_t nElementsInLine = (object.at(0).get<std::string>()).size();
 				uint32_t nLines = object.size();
 
@@ -61,8 +141,6 @@ MapParser::MapParser(Map & map, json const & object)
 				for (int32_t l = 0; l < map.height_; ++l)
 				{
 					std::string const & row = object.at(l).get<std::string>();
-					if (row.size() != nElementsInLine)
-						return JSONParserStatus::GridNotRectangular;
 
 					for (int32_t c = 0; c < map.width_; ++c)
 					{
@@ -70,20 +148,21 @@ MapParser::MapParser(Map & map, json const & object)
 
 						if (!map.charProperties_.contains(tileID)) return JSONParserStatus::UnknownProperty;
 
-						map.tiles_.emplace_back(Tile { map.charProperties_.at(tileID), Pos2D {l, c} });
+						map.tiles_.push_back(Tile { map.charProperties_.at(tileID), Pos2D {l, c} });
 					}
 				}
 
 				return JSONParserStatus::Ok;
 			}
 		),
+		Field::validate("depart_robot", JSONParser::verifySimplePos),
 		Field::fill("depart_robot",
 			[&map](json const & object)
 			{
 				Pos2D robotStart; // obviously should check if its a list and if it has size == 2
 				robotStart.l = object.at(0).get<int>();
 				robotStart.c = object.at(1).get<int>();
-
+				
 				auto tile  = map.getTile(robotStart);
 
 				if (!tile.isAgentStart())
@@ -97,6 +176,7 @@ MapParser::MapParser(Map & map, json const & object)
 				return JSONParserStatus::Ok;
 			}
 		),
+		Field::validate("armoire", JSONParser::verifySimplePos),
 		Field::fill("armoire",
 			[&map](json const & object)
 			{
@@ -117,6 +197,7 @@ MapParser::MapParser(Map & map, json const & object)
 				return JSONParserStatus::Ok;
 			}
 		),
+		Field::validate("dictionnaire", JSONParser::verifySimplePos),
 		Field::fill("dictionnaire",
 			[&map](json const & object)
 			{
@@ -134,6 +215,30 @@ MapParser::MapParser(Map & map, json const & object)
 
 				map.dictionaryPos_ = dict;
 
+				return JSONParserStatus::Ok;
+			}
+		),
+		Field::branch("residents",
+			{
+				Field::validate("id", JSONParser::verifySimpleString),
+				Field::validate("nom", JSONParser::verifySimpleString),
+				Field::validate("position", JSONParser::verifySimplePos),
+			}
+		),
+		Field::validate("residents",
+			[](json const & object)
+			{
+				if(!object.is_array() || object.empty())
+					return JSONParserStatus::WrongType;
+
+				for (auto const & nested : object)
+				{
+					if(!nested.is_object())
+						return JSONParserStatus::WrongType;
+
+					if(!nested.contains("id") || !nested.contains("nom") || !nested.contains("position"))
+						return JSONParserStatus::MissingField;
+				}
 				return JSONParserStatus::Ok;
 			}
 		),
@@ -165,6 +270,7 @@ MapParser::MapParser(Map & map, json const & object)
 				return JSONParserStatus::Ok;
 			}
 		)
+	}
 	};
 
 	result = parser.fillFields(object);

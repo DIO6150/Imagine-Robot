@@ -18,22 +18,22 @@
     {
       "numero": 3,
       "resident": "R3",
-      "message": "C'est merveilleux, je suis comblée !"
+      "message": "C'est merveilleux, je suis comblee !"
     },
     {
       "numero": 4,
       "resident": "R4",
-      "message": "Je suis perplexe, cette porte était fermée ce matin."
+      "message": "Je suis perplexe, cette porte etait fermee ce matin."
     },
     {
       "numero": 5,
       "resident": "R1",
-      "message": "Je suis fâchée, c'est vraiment injuste."
+      "message": "Je suis fachee, c'est vraiment injuste."
     },
     {
       "numero": 6,
       "resident": "R2",
-      "message": "Je reste vigilante, quelqu'un rôde dehors."
+      "message": "Je reste vigilante, quelqu'un rode dehors."
     }
   ]
 }

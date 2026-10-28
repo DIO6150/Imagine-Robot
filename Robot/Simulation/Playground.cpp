@@ -188,6 +188,7 @@ JSONParserStatus Playground::conformScriptMap(Script script, Map map)
 {
 	if (script.getMapName() != map.getName())
 		return JSONParserStatus::ConflictingRequirement;
+	
 	for (Request req : script.getRequests())
 	{
 		if (map.atResident(req.getIdResident()).name_ == "Non identifie")

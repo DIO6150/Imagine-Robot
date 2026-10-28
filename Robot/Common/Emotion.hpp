@@ -30,6 +30,8 @@ inline int emotionToInt(Emotion emotion)
 	return -1;
 }
 
+inline std::vector<std::string> emotionToString = {"joie", "confiance", "peur", "surprise", "tristesse", "degout", "colere", "anticipation"};
+
 enum class Intensity: int
 {
 	Unidentified = -1,
@@ -49,4 +51,6 @@ inline int intensityToInt(Intensity intensity)
 	}
 	return -1;
 }
+
+inline std::vector<std::string> intensityToString = {"faible", "moyenne", "forte"};
 

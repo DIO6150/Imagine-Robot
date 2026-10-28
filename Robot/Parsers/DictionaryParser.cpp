@@ -7,16 +7,52 @@ using json = nlohmann::json;
 DictionaryParser::DictionaryParser(Dictionary & dictionary, json const & object)
 {
 	JSONParser parser {
+		{"format", "version", "nom", "emotions", "intensites", "entrees"},
+		{
 		Field::validate("format",
-			[&dictionary](json const & object) { return object.get<std::string>() == dictionary.FORMAT_; }
+			[&dictionary](json const & object) 
+			{ 
+				if (!object.is_string())
+					return JSONParserStatus::WrongType;
+				if (object.get<std::string>() != dictionary.FORMAT_)
+					return JSONParserStatus::WrongFormat;
+				return JSONParserStatus::Ok;
+			}
 		),
 		Field::validate("version",
-			[&dictionary](json const & object) { return object.get<int>() == dictionary.VERSION_; }
+			[&dictionary](json const & object) 
+			{ 
+				if (!object.is_number_integer())
+					return JSONParserStatus::WrongType;
+				if (object.get<int>() != dictionary.VERSION_)
+					return JSONParserStatus::WrongVersion;
+				return JSONParserStatus::Ok;
+			}
 		),
+		Field::validate("nom", JSONParser::verifySimpleString),
 		Field::fillNoError("nom",
 			[&dictionary](json const & object) { dictionary.name_ = object.get<std::string>(); }
 		),
-		Field::fill("emotions",
+		Field::validate("emotions",
+			[&dictionary](json const & object) 
+			{ 
+				if (!object.is_array())
+					return JSONParserStatus::WrongType;
+
+				if (object.size() != emotionToString.size())
+					return JSONParserStatus::ArrayEmotions;
+
+				for (auto const & nested : object)
+				{
+					if (!nested.is_string())
+						return JSONParserStatus::WrongType;
+					if (std::count(emotionToString.begin(), emotionToString.end(), nested.get<std::string>()) == 0)
+						return JSONParserStatus::UnknownEmotion;
+				}
+				return JSONParserStatus::Ok;
+			}
+		),
+		Field::fillNoError("emotions",
 			[&dictionary](json const & object)
 			{
 				for (auto const & nested : object)
@@ -32,15 +68,31 @@ DictionaryParser::DictionaryParser(Dictionary & dictionary, json const & object)
 					else if (nom_emotion == "degout")       emotion = Emotion::Disgust;
 					else if (nom_emotion == "colere")       emotion = Emotion::Anger;
 					else if (nom_emotion == "anticipation") emotion = Emotion::Anticipation;
-					else return JSONParserStatus::UnknownEmotion;
 
 					dictionary.stringToEmotions_.emplace(nom_emotion, emotion);
 				}
+			}
+		),
+		Field::validate("intensites",
+			[&dictionary](json const & object) 
+			{ 
+				if (!object.is_array())
+					return JSONParserStatus::WrongType;
 
+				if (object.size() != intensityToString.size())
+					return JSONParserStatus::ArrayIntensity;
+
+				for (auto const & nested : object)
+				{
+					if (!nested.is_string())
+						return JSONParserStatus::WrongType;
+					if (std::count(intensityToString.begin(), intensityToString.end(), nested.get<std::string>()) == 0)
+						return JSONParserStatus::UnknownIntensity;
+				}
 				return JSONParserStatus::Ok;
 			}
 		),
-		Field::fill("intensites",
+		Field::fillNoError("intensites",
 			[&dictionary](json const & object)
 			{
 				for (auto const & nested : object)
@@ -49,11 +101,69 @@ DictionaryParser::DictionaryParser(Dictionary & dictionary, json const & object)
 					Intensity intensity;
 
 					if (nom_intensite == "faible")       intensity = Intensity::Small;
-					else if (nom_intensite == "moyenne") intensity = Intensity::Mid;
-					else if (nom_intensite == "forte")   intensity = Intensity::Strong;
-					else return JSONParserStatus::UnknownIntensity;
+					if (nom_intensite == "moyenne") intensity = Intensity::Mid;
+					if (nom_intensite == "forte")   intensity = Intensity::Strong;
 
 					dictionary.stringToIntensities_.emplace(nom_intensite, intensity);
+				}
+			}
+		),
+		Field::branch("entrees",
+			{
+				Field::validate("formes",
+					[&dictionary](json const & object) 
+					{ 
+						if (!object.is_array() || object.empty())
+							return JSONParserStatus::WrongType;
+
+						for (auto const & form : object)
+						{
+							if(!form.is_string())
+								return JSONParserStatus::WrongType;
+						}
+
+						return JSONParserStatus::Ok;
+					}
+				),
+				Field::validate("emotion",
+					[&dictionary](json const & object) 
+					{ 
+						if (!object.is_string())
+							return JSONParserStatus::WrongType;
+
+						if (std::count(emotionToString.begin(), emotionToString.end(), object.get<std::string>()) == 0)
+								return JSONParserStatus::UnknownEmotion;
+
+						return JSONParserStatus::Ok;
+					}
+				),
+				Field::validate("intensite",
+					[&dictionary](json const & object) 
+					{ 
+						if (!object.is_string())
+							return JSONParserStatus::WrongType;
+
+						if (std::count(intensityToString.begin(), intensityToString.end(), object.get<std::string>()) == 0)
+								return JSONParserStatus::UnknownIntensity;
+							
+						return JSONParserStatus::Ok;
+					}
+				)
+			}
+		),
+		Field::validate("entrees",
+			[&dictionary](json const & object)
+			{
+				if(!object.is_array() || object.empty())
+					return JSONParserStatus::WrongType;
+				
+				for (auto const & nested : object)
+				{
+					if(!nested.is_object())
+						return JSONParserStatus::WrongType;
+
+					if(!nested.contains("formes") || !nested.contains("emotion") || !nested.contains("intensite"))
+						return JSONParserStatus::MissingField;
 				}
 
 				return JSONParserStatus::Ok;
@@ -83,6 +193,7 @@ DictionaryParser::DictionaryParser(Dictionary & dictionary, json const & object)
 				return JSONParserStatus::Ok;
 			}
 		)
+	}
 	};
 
 	result = parser.fillFields(object);
