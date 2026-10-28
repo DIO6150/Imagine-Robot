@@ -1,9 +1,5 @@
 
 #include <Robot/Render/MapRenderer.hpp>
-#include <Robot/Render/Vertex.hpp>
-
-#include <Robot/Render/Shaders/TileVertexShader.hpp>
-#include <Robot/Render/Shaders/TileFragmentShader.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -12,117 +8,11 @@
 
 #include <iostream>
 
-struct Image
+#include <Robot/Render/Image.hpp>
+
+void MapRenderer::init(SharedResources * resources)
 {
-	std::vector<uint8_t> pixels;
-	int32_t width;
-	int32_t height;
-	int32_t channels;
-
-	void load(std::string path)
-	{
-		auto * px = stbi_load(path.c_str(), &width, &height, &channels, 4);
-		pixels.clear();
-		
-		if (!px)
-		{
-			width    = 0;
-			height   = 0;
-			channels = 0;
-			std::cout << "Error: couldnt load texture : " << path << "\n";
-			return;
-		}
-		
-		auto pixelCount = width * height * channels;
-		pixels.reserve(pixelCount);
-
-		pixels.assign(px, px + pixelCount);
-		stbi_image_free(px);
-	}
-
-	void loadSinglePixelTexture(glm::vec3 color)
-	{
-		pixels.clear();
-
-		uint8_t r = 255 * color.r;
-		uint8_t g = 255 * color.g;
-		uint8_t b = 255 * color.b;
-
-		pixels.push_back(r);
-		pixels.push_back(g);
-		pixels.push_back(b);
-		pixels.push_back(255);
-
-		width    = 1;
-		height   = 1;
-		channels = 4;
-	}
-
-	GLuint createTexture()
-	{
-		if (pixels.empty())
-			return 0;
-
-		GLuint texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		return texture;
-	}
-};
-
-void MapRenderer::init()
-{
-	glGenVertexArrays(1, &tileVao_);
-	glBindVertexArray(tileVao_);
-
-	glGenBuffers(1, &tileVbo_);
-
-	glBindBuffer(GL_ARRAY_BUFFER, tileVbo_);
-
-	std::vector<Vertex> vertices = {
-		{ 0.0f, 0.0f, 0.0f,  0.0f, 0.0f },
-		{ 1.0f, 0.0f, 0.0f,  1.0f, 0.0f },
-		{ 1.0f, 1.0f, 0.0f,  1.0f, 1.0f },
-
-		{ 0.0f, 0.0f, 0.0f,  0.0f, 0.0f },
-		{ 1.0f, 1.0f, 0.0f,  1.0f, 1.0f },
-		{ 0.0f, 1.0f, 0.0f,  0.0f, 1.0f }
-	};
-
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(
-		0,
-		3,
-		GL_FLOAT,
-		false,
-		5 * sizeof(float),
-		(void *) 0
-	);
-
-	glVertexAttribPointer(
-		1,
-		2,
-		GL_FLOAT,
-		false,
-		5 * sizeof(float),
-		(void *) (3 * sizeof (float))
-	);
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-
-	tileProgram_.compileVertex(TILE_VERTEX_SHADER);
-	tileProgram_.compileFragment(TILE_FRAGMENT_SHADER);
-	tileProgram_.link();
+	resources_ = resources;
 
 	stbi_set_flip_vertically_on_load(true);
 
@@ -140,8 +30,9 @@ void MapRenderer::init()
 	textures_[Empty]      = empty      .createTexture();
 	textures_[Wall]       = wall       .createTexture();
 	textures_[Blank]      = blank      .createTexture();
-	textures_[Agent]      = textures_[Custommer];
 	textures_[Chest]      = chest      .createTexture();
+
+	textures_[Agent] = textures_[Custommer];
 
 	agent_.albedoTexture = textures_[Agent];
 	agent_.albedoColor   = {1.0, 0.0, 0.0};
@@ -154,13 +45,33 @@ void MapRenderer::setMap(std::vector<Tile> const & map, uint32_t width, uint32_t
 
 	tileList_.clear();
 	tileList_.reserve(map.size());
+
+	const float targetSize = 1.5f;
+	scale_ = targetSize / std::max(width, height);
+
+	mapTransform_ = glm::mat4{1.0f};
+
+	mapTransform_ = glm::translate(
+		mapTransform_,
+		glm::vec3
+		{
+			-scale_ * width  * .5f,
+			-scale_ * height * .5f,
+			.0f
+		}
+	);
+
+	mapTransform_ = glm::scale(
+		mapTransform_,
+		{scale_, scale_, 1.0f}
+	);
 	
 	for (auto tile : map)
 	{
-		MapTile obj;
+		Sprite obj;
 		
-		obj.position.x = tile.pos_.c;
-		obj.position.y = (height - 1) - tile.pos_.l;
+		glm::vec3 position {tile.pos_.c, (height - 1) - tile.pos_.l, .0f};
+		obj.transform = glm::translate(mapTransform_, position);
 
 		obj.albedoTexture = textures_[Blank];
 
@@ -176,7 +87,7 @@ void MapRenderer::setMap(std::vector<Tile> const & map, uint32_t width, uint32_t
 		else if (tile.isAgentStart())
 		{
 			obj.albedoTexture = textures_[Empty];
-			agent_.position = obj.position;
+			agent_.transform = obj.transform;
 		}
 		else if (tile.isItemPickup())
 			obj.albedoTexture = textures_[Chest];
@@ -185,45 +96,19 @@ void MapRenderer::setMap(std::vector<Tile> const & map, uint32_t width, uint32_t
 
 		if (tile.isPerson())
 		{
-			MapTile floor;
-			floor.position = obj.position;
+			Sprite floor;
+			floor.transform = obj.transform;
 			floor.albedoTexture = textures_[Empty];
 			tileList_.push_back(floor);
 		}
 		tileList_.push_back(obj);
 	}
-
-	const float targetSize = 1.5f;
-	const float scale = targetSize / std::max(width, height);
-
-	mapTransform_ = glm::mat4{1.0f};
-
-	mapTransform_ = glm::translate(
-		mapTransform_,
-		glm::vec3
-		{
-			-scale * width  * .5f,
-			-scale * height * .5f,
-			.0f
-		}
-	);
-
-	mapTransform_ = glm::scale(
-		mapTransform_,
-		{scale, scale, 1.0f}
-	);
-}
-
-void MapRenderer::setAgentPosition(Pos2D newPos)
-{
-	agent_.position.x = newPos.c;
-	agent_.position.y = (mapHeight_ - 1) - newPos.l;
 }
 
 void MapRenderer::setAgentPosition(glm::vec2 pos)
 {
-	agent_.position.x = pos.x;
-	agent_.position.y = static_cast<float>(mapHeight_ - 1) - pos.y;
+	agent_.transform = glm::translate(glm::mat4{1.f}, glm::vec3{pos, .0f});
+	agent_.transform = glm::scale(agent_.transform, glm::vec3 { scale_, scale_, 1.f});
 }
 
 void MapRenderer::setAgentColor(glm::vec3 color)
@@ -233,25 +118,14 @@ void MapRenderer::setAgentColor(glm::vec3 color)
 
 void MapRenderer::draw()
 {
-	// draw grid here
-	//glBindVertexArray(gridVao_);
-
-	// draw map data here
-
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBindVertexArray(tileVao_);
-	tileProgram_.use();
+	glBindVertexArray(resources_->rectVao);
+	resources_->rectProgram.use();
 	for (auto tile : tileList_)
 	{
-		//glm::vec3 tileTranslation = glm::vec4 {tile.position, 0.0f, 0.0f} * mapTransform_;
-		//glm::mat4 transform { 1.0f };
-		//transform = glm::translate(transform, tileTranslation);
-		//transform = glm::translate(transform, glm::vec3{-0.5f, -0.5f, 0.0f});
-
-		glm::mat4 transform = glm::translate(mapTransform_, glm::vec3 {tile.position, 0.0f});
-		tileProgram_.uploadMatrix4("u_transform", transform);
+		resources_->rectProgram.uploadMatrix4("u_transform", tile.transform);
 
 		if (tile.albedoTexture)
 		{
@@ -259,20 +133,27 @@ void MapRenderer::draw()
 			glBindTexture(GL_TEXTURE_2D, tile.albedoTexture);
 		}
 
-		tileProgram_.upload3fv("u_color", tile.albedoColor);
+		resources_->rectProgram.upload3fv("u_color", tile.albedoColor);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
-	glm::mat4 transform = glm::translate(mapTransform_, glm::vec3 {agent_.position, 0.0f});
-	tileProgram_.uploadMatrix4("u_transform", transform);
+	resources_->rectProgram.uploadMatrix4("u_transform", agent_.transform);
 	if (agent_.albedoTexture)
 	{
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, agent_.albedoTexture);
 	}
-	tileProgram_.upload3fv("u_color", agent_.albedoColor);
+	resources_->rectProgram.upload3fv("u_color", agent_.albedoColor);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glUseProgram(0);
+}
+
+glm::vec2 MapRenderer::from(Pos2D tilePos) const
+{
+	glm::vec3 position {tilePos.c, (mapHeight_ - 1) - tilePos.l, .0f};
+	auto m = glm::translate(mapTransform_, position);
+
+	return { m[3][0], m[3][1] };
 }

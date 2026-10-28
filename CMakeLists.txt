@@ -21,7 +21,9 @@ target_sources(${PROJECT_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Parsers/ClosetParser.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/ShaderProgram.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/MapRenderer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/ItemRenderer.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/PlaygroundView.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Render/Image.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/Dictionary.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/ItemStash.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Robot/Simulation/Map.cpp

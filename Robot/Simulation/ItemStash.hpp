@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include <Robot/Common/Emotion.hpp>
+#include <Robot/Common/Item.hpp>
 
 #include <Robot/Errors/Error.hpp>
 
@@ -29,10 +30,10 @@ class ItemStash
 public:
 	JSONParserStatus parseJSON(json const & object);
 
-	std::string getItem(Pos2D pos);
+	std::optional<Item> getItem(Pos2D pos);
+	std::optional<Item> removeItem(Pos2D pos);
 	Pos2D getCasierDepart();
 	void closetInfos();
-	bool removeItem(Pos2D posDrawer, std::string itemName);
 
 private:
 	std::string name_;

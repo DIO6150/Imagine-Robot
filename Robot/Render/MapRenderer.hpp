@@ -10,10 +10,12 @@
 
 #include <Robot/Render/ShaderProgram.hpp>
 
+#include <Robot/Render/SharedResourcesArray.hpp>
+
 class MapRenderer
 {
 public:
-	void init();
+	void init(SharedResources * resources);
 	
 	void setMap(std::vector<Tile> const & map, uint32_t width, uint32_t height);
 	void setAgentPosition(Pos2D pos);
@@ -21,22 +23,26 @@ public:
 	void setAgentColor(glm::vec3 color);
 
 	void draw();
+
+	glm::vec2 from(Pos2D tilePos) const;
 	
 private:
-	struct MapTile
+	struct Sprite
 	{
 		glm::vec3 albedoColor = {1.0, 1.0, 1.0};
 		GLuint albedoTexture  = 0;
-		glm::vec2 position = {0.0, 0.0};
+		glm::mat4 transform;
 	};
 
-	std::vector<MapTile> tileList_;
+	std::vector<Sprite> tileList_;
 
-	MapTile agent_;
+	Sprite agent_;
 
 private:
 	uint32_t mapWidth_  = 0;
 	uint32_t mapHeight_ = 0;
+	glm::mat4 mapTransform_;
+	float scale_;
 
 	enum TextureType
 	{
@@ -49,14 +55,7 @@ private:
 		Chest,
 	};
 
-	GLuint gridVao_;
-	GLuint gridVbo_;
-
-	/* TILES */
-	GLuint tileVao_;
-	GLuint tileVbo_;
-	ShaderProgram tileProgram_;
-	glm::mat4 mapTransform_;
+	SharedResources * resources_;
 
 	std::map<TextureType, GLuint> textures_;
 };

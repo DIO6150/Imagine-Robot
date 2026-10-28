@@ -5,11 +5,11 @@
 
 #include <string>
 
-class Item
+struct Item
 {
-	std::string name_;
-	Emotion emotion_;
-	Intensity Intensity_;
+	std::string name;
+	Emotion     emotion;
+	Intensity   intensity;
 
-	Pos2D pos_;
+	Pos2D pos;
 };

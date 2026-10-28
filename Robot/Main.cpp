@@ -255,8 +255,8 @@ int main(int argc, char ** argv)
 	
 	// load with command args here instead
 	Directive instructions;
-	instructions.map    = "data/cartes/appartement_01.json";
-	instructions.script = "data/cartes/scenario_01.json";
+	instructions.map    = "data/cartes/appartement_05.json";
+	instructions.script = "data/cartes/scenario_05.json";
 	instructions.data   = "data/donnees";
 	std::string traceFileName  = "trace.json";
 	

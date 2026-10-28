@@ -27,7 +27,7 @@ JSONParserStatus Playground::start(GLFWwindow * window, Directive const & instru
 
 	agent_->start(script_.getRequests(), map_.generateInfo(), closet_.getCasierDepart());
 
-	view_->init(map_, agent_.get());
+	view_->init(map_, agent_.get(), window);
 
 	return status;
 }
@@ -133,14 +133,21 @@ std::tuple<Emotion, Intensity> Playground::consult(std::string message)
 	return result;
 }
 
-std::string Playground::search(Pos2D posDrawer)
+std::optional<Item> Playground::search(Pos2D pos)
 {
-	return closet_.getItem(posDrawer);
+	return closet_.getItem(pos);
 }
 
-bool Playground::take(Pos2D posDrawer, std::string itemName)
+std::optional<Item> Playground::take(Pos2D pos)
 {
-	return closet_.removeItem(posDrawer, itemName);
+	auto item = closet_.removeItem(pos);
+
+	if (item)
+	{
+		onAgentTakeItem(item.value());
+	}
+
+	return item;
 }
 
 template <class EnvElem>
@@ -193,19 +200,19 @@ void Playground::onMapInit(std::vector<Tile> map, MapInfo info)
 
 }
 
-void Playground::onAgentMove(Pos2D newPos)
+void Playground::onAgentMove(Pos2D oldPos, Pos2D newPos)
 {
-	animationStack_.emplace_back(view_->moveAgent(newPos));
+	animationStack_.emplace_back(view_->moveAgent(oldPos, newPos));
 }
 
 void Playground::onAgentTakeItem(Item item)
 {
-
+	animationStack_.emplace_back(view_->equipItem(item));
 }
 
 void Playground::onAgentGiveItem(Item item)
 {
-
+	animationStack_.emplace_back(view_->unequipItem());
 }
 
 void Playground::onAgentStashOpen ()

@@ -16,14 +16,14 @@ struct PlaygroundAgentListener
 	virtual std::vector<Tile> see() = 0;
 	virtual std::tuple<Emotion, Intensity> consult(std::string message) = 0;
 
-	virtual std::string search(Pos2D posDrawer) = 0;
-	virtual bool take(Pos2D posDrawer, std::string itemName) = 0;
+	virtual std::optional<Item> search(Pos2D posDrawer) = 0;
+	virtual std::optional<Item> take(Pos2D posDrawer) = 0;
 
 
 	// Events
 	virtual void onMapInit(std::vector<Tile> map, MapInfo info) = 0;
 
-	virtual void onAgentMove(Pos2D newPos) = 0;
+	virtual void onAgentMove(Pos2D oldPos, Pos2D newPos) = 0;
 
 	virtual void onAgentTakeItem(Item item) = 0;
 	virtual void onAgentGiveItem(Item item) = 0;

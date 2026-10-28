@@ -45,7 +45,7 @@ public:
 	
 	void onMapInit(std::vector<Tile> map, MapInfo info) override;
 
-	void onAgentMove(Pos2D newPos) override;
+	void onAgentMove(Pos2D oldPos, Pos2D newPos) override;
 
 	void onAgentTakeItem(Item item) override;
 	void onAgentGiveItem(Item item) override;
@@ -64,8 +64,8 @@ private:
 	bool canMove() override;
 	std::vector<Tile> see() override;
 	std::tuple<Emotion, Intensity> consult(std::string message) override;
-	std::string search(Pos2D posDrawer) override;
-	bool take(Pos2D posDrawer, std::string itemName) override;
+	std::optional<Item> search(Pos2D pos) override;
+	std::optional<Item> take(Pos2D pos) override;
 	
 private:
 	JSONParserStatus parse(std::string const & path, std::string toFill);

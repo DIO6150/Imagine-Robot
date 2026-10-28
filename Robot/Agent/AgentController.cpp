@@ -68,9 +68,8 @@ CommandResult<void> AgentController::move(Orientation direction)
 	if(!listener_->canMove())
 		return CommandStatus::AgentMovementObstructed;
 
+	listener_->onAgentMove(pos_, pos);
 	pos_ = pos;
-
-	listener_->onAgentMove(pos_);
 
 	return CommandStatus::Ok;
 }
@@ -86,34 +85,40 @@ CommandResult<std::tuple<Emotion, Intensity>> AgentController::consult()
 	return result;
 }
 
-CommandResult<std::string> AgentController::search(Orientation direction)
+CommandResult<std::optional<Item>> AgentController::search(Orientation direction)
 {
 	moveDrawerSelect(casier_, direction);
-	std::string result = listener_->search(casier_);
+	auto result = listener_->search(casier_);
 
-	return result;
+	if (result) return result;
+	return CommandStatus::GodSaidNo;
 }
 
-CommandResult<void> AgentController::take(std::string itemName)
+CommandResult<Item> AgentController::take()
 {
 	if (carriedItem_)
 	{
 		return CommandStatus::AgentAlreadyCarryingObject;
 	}
 
-	if (listener_->take(casier_, itemName))
+	carriedItem_ = listener_->take(casier_);
+	
+	if (carriedItem_) return carriedItem_.value();
+	return CommandStatus::GodSaidNo;
+}
+
+CommandResult<void> AgentController::give()
+{
+	if (carriedItem_)
 	{
-		carriedItem_ = itemName;
+		// TODO : check if person is in reach
+
+		listener_->onAgentGiveItem(carriedItem_.value());
+		carriedItem_ = std::nullopt;
 		return CommandStatus::Ok;
 	}
 
-	carriedItem_ = std::nullopt;
-	return CommandStatus::GodSaidNo; // TODO: true error needed here
-}
-
-CommandResult<void> AgentController::give(std::string itemName)
-{
-	return CommandStatus::Ok;
+	return CommandStatus::GodSaidNo;
 }
 
 void AgentController::onAgentFail(AgentFailureType type, std::string message)
