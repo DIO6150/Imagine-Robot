@@ -172,6 +172,7 @@ DictionaryParser::DictionaryParser(Dictionary & dictionary, json const & object)
 		Field::fill("entrees",
 			[&dictionary](json const & object)
 			{
+				dictionary.entrees_.clear();
 				for (auto const & nested : object)
 				{
 					Entree entree;
@@ -184,6 +185,7 @@ DictionaryParser::DictionaryParser(Dictionary & dictionary, json const & object)
                     for (auto const & form : nested.at("formes"))
                     {
 						std::string mot = form.get<std::string>();
+
 						if (dictionary.entrees_.contains(mot))
 							return JSONParserStatus::WordTwiceDefined;
 						dictionary.entrees_.emplace(mot, entree);

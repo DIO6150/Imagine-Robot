@@ -75,6 +75,7 @@ ScriptParser::ScriptParser(Script & script, json const & object)
 		Field::fillNoError("demandes",
 			[&script](json const & object)
 			{
+				script.requests_.clear();
 				for (auto const & nested : object)
 				{
 					Request request = Request(nested.at("numero").get<int>(), nested.at("resident").get<std::string>(), nested.at("message").get<std::string>());

@@ -1,7 +1,7 @@
 {
   "format": "robot-reconfort/carte",
   "version": 1,
-  "nom": "appartement_01",
+  "nom": "apt_dims",
   "dimensions": {
     "hauteur": 5,
     "largeur": 11

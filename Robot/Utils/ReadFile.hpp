@@ -1,19 +1,17 @@
 #pragma once
 
 #include <iostream>
-#include <filesystem>
-#include <fstream>
+#include <cerrno>
+#include <cstring>
+#include <fcntl.h>
+#include <unistd.h>
 #include <string>
-#include <cstddef>
-#include <sstream>
-#include <optional>
 
 #include <Robot/Errors/Error.hpp>
 #include <vendor/nlohmann/json.hpp>
 
-inline bool isValidUTF8(json data)
+inline bool isValidUTF8(std::string dataToString)
 {
-	std::string dataToString = data.dump();
 	std::vector<std::byte> dataToBytes;
 	for (char character : dataToString)
 		dataToBytes.push_back(std::byte(character));
@@ -52,7 +50,7 @@ inline bool isValidUTF8(json data)
 
 inline JSONParserStatus readJsonFile(std::string path, json & data)
 {
-	bool pathExists = std::filesystem::exists(path);
+	/*bool pathExists = std::filesystem::exists(path);
 	if (!pathExists)
 		return JSONParserStatus::IncorrectPath;
 
@@ -63,17 +61,41 @@ inline JSONParserStatus readJsonFile(std::string path, json & data)
 	{
 		file.close();
 		return JSONParserStatus::FileNotFound;
+	}*/
+
+	int fileAccess = open(path.c_str(), O_RDONLY);
+
+	if (fileAccess == -1) {
+        if (errno == ENOENT || errno == ENOTDIR)
+            return JSONParserStatus::FileNotFound;
+		return JSONParserStatus::IncorrectPath;
 	}
 
-	data = json::parse(file, nullptr, false);
+	std::string stringData;
+    char dataBuffer[4096];
 
-	file.close();
+	while (true) {
+		ssize_t bytesRead = read(fileAccess, dataBuffer, sizeof(dataBuffer));
+
+		if (bytesRead > 0)
+			stringData.append(dataBuffer, static_cast<std::size_t>(bytesRead));
+		else if (bytesRead == 0)
+			break;
+		else {
+			close(fileAccess);
+            	return JSONParserStatus::ReadingError;
+		}
+	}
+
+	close(fileAccess);
+	
+	if(!isValidUTF8(stringData))
+		return JSONParserStatus::NotUTF8;
+
+	data = json::parse(stringData, nullptr, false);
 	
 	if(data.is_discarded())
 		return JSONParserStatus::InvalidJson;
-	
-	if(!isValidUTF8(data))
-		return JSONParserStatus::NotUTF8;
 
 	return JSONParserStatus::Ok;
 }

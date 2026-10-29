@@ -9,6 +9,8 @@ using json = nlohmann::json;
 
 std::vector<Tile> initReducedMap(Pos2D robotPos, Pos2D resPos, std::vector<Pos2D> extraWalls)
 {
+	std::cout << "Tests de planification de chemin :\n" << std::endl;
+	
 	int nlines = 7, ncolumns = 10;
 	std::vector<Tile> reducedMap = std::vector<Tile>(10*7);
 	TileProperty empty;
@@ -160,12 +162,12 @@ void testDeplacementSelecteur()
 	Pos2D casierTest = Pos2D {0, 0};
 	std::cout << "Casier en position (intensite = " << casierTest.l << ", emotion = " << casierTest.c << ")" << std::endl;
 	
+	singleTestDeplacementSelecteur(casierTest, 0);
 	singleTestDeplacementSelecteur(casierTest, 1);
 	singleTestDeplacementSelecteur(casierTest, 2);
 	singleTestDeplacementSelecteur(casierTest, 3);
-	singleTestDeplacementSelecteur(casierTest, 4);
-	singleTestDeplacementSelecteur(casierTest, 3);
-	singleTestDeplacementSelecteur(casierTest, 3);
+	singleTestDeplacementSelecteur(casierTest, 2);
+	singleTestDeplacementSelecteur(casierTest, 2);
 }
 
 void singleTestDeplacementSelecteur(Pos2D casierChoisi, Emotion emoRecherche, Intensity intensRecherche, std::string repliAtt)
@@ -191,7 +193,7 @@ void testRegleRepli()
 	singleTestDeplacementSelecteur(Pos2D{1, 3}, emoRecherche, intensRecherche, "casiers_vides");
 }
 
-void testValidationFichiers()
+void testValidationFichiers(std::string folderTestPath)
 {
 	std::cout << "Tests de validation des fichiers :\n" << std::endl;
 
@@ -202,9 +204,12 @@ void testValidationFichiers()
 
 	json dataToParse;
 	int parsingType = 0;
-	JSONParserStatus statusTest = JSONParserStatus::Ok;
 	
-	const std::filesystem::path testsFiles{"data/tests_fichiers"};
+	std::cout << "Test de fichier manquant : \n" << folderTestPath << "/dummytest.json" << std::endl;
+	JSONParserStatus statusTest = Playground::extractAndDetermineParsing(folderTestPath + "/dummytest.json", parsingType, dataToParse);
+	printError(statusTest);
+	
+	const std::filesystem::path testsFiles{folderTestPath};
 
 	for (auto const& dir_entry : std::filesystem::directory_iterator{testsFiles})
 	{
@@ -239,40 +244,34 @@ void testValidationFichiers()
 		}
 		printError(statusTest);
 	}
+	statusTest = Playground::conformScriptMap(testScript, testMap);
+	printError(statusTest);
 }
 
-void testOne(std::string testType)
+void runTests(std::string folderTestPath)
 {
-	if (testType == "tests_plan")
-	{
-		std::cout << "Tests de planification de chemin :\n" << std::endl;
-		testPlanification();
-	}
-	else if (testType == "tests_replan")
-		testReplanification();
-	else if (testType == "tests_lecture")
-		testLectureDictionnaire();
-	else if (testType == "tests_select")
-		testDeplacementSelecteur();
-	else if (testType == "tests_repli")
-		testRegleRepli();
-	else if (testType == "tests_acces")
-		testCaseInccessible();	
-	else if (testType == "tests_fichier")
-		testValidationFichiers();
-	else if (testType == "tests_tous")
-	{
-		std::cout << "Tests de planification de chemin :\n" << std::endl;
-		testPlanification();
-		testReplanification();
-		testLectureDictionnaire();
-		testDeplacementSelecteur();
-		testRegleRepli();
-		testCaseInccessible();
-		testValidationFichiers();
-	}
+	std::cout << "Lancement des tests :\n" << std::endl;
+	
+	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" << std::endl;
+	testPlanification();
+	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" << std::endl;
+	testReplanification();
+	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" << std::endl;
+	testCaseInccessible();
+	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" << std::endl;
+	testLectureDictionnaire();
+	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" << std::endl;
+	testDeplacementSelecteur();
+	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" << std::endl;
+	testRegleRepli();
+	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" << std::endl;
+	
+	if (std::filesystem::exists(folderTestPath) && std::filesystem::is_directory(folderTestPath))
+		testValidationFichiers(folderTestPath);
 	else
-		std::cout << "Argument de test invalide." << std::endl; 
+		std::cout << "Le chemin ne mene pas vers un dossier. Pas de test d'erreurs de fichier\n" << std::endl;
+	
+	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" << std::endl;
 
 	std::cout << "Execution des tests terminee.\n" << std::endl;
 }
@@ -283,9 +282,9 @@ int main(int argc, char ** argv)
 	switch (argc)
 	{
 		case 2 :
-			testOne(argv[1]);
+			runTests(argv[1]);
 			return 0;
-		case 1 :
+		case 5 :
 			std::cout << "Lancement de la simulation." << std::endl;
 			break;
 		default :		
@@ -295,18 +294,16 @@ int main(int argc, char ** argv)
 			std::cout << "- argument 3 : chemin du dossier de donnees" << std::endl;
 			std::cout << "- argument 4 : chemin de la trace a ecrire" << std::endl;
 			std::cout << "\nLancer les tests :" << std::endl;
-			std::cout << "- argument 1 : tests_tous || tests_plan || tests_replan || tests_lecture";
-			std::cout << " || tests_select || tests_repli || tests_acces || tests_fichier" << std::endl;
-			//std::cout << "- argument 2 (si arg 1 = tests_acces || tests_fichier) : chemin du dossier de fichiers" << std::endl;
+			std::cout << "- argument 1 : chemin du dossier de fichiers" << std::endl;
 			return 0;
 	}
 	
 	// load with command args here instead
 	Directive instructions;
-	instructions.map    = "data/cartes/appartement_01.json";
-	instructions.script = "data/cartes/scenario_01.json";
-	instructions.data   = "data/donnees";
-	std::string traceFileName  = "trace.json";
+	instructions.map   	 		= argv[1];
+	instructions.script 		= argv[2];
+	instructions.data   		= argv[3];
+	std::string traceFileName	= argv[4];
 	
 	Simulation sim;
 	DirectiveTrace trace;

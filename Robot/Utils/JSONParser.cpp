@@ -65,10 +65,7 @@ JSONParserStatus JSONParser::verifySimplePos(json const & object)
 
 	json const & array = ((object.is_array()) ? object : object["position"]);
 
-	if (array.size() != 2)
-		return JSONParserStatus::PositionWrongSize;
-	
-	if (!array.at(0).is_number_integer() || !array.at(1).is_number_integer())
+	if (array.size() != 2 || !array.at(0).is_number_integer() || !array.at(1).is_number_integer())
 		return JSONParserStatus::WrongType;
 
 	return JSONParserStatus::Ok;

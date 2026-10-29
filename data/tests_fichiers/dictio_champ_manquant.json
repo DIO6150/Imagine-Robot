@@ -1,7 +1,7 @@
 {
   "format": "robot-reconfort/dictionnaire",
   "version": 1,
-  "nom": "dictionnaire_residence",
+  "nom": "dictio_champ_manquant",
   "intensites": [
     "faible",
     "moyenne",

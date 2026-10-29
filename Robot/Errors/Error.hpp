@@ -6,20 +6,20 @@
 enum class JSONParserStatus: int
 {
 	Ok							= 0,
-	FileNotFound				= 1,
-	NotUTF8						= 2,
-	IncorrectPath				= 3,
-	WrongFormat					= 4,
-	WrongVersion				= 5,
-	InvalidJson					= 6,
+	IncorrectPath				= 1,
+	FileNotFound				= 2,
+	NotUTF8						= 3,
+	InvalidJson					= 4,
+	WrongFormat					= 5,
+	WrongVersion				= 6,
 	MissingField				= 7,
 	WrongType					= 8,
 	PositionOutOfGrid			= 9,
 	GridNotRectangular			= 10,
 	InacurrateDimensions		= 11,
 	UnknownProperty				= 12,
-	UnknownEmotion 				= 13,
-	UnknownIntensity			= 14,
+	UnknownEmotion				= 13,
+	UnknownIntensity 			= 14,
 	InacurratePosition			= 15,
 	ResidentSharedId			= 16,
 	ConflictingRequirement		= 17,
@@ -30,7 +30,7 @@ enum class JSONParserStatus: int
 	WordTwiceDefined			= 22,
 	ArrayEmotions				= 23,
 	ArrayIntensity				= 24,
-	PositionWrongSize			= 25,
+	ReadingError				= 25,
 };
 
 inline void printError(JSONParserStatus error)
@@ -38,20 +38,20 @@ inline void printError(JSONParserStatus error)
 	std::cerr << "Erreur " << static_cast<int>(error) << " : ";
 	switch (error)
 		{
+			case JSONParserStatus::IncorrectPath :
+				std::cerr << "Chemin illisible";
+				break;
 			case JSONParserStatus::FileNotFound :
-				std::cerr << "Fichier absent";
+				std::cerr << "Fichier introuvable";
 				break;
 			case JSONParserStatus::NotUTF8 :
-				std::cerr << "Fichier non encodé en UTF-8";
-				break;
-			case JSONParserStatus::IncorrectPath :
-				std::cerr << "Fichier non lisible";
+				std::cerr << "Fichier non encode en UTF-8";
 				break;
 			case JSONParserStatus::WrongFormat :
-				std::cerr << "Format inattendu";
+				std::cerr << "Format different de celui attendu";
 				break;
 			case JSONParserStatus::WrongVersion :
-				std::cerr << "Version inattendu";
+				std::cerr << "Version different de celle attendue";
 				break;
 			case JSONParserStatus::InvalidJson :
 				std::cerr << "JSON syntaxiquement invalide";
@@ -81,13 +81,13 @@ inline void printError(JSONParserStatus error)
 				std::cerr << "Intensite inconnue";
 				break;
 			case JSONParserStatus::InacurratePosition :
-				std::cerr << "Position de grille non conforme";
+				std::cerr << "Position de grille non conforme aux coordonnees donnees";
 				break;
 			case JSONParserStatus::ResidentSharedId :
 				std::cerr << "Deux residents possedent le meme identifiant";
 				break;
 			case JSONParserStatus::ConflictingRequirement :
-				std::cerr << "Carte en entree differente de carte attendue";
+				std::cerr << "Carte en entree differente de la carte attendue";
 				break;
 			case JSONParserStatus::DrawerStartOutOfCloset :
 				std::cerr << "Casier de depart hors de l'armoire";
@@ -99,7 +99,7 @@ inline void printError(JSONParserStatus error)
 				std::cerr << "Deux casier possedent la meme emotion et intensite";
 				break;
 			case JSONParserStatus::InaccurateDrawerPosition :
-				std::cerr << "Position de casier non conforme";
+				std::cerr << "Etiquette emotion ou intensite non conforme aux coordonnees donnees";
 				break;
 			case JSONParserStatus::WordTwiceDefined :
 				std::cerr << "Mot defini pour des emotions ou intensites differentes";
@@ -110,11 +110,11 @@ inline void printError(JSONParserStatus error)
 			case JSONParserStatus::ArrayIntensity :
 				std::cerr << "Surplus ou manque d'intensite dans la liste";
 				break;
-			case JSONParserStatus::PositionWrongSize :
-				std::cerr << "Une position donnee n'a pas deux coordonnees";
+			case JSONParserStatus::ReadingError :
+				std::cerr << "Erreur survenue durant la lecture du fichier";
 				break;
 			default :
-				std::cerr << "erreur inconnue";
+				std::cerr << "erreur inconnue ou fichier de test conforme (0)";
 		}
 		std::cerr << ". Pas de trace ecrite\n" << std::endl;
 }

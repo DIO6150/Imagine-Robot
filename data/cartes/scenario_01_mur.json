@@ -18,12 +18,12 @@
     {
       "numero": 3,
       "resident": "R1",
-      "message": "Ce bouton est cassé, ça m'agace depuis hier."
+      "message": "Ce bouton est casse, ca m'agace depuis hier."
     },
     {
       "numero": 4,
       "resident": "R2",
-      "message": "Ma fille a appelé, je suis vraiment heureux."
+      "message": "Ma fille a appele, je suis vraiment heureux."
     }
   ]
 }

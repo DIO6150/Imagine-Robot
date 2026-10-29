@@ -21,9 +21,7 @@ inline bool inRect(Pos2D pos, uint32_t down, uint32_t up, uint32_t left, uint32_
 
 void Brain::simulationProgress()
 {
-	std::cout << "Total request : " << requestList_.size() << std::endl;
-	std::cout << "Request n" << requestList_[currentReq_].getId() << std::endl;
-	std::cout << "Current Objective : ";
+	std::cout << "\nCurrent Objective : ";
 	switch (currentObjective_)
 	{
 	case Objective::ReachDictionary:
@@ -218,6 +216,8 @@ void Brain::nextRequest(std::string motif)
 	addDelivery(motif);
 	currentReq_++;
 	currentObjective_ = ((noRequestsLeft()) ? Objective::NoObjective : Objective::ReachDictionary);
+	if (!noRequestsLeft())
+		std::cout << "\nRequest n" << requestList_[currentReq_].getId() << std::endl;
 	deliverySuccess_ = false;
 	destinationReached_ = false;
 	nStepsRequest_ = 0;
@@ -243,6 +243,9 @@ void Brain::start(std::vector<Request> requestList, MapInfo info, Pos2D casierDe
 	currentSearchedEmotion_ = Emotion::Unidentified;
 	currentSearchedIntensity_ = Intensity::Unidentified;
 	currentObjective_ = Objective::ReachDictionary;
+
+	std::cout << "\nTotal request : " << requestList_.size() << std::endl;
+	std::cout << "\nRequest n" << requestList_[currentReq_].getId() << std::endl;
 }
 
 struct DeducedStates

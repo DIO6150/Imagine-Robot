@@ -39,7 +39,7 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 					return JSONParserStatus::WrongType;
 
 				int size = object.size();
-				if (size != emotionToString.size())
+				if (object.size() != emotionToString.size())
 					return JSONParserStatus::ArrayEmotions;
 
 				for (int i = 0; i < size; i++)
@@ -215,6 +215,7 @@ ClosetParser::ClosetParser(ItemStash & stash, json const & object)
 		Field::fill("casiers",
 			[&stash](json const & object)
 			{
+				stash.drawers_.clear();
 				for (auto const & nested : object)
 				{
 					Drawer drawer;

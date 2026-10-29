@@ -1,7 +1,7 @@
 {
   "format": "robot-reconfort/scenario",
   "version": 1,
-  "nom": "scenario_01",
+  "nom": "scenar_champ_vide",
   "carte": null,
   "armoire": "armoire_standard",
   "demandes": [

@@ -80,6 +80,7 @@ MapParser::MapParser(Map & map, json const & object)
 		Field::fill("legende",
 			[&map](json const & object)
 			{
+				map.charProperties_.clear();
 				if(!object.is_object())
 					return JSONParserStatus::WrongType;
 				
@@ -162,14 +163,14 @@ MapParser::MapParser(Map & map, json const & object)
 				Pos2D robotStart; // obviously should check if its a list and if it has size == 2
 				robotStart.l = object.at(0).get<int>();
 				robotStart.c = object.at(1).get<int>();
+
+				if (!map.isInside(robotStart))
+					return JSONParserStatus::PositionOutOfGrid;
 				
 				auto tile  = map.getTile(robotStart);
 
 				if (!tile.isAgentStart())
 					return JSONParserStatus::InacurratePosition;
-
-				if (!map.isInside(robotStart))
-					return JSONParserStatus::PositionOutOfGrid;
 
 				map.robotStartPos_ = robotStart;
 
@@ -184,13 +185,13 @@ MapParser::MapParser(Map & map, json const & object)
 				stash.l = object.at("position").at(0).get<int>();
 				stash.c = object.at("position").at(1).get<int>();
 
+				if (!map.isInside(stash))
+					return JSONParserStatus::PositionOutOfGrid;
+
 				auto tile = map.getTile(stash);
 
 				if (!tile.isItemPickup())
 					return JSONParserStatus::InacurratePosition; // obv not everyhing is checkable at validator layer so eeeh
-
-				if (!map.isInside(stash))
-					return JSONParserStatus::PositionOutOfGrid;
 
 				map.stashPos_ = stash;
 
@@ -205,13 +206,13 @@ MapParser::MapParser(Map & map, json const & object)
 				dict.l = object.at("position").at(0).get<int>();
 				dict.c = object.at("position").at(1).get<int>();
 
+				if (!map.isInside(dict))
+					return JSONParserStatus::PositionOutOfGrid;
+
 				auto tile = map.getTile(dict);
 
 				if (!tile.isRecord())
 					return JSONParserStatus::InacurratePosition; // obv not everyhing is checkable at validator layer so eeeh
-
-				if (!map.isInside(dict))
-					return JSONParserStatus::PositionOutOfGrid;
 
 				map.dictionaryPos_ = dict;
 
@@ -245,6 +246,7 @@ MapParser::MapParser(Map & map, json const & object)
 		Field::fill("residents",
 			[&map](json const & object)
 			{
+				map.residents_.clear();
 				for (auto const & nested : object)
 				{
 					Resident resident;
@@ -253,13 +255,13 @@ MapParser::MapParser(Map & map, json const & object)
 					resident.pos_.l = nested.at("position").at(0).get<int>();
 					resident.pos_.c = nested.at("position").at(1).get<int>();
 
+					if (!map.isInside(resident.pos_))
+						return JSONParserStatus::PositionOutOfGrid;
+
 					auto tile = map.getTile(resident.pos_);
 
 					if (!tile.isPerson())
 						return JSONParserStatus::InacurratePosition;
-
-					if (!map.isInside(resident.pos_))
-						return JSONParserStatus::PositionOutOfGrid;
 
 					if(map.residents_.contains(nested.at("id").get<std::string>()))
 						return JSONParserStatus::ResidentSharedId;

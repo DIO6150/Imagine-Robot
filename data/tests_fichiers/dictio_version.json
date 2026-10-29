@@ -1,7 +1,7 @@
 {
   "format": "robot-reconfort/dictionnaire",
   "version": 3,
-  "nom": "dictionnaire_residence",
+  "nom": "dictio_version",
   "emotions": [
     "joie",
     "confiance",
