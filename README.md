@@ -1,21 +1,34 @@
-# Robot de réconfort — NOM1 & NOM2
+# Robot de réconfort — DOMBROWSKI & EOUZAN
 
 Projet de semestre, master informatique. Un robot à perception locale
 consulte un dictionnaire, fouille une armoire et rapporte un objet à un
 résident.
 
-Langage : *à compléter* — Version : *à compléter*
+Langage : C++ — Version : 1
+
+
+## Construire le dossier build
+
+```
+cmake -S . -B build 
+```
+
+## Compiler
+
+```
+cmake --build build
+```
 
 ## Lancer
 
 ```
-<votre commande> <carte.json> <scenario.json> <dossier_donnees> <trace_sortie.json>
+./build/ImagineRobot <carte.json> <scenario.json> <dossier_donnees> <trace_sortie.json>
 ```
 
 Exemple :
 
 ```
-python agent.py cartes/appartement_01.json cartes/scenario_01.json donnees sortie.json
+./build/ImagineRobot cartes/appartement_01.json cartes/scenario_01.json donnees sortie.json
 ```
 
 Dépendances : *aucune*, ou la liste et comment les installer.
@@ -23,10 +36,10 @@ Dépendances : *aucune*, ou la liste et comment les installer.
 ## Tester
 
 ```
-<votre commande de test>
+./build/ImagineRobot <dossier_tests_fichiers>
 ```
 
-*Une phrase sur ce que couvrent les tests.*
+*Les tests couvrent la planification et replanification de chemin, l'existence d'un chemin de l'agent vers un résident muré, la lecture des émotions dans le dictionnaire, le déplacement du curseur dans l'armoire, la règle de repli et la gestion des erreurs pour les fichiers mal formés.
 
 ## Organisation du code
 
