@@ -28,25 +28,48 @@ cmake --build build
 Exemple :
 
 ```
-./build/ImagineRobot cartes/appartement_01.json cartes/scenario_01.json donnees sortie.json
+./build/ImagineRobot data/cartes/appartement_01.json data/cartes/scenario_01.json data/donnees sortie.json
 ```
 
-Dépendances : *aucune*, ou la liste et comment les installer.
+Dépendances : Les dépendances sont gérés par CMakeLists.txt, avec les librairies fournies dans vendor.
 
 ## Tester
 
 ```
 ./build/ImagineRobot <dossier_tests_fichiers>
 ```
+<dossier_tests_fichiers> correspond au dossier contenant les fichiers de test pour la gestion des erreurs. Les fichiers ne doivent pas être triés dans des dossiers par type d'éléments (cartes, scénarios...). Le test détermine le type d'élément par le format, lorsqu'il est valide. Pour valider le chemin illisible, le droit de lecture pourra être retiré à un des fichiers conformes.
 
-*Les tests couvrent la planification et replanification de chemin, l'existence d'un chemin de l'agent vers un résident muré, la lecture des émotions dans le dictionnaire, le déplacement du curseur dans l'armoire, la règle de repli et la gestion des erreurs pour les fichiers mal formés.
+Exemple :
+
+```
+./build/ImagineRobot data/tests_fichiers
+```
+
+Les tests couvrent la planification et replanification de chemin, l'existence d'un chemin de l'agent vers un résident muré, la lecture des émotions dans le dictionnaire, le déplacement du curseur dans l'armoire, la règle de repli et la gestion des erreurs pour les fichiers mal formés.
 
 ## Organisation du code
 
-| Fichier | Rôle |
+| Dossier/Fichier | Rôle |
 |---|---|
-| `agent.py` | point d'entrée, boucle de décision |
-| `…` | … |
+| `vendor` | dossier de librairies externes |
+| `CMakeLists.txt` | gestion des dépendances, construction du dossier build |
+| `Main.cpp` | point d'entrée, lancement de test et écriture de trace |
+| `Simulation` | lance la simulation, affichage, recuperation |
+| `Playground` | chargement des données dans les éléments correspondant, environnement |
+| `Map` | carte |
+| `Script` | scénario |
+| `ItemStash` | armoire |
+| `Dictionary` | dictionnaire |
+| `AgentController` | corps de l'agent : action, interface d'intéraction de l'agent sur l'environnement |
+| `Brain` | tête de l'agent : decision, mémorisation, décisions |
+| `Common` | fichiers contenant des structures ou classes partagées (émotions, positions, directions...) |
+| `Error` | codes de retour et d'erreurs |
+| `Parsers` | organisation de la vérification et du chargement des données, unique à chaque élément de la simulation |
+| `Render` | affichage visuel de la simulation |
+| `JSONParser` | gestion général et séquentiel de la vérification et du chargement des données |
+| `Pos` | type représentant les positions |
+| `JSONParser` | gestion de l'ouverture d'un fichier .json |
 
 ## État
 
