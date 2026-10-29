@@ -48,14 +48,14 @@ public:
 	void onAgentMove(Pos2D oldPos, Pos2D newPos) override;
 
 	void onAgentTakeItem(Item item) override;
-	void onAgentGiveItem(Item item) override;
+	void onAgentGiveItem(Item item, Pos2D resident) override;
 
 	void onAgentStashOpen () override;
 	void onAgentStashClose() override;
 
 	void onAgentConsult() override;
 
-	void onAgentSelect(Pos2D cursor) override;
+	void onAgentSelect(Pos2D old, Pos2D cursor) override;
 
 	bool agentIsOver();
 	
@@ -77,7 +77,9 @@ private:
 	Dictionary dictionary_;
 
 	GLFWwindow * window_;
+
 	std::vector<Animation> animationStack_;
+	bool closetOpen_ = false; // helper cuz no proper open or close closet callback
 
 private:
 	std::unique_ptr<AgentController> agent_;

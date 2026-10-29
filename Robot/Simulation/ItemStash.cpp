@@ -45,3 +45,20 @@ std::optional<Item> ItemStash::removeItem(Pos2D pos)
 
 	return item;
 }
+
+std::vector<Item> ItemStash::inventory() const
+{
+	std::vector<Item> result;
+
+	for (auto drawer : drawers_)
+	{
+		result.emplace_back(
+			drawer.item_,
+			drawer.emotion_,
+			drawer.intensity_,
+			drawer.location_
+		);
+	}
+
+	return result;
+}

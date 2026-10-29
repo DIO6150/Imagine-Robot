@@ -16,7 +16,7 @@ struct AgentControllerListener
 	virtual CommandResult<std::optional<Item>> search(Orientation direction) = 0;
 
 	virtual CommandResult<Item> take() = 0;
-	virtual CommandResult<void> give() = 0;
+	virtual CommandResult<void> give(Pos2D resident) = 0;
 
 	virtual CommandResult<std::vector<Tile>> see() = 0;
 

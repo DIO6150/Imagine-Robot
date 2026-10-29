@@ -8,12 +8,13 @@ layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aUV;
 
 uniform mat4 u_transform;
+uniform mat4 u_projection;
 
 out vec2 vUV;
 
 void main()
 {
-    gl_Position = u_transform * vec4(aPosition, 1.0);
+    gl_Position = u_projection * u_transform * vec4(aPosition, 1.0);
     vUV = aUV;
 }
 )glsl";

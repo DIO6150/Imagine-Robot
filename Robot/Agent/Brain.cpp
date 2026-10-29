@@ -258,6 +258,7 @@ struct DeducedStates
 	Pos2D shouldMoveWhere;
 	bool shouldTakeItem = false;
 	bool shouldGiveItem = false;
+	Pos2D giveToWhom;
 	bool shouldConsult  = false;
 	bool shouldSearch   = false;
 };
@@ -337,6 +338,7 @@ void Brain::tick()
 
 	case Objective::GiveItem:
 		reasoning.shouldGiveItem = true;
+		reasoning.giveToWhom = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
 		break;
 	
 	default:
@@ -508,7 +510,7 @@ void Brain::tick()
 	{
 		addStep(Orientation::North);
 
-		auto result = body_->give();
+		auto result = body_->give(reasoning.giveToWhom);
 		nextRequest("null");
 		itemName_ = "vide";
 		carryItem_ = false;

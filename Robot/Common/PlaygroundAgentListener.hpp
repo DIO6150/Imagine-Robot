@@ -26,12 +26,12 @@ struct PlaygroundAgentListener
 	virtual void onAgentMove(Pos2D oldPos, Pos2D newPos) = 0;
 
 	virtual void onAgentTakeItem(Item item) = 0;
-	virtual void onAgentGiveItem(Item item) = 0;
+	virtual void onAgentGiveItem(Item item, Pos2D resident) = 0;
 
 	virtual void onAgentStashOpen () = 0;
 	virtual void onAgentStashClose() = 0;
 
 	virtual void onAgentConsult() = 0;
 
-	virtual void onAgentSelect(Pos2D cursor) = 0;
+	virtual void onAgentSelect(Pos2D old, Pos2D cursor) = 0;
 };

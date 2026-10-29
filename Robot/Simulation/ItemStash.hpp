@@ -35,6 +35,8 @@ public:
 	Pos2D getCasierDepart();
 	void closetInfos();
 
+	std::vector<Item> inventory() const;
+
 private:
 	std::string name_;
 	std::vector<Drawer> drawers_;

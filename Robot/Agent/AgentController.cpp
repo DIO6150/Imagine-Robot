@@ -65,12 +65,18 @@ CommandResult<void> AgentController::move(Orientation direction)
 {
 	Pos2D pos = pos_ + directionToPos(direction);
 
-	if(!listener_->canMove())
-		return CommandStatus::AgentMovementObstructed;
+	if(!listener_->canMove()) return CommandStatus::AgentMovementObstructed;
 
-	listener_->onAgentMove(pos_, pos);
+	bool before = isChestNearby();
+	auto old = pos_;
 	pos_ = pos;
+	bool after = isChestNearby();
+	
+	//if (before && !after) listener_->onAgentStashClose();
+	listener_->onAgentMove(old, pos); // we close before moving and we open after moving
+	//if (!before && after) listener_->onAgentStashOpen();
 
+	
 	return CommandStatus::Ok;
 }
 
@@ -87,10 +93,16 @@ CommandResult<std::tuple<Emotion, Intensity>> AgentController::consult()
 
 CommandResult<std::optional<Item>> AgentController::search(Orientation direction)
 {
+	auto old = casier_;
 	moveDrawerSelect(casier_, direction);
 	auto result = listener_->search(casier_);
 
-	if (result) return result;
+	if (result)
+	{
+		listener_->onAgentSelect(old, casier_);
+		return result;
+	}
+
 	return CommandStatus::GodSaidNo;
 }
 
@@ -107,13 +119,13 @@ CommandResult<Item> AgentController::take()
 	return CommandStatus::GodSaidNo;
 }
 
-CommandResult<void> AgentController::give()
+CommandResult<void> AgentController::give(Pos2D resident)
 {
 	if (carriedItem_)
 	{
-		// TODO : check if person is in reach
+		if (!isPersonNearby()) return CommandStatus::ResidentNotInRange;
 
-		listener_->onAgentGiveItem(carriedItem_.value());
+		listener_->onAgentGiveItem(carriedItem_.value(), resident);
 		carriedItem_ = std::nullopt;
 		return CommandStatus::Ok;
 	}
@@ -124,4 +136,18 @@ CommandResult<void> AgentController::give()
 void AgentController::onAgentFail(AgentFailureType type, std::string message)
 {
 	std::cout << "AGENT FAILURE : " << failureToString(type) << " " << message << "\n"; // TODO: print it in the trace too
+}
+
+bool AgentController::isChestNearby()
+{
+	auto tiles = listener_->see();
+	for (auto tile : tiles) if (tile.isItemPickup()) return true;
+	return false;
+}
+
+bool AgentController::isPersonNearby()
+{
+	auto tiles = listener_->see();
+	for (auto tile : tiles) if (tile.isPerson()) return true;
+	return false;
 }

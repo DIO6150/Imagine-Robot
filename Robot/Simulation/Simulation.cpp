@@ -66,7 +66,7 @@ JSONParserStatus Simulation::executeDirective(Directive instructions, DirectiveT
 		if (currentTime_ - lastRenderTime_ < targetFrameTime_) continue;
 		
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		playground_.draw();
 

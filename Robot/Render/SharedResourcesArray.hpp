@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Robot/Render/Image.hpp>
 #include <Robot/Render/ShaderProgram.hpp>
 #include <Robot/Render/Shaders/TileVertexShader.hpp>
 #include <Robot/Render/Shaders/TileFragmentShader.hpp>
@@ -7,56 +8,46 @@
 
 #include <glad/glad.h>
 
-struct SharedResources
+#include <map>
+#include <optional>
+
+struct Mesh
 {
-	GLuint rectVao;
-	GLuint rectVbo;
-	ShaderProgram rectProgram;
+	GLuint vao;
+	GLuint vbo;
 
-	void init()
+	uint32_t vertexCount;
+
+	Mesh (std::vector<float> vertices, uint64_t layout, uint32_t vertexSize);
+};
+
+class SharedResourceArray
+{
+public:
+	enum VertexLayout : uint64_t
 	{
-		glGenVertexArrays(1, &rectVao);
-		glBindVertexArray(rectVao);
+		Vertex = 1 << 1,
+		Normal = 1 << 2,
+		UV     = 1 << 3,
+	};
 
-		glGenBuffers(1, &rectVbo);
+	void createMesh(std::string key, std::vector<float> const & vertices, uint64_t layout);
+	std::optional<Mesh> getMesh(std::string key);
+	std::optional<uint32_t> getMeshVertexCount(std::string key);
+	void bindMesh(std::string key);
 
-		glBindBuffer(GL_ARRAY_BUFFER, rectVbo);
+	void createTexture(std::string key, Image const & image);
+	std::optional<GLuint> getTexture(std::string key);
+	void bindTexture(std::string key, uint32_t slot);
 
-		std::vector<Vertex> vertices = {
-			{ 0.0f, 0.0f, 0.0f,  0.0f, 0.0f },
-			{ 1.0f, 0.0f, 0.0f,  1.0f, 0.0f },
-			{ 1.0f, 1.0f, 0.0f,  1.0f, 1.0f },
+	void createProgram(std::string key, std::string vertexSource, std::string fragmentSource);
+	std::optional<ShaderProgram> getProgram(std::string key);
 
-			{ 0.0f, 0.0f, 0.0f,  0.0f, 0.0f },
-			{ 1.0f, 1.0f, 0.0f,  1.0f, 1.0f },
-			{ 0.0f, 1.0f, 0.0f,  0.0f, 1.0f }
-		};
+private:
+	uint32_t getVertexSize(uint32_t layout);
 
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-		glVertexAttribPointer(
-			0,
-			3,
-			GL_FLOAT,
-			false,
-			5 * sizeof(float),
-			(void *) 0
-		);
-
-		glVertexAttribPointer(
-			1,
-			2,
-			GL_FLOAT,
-			false,
-			5 * sizeof(float),
-			(void *) (3 * sizeof (float))
-		);
-
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-
-		rectProgram.compileVertex(TILE_VERTEX_SHADER);
-		rectProgram.compileFragment(TILE_FRAGMENT_SHADER);
-		rectProgram.link();
-	}
+private:
+	std::map<std::string, Mesh> meshes_;
+	std::map<std::string, GLuint> textures_;
+	std::map<std::string, ShaderProgram> programs_;
 };

@@ -27,7 +27,7 @@ JSONParserStatus Playground::start(GLFWwindow * window, Directive const & instru
 
 	agent_->start(script_.getRequests(), map_.generateInfo(), closet_.getCasierDepart());
 
-	view_->init(map_, agent_.get(), window);
+	view_->init(map_, *agent_.get(), closet_, window);
 
 	return status;
 }
@@ -207,22 +207,27 @@ void Playground::onAgentMove(Pos2D oldPos, Pos2D newPos)
 
 void Playground::onAgentTakeItem(Item item)
 {
-	animationStack_.emplace_back(view_->equipItem(item));
+	animationStack_.emplace_back(view_->equipItem(item, closet_));
+	if (closetOpen_)
+	{
+		closetOpen_ = false;
+		onAgentStashClose();
+	}
 }
 
-void Playground::onAgentGiveItem(Item item)
+void Playground::onAgentGiveItem(Item item, Pos2D resident)
 {
-	animationStack_.emplace_back(view_->unequipItem());
+	animationStack_.emplace_back(view_->giveItem(resident));
 }
 
-void Playground::onAgentStashOpen ()
+void Playground::onAgentStashOpen()
 {
-
+	animationStack_.emplace_back(view_->openChest());
 }
 
 void Playground::onAgentStashClose()
 {
-
+	animationStack_.emplace_back(view_->closeChest());
 }
 
 void Playground::onAgentConsult()
@@ -230,7 +235,12 @@ void Playground::onAgentConsult()
 
 }
 
-void Playground::onAgentSelect(Pos2D cursor)
+void Playground::onAgentSelect(Pos2D old, Pos2D cursor)
 {
-
+	if (!closetOpen_)
+	{
+		closetOpen_ = true;
+		onAgentStashOpen();
+	}
+	animationStack_.emplace_back(view_->moveChestCursor(old, cursor));
 }

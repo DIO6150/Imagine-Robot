@@ -39,9 +39,13 @@ private:
 	CommandResult<std::optional<Item>> search(Orientation direction) override;
 
 	CommandResult<Item> take() override;
-	CommandResult<void> give() override;
+	CommandResult<void> give(Pos2D resident) override;
 
 	void onAgentFail(AgentFailureType reason, std::string message) override;
+
+private:
+	bool isChestNearby();
+	bool isPersonNearby();
 
 private:
 	Pos2D pos_;
