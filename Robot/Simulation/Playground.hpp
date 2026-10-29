@@ -28,7 +28,8 @@ public:
 	
 	// Presenter Code
 	JSONParserStatus start(GLFWwindow * window, Directive const & instructions);
-	void tick();
+	void update();
+	void fixedUpdate(double deltaTime);
 	void draw();
 
 public:
@@ -51,17 +52,17 @@ public:
 	
 	void onMapInit(std::vector<Tile> map, MapInfo info) override;
 
-	void onAgentMove(Pos2D newPos) override;
+	void onAgentMove(Pos2D oldPos, Pos2D newPos) override;
 
 	void onAgentTakeItem(Item item) override;
-	void onAgentGiveItem(Item item) override;
+	void onAgentGiveItem(Item item, Pos2D resident) override;
 
 	void onAgentStashOpen () override;
 	void onAgentStashClose() override;
 
 	void onAgentConsult() override;
 
-	void onAgentSelect(Pos2D cursor) override;
+	void onAgentSelect(Pos2D old, Pos2D cursor) override;
 
 	bool agentIsOver();
 	
@@ -70,8 +71,11 @@ private:
 	bool canMove() override;
 	std::vector<Tile> see() override;
 	std::tuple<Emotion, Intensity> consult(std::string message) override;
-	std::string search(Pos2D posDrawer) override;
-	bool take(Pos2D posDrawer, std::string itemName) override;
+	std::optional<Item> search(Pos2D pos) override;
+	std::optional<Item> take(Pos2D pos) override;
+	
+private:
+	JSONParserStatus parse(std::string const & path, std::string toFill);
 
 private:
 	Script script_;
@@ -80,7 +84,9 @@ private:
 	Dictionary dictionary_;
 
 	GLFWwindow * window_;
+
 	std::vector<Animation> animationStack_;
+	bool closetOpen_ = false; // helper cuz no proper open or close closet callback
 
 private:
 	std::unique_ptr<AgentController> agent_;

@@ -9,15 +9,15 @@
 class ShaderProgram
 {
 public:
-	ShaderProgram ();
+	ShaderProgram();
 
 	void compileVertex  (std::string source);
 	void compileFragment(std::string source);
 
-	void link ();
+	void link();
 
-	void use () const;
-	void cancel () const;
+	void use() const;
+	void cancel() const;
 
 	// TODO-add : cache system
 	void uploadMatrix4(std::string key, const glm::mat4& matrix) const;

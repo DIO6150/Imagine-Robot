@@ -27,15 +27,18 @@ JSONParserStatus Playground::start(GLFWwindow * window, Directive const & instru
 
 	agent_->start(script_.getRequests(), map_.generateInfo(), closet_.getCasierDepart());
 
-	view_->init();
+	view_->init(map_, *agent_.get(), closet_, window);
 
 	return status;
 }
 
-void Playground::tick()
+void Playground::update()
 {
 	agent_->tick();
+}
 
+void Playground::fixedUpdate(double deltaTime)
+{
 	if (!animationStack_.empty())
 	{
 		auto & currentAnimation = animationStack_.at(0);
@@ -44,7 +47,7 @@ void Playground::tick()
 		if (result == Stop) animationStack_.erase(animationStack_.begin());
 	}
 
-	view_->update();
+	view_->update(deltaTime);
 }
 
 void Playground::draw()
@@ -130,14 +133,21 @@ std::tuple<Emotion, Intensity> Playground::consult(std::string message)
 	return result;
 }
 
-std::string Playground::search(Pos2D posDrawer)
+std::optional<Item> Playground::search(Pos2D pos)
 {
-	return closet_.getItem(posDrawer);
+	return closet_.getItem(pos);
 }
 
-bool Playground::take(Pos2D posDrawer, std::string itemName)
+std::optional<Item> Playground::take(Pos2D pos)
 {
-	return closet_.removeItem(posDrawer, itemName);
+	auto item = closet_.removeItem(pos);
+
+	if (item)
+	{
+		onAgentTakeItem(item.value());
+	}
+
+	return item;
 }
 
 JSONParserStatus Playground::extractAndDetermineParsing(std::string const & path, int & parsingType, json & data)
@@ -230,29 +240,34 @@ void Playground::onMapInit(std::vector<Tile> map, MapInfo info)
 
 }
 
-void Playground::onAgentMove(Pos2D newPos)
+void Playground::onAgentMove(Pos2D oldPos, Pos2D newPos)
 {
-
+	animationStack_.emplace_back(view_->moveAgent(oldPos, newPos));
 }
 
 void Playground::onAgentTakeItem(Item item)
 {
-
+	animationStack_.emplace_back(view_->equipItem(item, closet_));
+	if (closetOpen_)
+	{
+		closetOpen_ = false;
+		onAgentStashClose();
+	}
 }
 
-void Playground::onAgentGiveItem(Item item)
+void Playground::onAgentGiveItem(Item item, Pos2D resident)
 {
-
+	animationStack_.emplace_back(view_->giveItem(resident));
 }
 
-void Playground::onAgentStashOpen ()
+void Playground::onAgentStashOpen()
 {
-
+	animationStack_.emplace_back(view_->openChest());
 }
 
 void Playground::onAgentStashClose()
 {
-
+	animationStack_.emplace_back(view_->closeChest());
 }
 
 void Playground::onAgentConsult()
@@ -260,7 +275,12 @@ void Playground::onAgentConsult()
 
 }
 
-void Playground::onAgentSelect(Pos2D cursor)
+void Playground::onAgentSelect(Pos2D old, Pos2D cursor)
 {
-
+	if (!closetOpen_)
+	{
+		closetOpen_ = true;
+		onAgentStashOpen();
+	}
+	animationStack_.emplace_back(view_->moveChestCursor(old, cursor));
 }

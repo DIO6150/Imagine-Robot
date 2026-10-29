@@ -22,18 +22,43 @@ void ItemStash::closetInfos()
 	}
 }
 
-std::string ItemStash::getItem(Pos2D pos)
+std::optional<Item> ItemStash::getItem(Pos2D pos)
 {
-	return drawers_[pos.l*8 + pos.c].item_;
+	auto const & drawer = drawers_[pos.l*8 + pos.c];
+
+	if (drawer.item_ == "vide")
+		return std::nullopt;
+
+	Item result;
+	result.name      = drawer.item_;
+	result.emotion   = drawer.emotion_;
+	result.intensity = drawer.intensity_;
+	result.pos = drawer.location_;
+
+	return result;
 }
 
-bool ItemStash::removeItem(Pos2D posDrawer, std::string itemName)
+std::optional<Item> ItemStash::removeItem(Pos2D pos)
 {
-	if(drawers_[posDrawer.l*8 + posDrawer.c].item_ == itemName)
+	auto item = getItem(pos);
+	if (item) drawers_[pos.l*8 + pos.c].item_ = "vide";
+
+	return item;
+}
+
+std::vector<Item> ItemStash::inventory() const
+{
+	std::vector<Item> result;
+
+	for (auto drawer : drawers_)
 	{
-		drawers_[posDrawer.l*8 + posDrawer.c].item_ = "vide";
-		return true;
+		result.emplace_back(
+			drawer.item_,
+			drawer.emotion_,
+			drawer.intensity_,
+			drawer.location_
+		);
 	}
 
-	return false;
+	return result;
 }

@@ -21,6 +21,9 @@ inline bool inRect(Pos2D pos, uint32_t down, uint32_t up, uint32_t left, uint32_
 
 void Brain::simulationProgress()
 {
+	if (currentReq_ >= requestList_.size())
+		return;
+
 	std::cout << "\nCurrent Objective : ";
 	switch (currentObjective_)
 	{
@@ -255,6 +258,7 @@ struct DeducedStates
 	Pos2D shouldMoveWhere;
 	bool shouldTakeItem = false;
 	bool shouldGiveItem = false;
+	Pos2D giveToWhom;
 	bool shouldConsult  = false;
 	bool shouldSearch   = false;
 };
@@ -334,6 +338,7 @@ void Brain::tick()
 
 	case Objective::GiveItem:
 		reasoning.shouldGiveItem = true;
+		reasoning.giveToWhom = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
 		break;
 	
 	default:
@@ -403,8 +408,7 @@ void Brain::tick()
 			}
 		}
 	}
-
-	if (reasoning.shouldConsult)
+	else if (reasoning.shouldConsult)
 	{
 		addStep(Orientation::North);
 		
@@ -425,8 +429,7 @@ void Brain::tick()
 		}
 		simulationProgress();
 	}
-
-	if (reasoning.shouldSearch)
+	else if (reasoning.shouldSearch)
 	{
 		auto drawerDestination = drawerCheckQueue_.front();
 		while(drawersContainsItem_[drawerDestination.l*8 + drawerDestination.c] == "vide")
@@ -462,13 +465,11 @@ void Brain::tick()
 
 			casier_ = casier_ + directionToPos(dirDrawer);
 			casier_.c = (casier_.c + 8)%8;
-			CommandResult<std::string> result = body_->search(dirDrawer);
-			//std::cout << "(" << casier_.l << "," << casier_.c << "), content : " << result.get() << std::endl;
-			drawersContainsItem_[casier_.l*8 + casier_.c] = result.get();
+			auto result = body_->search(dirDrawer);
+			drawersContainsItem_[casier_.l*8 + casier_.c] = (result.get() ? result.get()->name : "vide");
 
 			if (casier_ == drawerDestination) {
-				//std::cout << "(" << drawerDestination.l << "," << drawerDestination.c << ") : " << result.get() << std::endl;
-				if (result.get() != "vide")
+				if (result.get())
 				{
 					currentObjective_ = Objective::TakeItem;
 					simulationProgress();
@@ -480,13 +481,23 @@ void Brain::tick()
 			}
 		}
 	}
-
-	if (reasoning.shouldTakeItem)
+	else if (reasoning.shouldTakeItem)
 	{
 		addStep(Orientation::North);
 
 		itemName_ = drawersContainsItem_[casier_.l*8 + casier_.c];
-		auto result = body_->take(itemName_);
+		auto result = body_->take();
+
+		if (!result)
+		{
+			std::cout << "ERROR CANT RETRIEVE ITEM\n";
+			nextRequest("unretriveable item");
+			itemName_ = "vide";
+			carryItem_ = false;
+			simulationProgress();
+			return;
+		}
+
 		carryItem_ = true;
 		drawersContainsItem_[casier_.l*8 + casier_.c] = "vide";
 		std::cout << "item taken : " << itemName_ << std::endl;
@@ -495,19 +506,18 @@ void Brain::tick()
 		destinationReached_ = false;
 		simulationProgress();
 	}
-
-	nStepsRequest_++;
-
-	if (reasoning.shouldGiveItem)
+	else if (reasoning.shouldGiveItem)
 	{
 		addStep(Orientation::North);
 
-		auto result = body_->give(itemName_);
+		auto result = body_->give(reasoning.giveToWhom);
 		nextRequest("null");
 		itemName_ = "vide";
 		carryItem_ = false;
 		simulationProgress();
 	}
+
+	nStepsRequest_++;
 
 	nSteps_++;
 }

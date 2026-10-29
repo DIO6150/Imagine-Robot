@@ -142,9 +142,8 @@ public:
 		
 	}
 
-	CommandResult(CommandStatus status, T value)
+	CommandResult(CommandStatus status)
 		: status_ {status}
-		, value_ {value}
 	{
 		
 	}
