@@ -55,6 +55,14 @@ void AgentController::moveDrawerSelect(Pos2D & givenDrawer, Orientation directio
 	}
 }
 
+CommandResult<void> AgentController::placeBackItem(Pos2D closet)
+{
+	listener_->placeBackItem(*carriedItem_);
+	listener_->onAgentGiveItem(carriedItem_.value(), closet);
+	carriedItem_ = std::nullopt;
+	return CommandStatus::Ok;
+}
+
 CommandResult<std::vector<Tile>> AgentController::see()
 {
 	std::vector<Tile> perception = listener_->see();
@@ -76,7 +84,6 @@ CommandResult<void> AgentController::move(Orientation direction)
 	listener_->onAgentMove(old, pos); // we close before moving and we open after moving
 	//if (!before && after) listener_->onAgentStashOpen();
 
-	
 	return CommandStatus::Ok;
 }
 
@@ -131,6 +138,11 @@ CommandResult<void> AgentController::give(Pos2D resident)
 	}
 
 	return CommandStatus::GodSaidNo;
+}
+
+CommandResult<void> AgentController::wait()
+{
+	return CommandStatus::Ok;
 }
 
 void AgentController::onAgentFail(AgentFailureType type, std::string message)

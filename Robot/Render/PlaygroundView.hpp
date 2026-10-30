@@ -10,8 +10,7 @@
 
 #include <Robot/Simulation/Map.hpp>
 #include <Robot/Agent/AgentController.hpp>
-
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 class PlaygroundView
 {
@@ -34,7 +33,7 @@ private:
 	bool carryItem_ = false;
 
 private:
-	float simulationSpeed_ = 1.0f;
+	float simulationSpeed_ = 1.5f;
 	double deltaTime_;
 
 	SharedResourceArray resourceArray_;

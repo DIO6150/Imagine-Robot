@@ -19,6 +19,7 @@ struct AgentControllerListener
 	virtual CommandResult<void> give(Pos2D resident) = 0;
 
 	virtual CommandResult<std::vector<Tile>> see() = 0;
+	virtual CommandResult<void> placeBackItem(Pos2D closet) = 0;
 
 	virtual void onAgentFail(AgentFailureType type, std::string message) = 0;
 };

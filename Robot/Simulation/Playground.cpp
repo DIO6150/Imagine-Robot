@@ -99,6 +99,11 @@ bool Playground::canMove()
 	return canMove;
 }
 
+void Playground::placeBackItem(Item returnedItem)
+{
+	closet_.putBackItem(returnedItem);
+}
+
 std::vector<Tile> Playground::see()
 {
 	std::vector<Orientation> const directions = { North, West, South, East };

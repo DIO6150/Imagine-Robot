@@ -48,7 +48,7 @@
       "colonne": 3,
       "emotion": "surprise",
       "intensite": "faible",
-      "objet": null
+      "objet": "crayon"
     },
     {
       "ligne": 0,
@@ -104,7 +104,7 @@
       "colonne": 3,
       "emotion": "surprise",
       "intensite": "moyenne",
-      "objet": null
+      "objet": "radio"
     },
     {
       "ligne": 1,
@@ -160,7 +160,7 @@
       "colonne": 3,
       "emotion": "surprise",
       "intensite": "forte",
-      "objet": null
+      "objet": "ballon"
     },
     {
       "ligne": 2,

@@ -32,6 +32,8 @@ public:
 
 	std::optional<Item> getItem(Pos2D pos);
 	std::optional<Item> removeItem(Pos2D pos);
+	void putBackItem(Item returnedItem);
+
 	Pos2D getCasierDepart();
 	void closetInfos();
 

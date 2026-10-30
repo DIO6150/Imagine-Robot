@@ -26,6 +26,18 @@ enum class Objective : int32_t
 	NoObjective,
 };
 
+struct DeducedStates
+{
+	bool needReplan = false;
+	bool  shouldMove = false;
+	Pos2D shouldMoveWhere;
+	bool shouldTakeItem = false;
+	bool shouldGiveItem = false;
+	Pos2D giveToWhom;
+	bool shouldConsult  = false;
+	bool shouldSearch   = false;
+	bool shouldWait   = false;
+};
 
 class Brain
 {
@@ -51,6 +63,18 @@ private:
 	void addStep(Orientation dir);
 	void addDelivery(std::string motif);
 	void nextRequest(std::string motif);
+
+	void updateMentalMap(std::vector<Tile> perception, bool & replanNeeded);
+	void decideNextAction(DeducedStates & reasoning);
+
+	void checkPathEnd(Pos2D destination);
+	void move(bool replanNeeded, Pos2D destination);
+
+	void executeSearch(Orientation dirDrawer, Pos2D drawerDestination);
+	void search();
+
+	void take();
+	void takeAction(DeducedStates reasoning);
 
 	std::queue<Pos2D> closetPath();
 
@@ -82,6 +106,7 @@ private:
 	Pos2D tileTarget_;
 	Pos2D pos_;
 	Pos2D casier_;
+	std::vector<Orientation> const directions = { North, West, South, East };
 
 
 private:

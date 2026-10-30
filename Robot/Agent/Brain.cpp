@@ -243,6 +243,7 @@ void Brain::start(std::vector<Request> requestList, MapInfo info, Pos2D casierDe
 	currentPerception_[Orientation::South] = Tile();
 	currentPerception_[Orientation::East] = Tile();
 	deliverySuccess_ = false;
+	itemName_ = "vide";
 	currentSearchedEmotion_ = Emotion::Unidentified;
 	currentSearchedIntensity_ = Intensity::Unidentified;
 	currentObjective_ = Objective::ReachDictionary;
@@ -251,39 +252,11 @@ void Brain::start(std::vector<Request> requestList, MapInfo info, Pos2D casierDe
 	std::cout << "\nRequest n" << requestList_[currentReq_].getId() << std::endl;
 }
 
-struct DeducedStates
+void Brain::updateMentalMap(std::vector<Tile> perception, bool & replanNeeded)
 {
-	bool needReplan = false;
-	bool  shouldMove = false;
-	Pos2D shouldMoveWhere;
-	bool shouldTakeItem = false;
-	bool shouldGiveItem = false;
-	Pos2D giveToWhom;
-	bool shouldConsult  = false;
-	bool shouldSearch   = false;
-};
-
-void Brain::tick()
-{
-	simulationProgress();
-	//std::cout << pos_.l << "," << pos_.c << std::endl;
-	// PERCEVOIR
-	DeducedStates reasoning;
-	std::vector<Orientation> const directions = { North, West, South, East };
- 
-	//std::cout << isVisited_[pos_.l * mapInfo_.width + pos_.c] << std::endl;
-	auto nwse = body_->see();
-
-	if (!nwse)
-	{
-		return;
-	}
-
-	// MEMORISER
-	
 	for (auto i = 0; i < directions.size(); ++i)
 	{
-		auto tile = nwse.get()[i];
+		auto tile = perception[i];
 		
 		if (!inRect(tile.pos_, 0, mapInfo_.height, 0, mapInfo_.width))
 			continue;
@@ -301,12 +274,14 @@ void Brain::tick()
 			curStep = currentPath_.front();
 			currentPath_.pop();
 			//std::cout << curStep.l << "," << curStep.c << " : " << mentalMap_[calculateIndex(curStep, mapInfo_.width)].isSolid() << std::endl;
-			reasoning.needReplan = ((mentalMap_[calculateIndex(curStep, mapInfo_.width)].isSolid()) ? true : reasoning.needReplan);
+			replanNeeded = ((mentalMap_[calculateIndex(curStep, mapInfo_.width)].isSolid()) ? true : replanNeeded);
 			currentPath_.push(curStep);
 		}
 	}
+}
 
-	// DECIDER
+void Brain::decideNextAction(DeducedStates & reasoning)
+{
 	switch (currentObjective_)
 	{
 	case Objective::ReachDictionary:
@@ -344,76 +319,188 @@ void Brain::tick()
 	default:
 		break;
 	}
+}
 
-	// AGIR
-	if (reasoning.shouldMove)
+void Brain::checkPathEnd(Pos2D destination)
+{
+	bool reached = false;
+	for (auto dir : directions)
 	{
-		//std::cout << reasoning.needReplan << std::endl;
-		if (reasoning.needReplan || currentPath_.empty())
+		reached = ((pos_ + directionToPos(dir) == destination) ? true : reached);
+	}
+
+	if (reached)
+	{
+		// target reached
+		if (currentObjective_ == Objective::ReachDictionary)
+			currentObjective_ = Objective::InterpretRequest;
+		if (currentObjective_ == Objective::ReachCloset)
 		{
-			currentPath_ = Brain::shortestPath(pos_, reasoning.shouldMoveWhere, mentalMap_, mapInfo_.width);
+			currentObjective_ = Objective::FindItem;
+			if(itemName_ != "vide")
+			{
+				body_->placeBackItem(mapInfo_.stashPos);
+				itemName_ = "vide";
+			}
+			drawerCheckQueue_ = closetPath();
+		}
+		if (currentObjective_ == Objective::ReachResident)
+			currentObjective_ = Objective::GiveItem;
+	}
+	else
+	{
+		// no valid path
+		body_->onAgentFail(AgentFailureType::Move, "La destination requise n'est pas accessible. Passage à la requete suivante");
+		if (currentObjective_ == Objective::ReachDictionary)
+			nextRequest("dictionnaire inaccessible");
+		if (currentObjective_ == Objective::ReachCloset)
+			nextRequest("armoire inaccessible");
+		if (currentObjective_ == Objective::ReachResident)
+			nextRequest("resident inaccessible");
+	}
+}
+
+void Brain::move(bool replanNeeded, Pos2D destination)
+{
+	//std::cout << reasoning.needReplan << std::endl;
+	if (replanNeeded || currentPath_.empty())
+	{
+		currentPath_ = Brain::shortestPath(pos_, destination, mentalMap_, mapInfo_.width);
+	}
+
+	if (!currentPath_.empty())
+	{
+		auto direction = findDirection(currentPath_.front(), pos_); // findDirection is maybe wrong
+		
+		addStep(direction);
+
+		auto result = body_->move(direction);
+		if (!result)
+		{
+			std::cout << "ERROR MOVE FAILED\n";
+			nextRequest("echec execution AVANCER");
+			simulationProgress();
+			return;
 		}
 
-		if (!currentPath_.empty())
+		if (result)
 		{
-			auto direction = findDirection(currentPath_.front(), pos_); // findDirection is maybe wrong
-			
-			addStep(direction);
-	
-			auto result = body_->move(direction);
-	
-			if (result)
-			{
-				pos_ += directionToPos(direction); // ajust mental position
-				currentPath_.pop();
-			}
-			else
-			{
-				body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
-			}
+			pos_ += directionToPos(direction); // ajust mental position
+			currentPath_.pop();
 		}
-
-		if (currentPath_.empty())
+		else
 		{
-			// target reached or no valid path
-			bool reached = false;
-			for (auto dir : directions)
-			{
-				reached = ((pos_ + directionToPos(dir) == reasoning.shouldMoveWhere) ? true : reached);
-			}
-
-			if (reached)
-			{
-				// target reached
-				if (currentObjective_ == Objective::ReachDictionary)
-					currentObjective_ = Objective::InterpretRequest;
-				if (currentObjective_ == Objective::ReachCloset)
-				{
-					currentObjective_ = Objective::FindItem;
-					drawerCheckQueue_ = closetPath();
-				}
-				if (currentObjective_ == Objective::ReachResident)
-					currentObjective_ = Objective::GiveItem;
-			}
-			else
-			{
-				// no valid path
-				body_->onAgentFail(AgentFailureType::Move, "La destination requise n'est pas accessible. Passage à la requete suivante");
-				if (currentObjective_ == Objective::ReachDictionary)
-					nextRequest("dictionnaire inaccessible");
-				if (currentObjective_ == Objective::ReachCloset)
-					nextRequest("armoire inaccessible");
-				if (currentObjective_ == Objective::ReachResident)
-					nextRequest("resident inaccessible");
-			}
+			body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
 		}
 	}
+
+	// target reached or no valid path
+	if (currentPath_.empty())
+		checkPathEnd(destination);
+}
+
+void Brain::executeSearch(Orientation dirDrawer, Pos2D drawerDestination)
+{
+	addStep(dirDrawer);
+
+	casier_ = casier_ + directionToPos(dirDrawer);
+	casier_.c = (casier_.c + 8)%8;
+	auto result = body_->search(dirDrawer);
+
+	drawersContainsItem_[casier_.l*8 + casier_.c] = (result.get() ? result.get()->name : "vide");
+
+	if (casier_ == drawerDestination) {
+		if (result.get())
+		{
+			currentObjective_ = Objective::TakeItem;
+			simulationProgress();
+			std::queue<Pos2D> empty;
+			std::swap(drawerCheckQueue_, empty);
+		}
+		else
+			drawerCheckQueue_.pop();
+	}
+}
+
+void Brain::search()
+{
+	auto drawerDestination = drawerCheckQueue_.front();
+	while(drawersContainsItem_[drawerDestination.l*8 + drawerDestination.c] == "vide")
+	{
+		drawerCheckQueue_.pop();
+		drawerDestination = ((drawerCheckQueue_.empty()) ? Pos2D {-1, -1} : drawerCheckQueue_.front());
+	}
+
+	if (drawerCheckQueue_.empty())
+	{
+		body_->onAgentFail(AgentFailureType::Search, "L'armoire ne contient pas d'objet adapte. Passage à la requete suivante.");
+		nextRequest("armoire vide");
+	}
+	else{
+
+		Orientation dirDrawer;
+		//std::cout << "des : " << drawerDestination.l << ", cas : " << casier_.l << std::endl;
+		if(drawerDestination.l != casier_.l)
+		{
+			//std::cout << "Nord/Sud" << std::endl;
+			dirDrawer = findDirection(drawerDestination, casier_);
+		}
+		else
+		{
+			//std::cout << "Est/Ouest" << std::endl;
+			if((drawerDestination.c - casier_.c + 8)%8 < 4)
+				dirDrawer = Orientation::East;
+			else
+				dirDrawer = Orientation::West;
+		}
+
+		executeSearch(dirDrawer, drawerDestination);
+	}
+}
+
+void Brain::take()
+{
+	addStep(Orientation::North);
+
+	itemName_ = drawersContainsItem_[casier_.l*8 + casier_.c];
+	auto result = body_->take();
+
+	if (!result)
+	{
+		std::cout << "ERROR TAKE FAILED\n";
+		nextRequest("echec execution PRENDRE");
+		itemName_ = "vide";
+		carryItem_ = false;
+		simulationProgress();
+		return;
+	}
+
+	carryItem_ = true;
+	drawersContainsItem_[casier_.l*8 + casier_.c] = "vide";
+	std::cout << "item taken : " << itemName_ << std::endl;
+	currentObjective_ = Objective::ReachResident;
+	Pos2D residentPos = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
+	destinationReached_ = false;
+	simulationProgress();
+}
+
+void Brain::takeAction(DeducedStates reasoning)
+{
+	if (reasoning.shouldMove)
+		move(reasoning.needReplan, reasoning.shouldMoveWhere);
 	else if (reasoning.shouldConsult)
 	{
 		addStep(Orientation::North);
 		
 		auto result = body_->consult();
-		//if (result != CommandStatus::Ok)
+
+		if (!result)
+		{
+			std::cout << "ERROR CONSULT FAILED\n";
+			nextRequest("echec execution CONSULTER");
+			simulationProgress();
+			return;
+		}
 		
 		currentSearchedEmotion_ = std::get<0>(result.get());
 		currentSearchedIntensity_ = std::get<1>(result.get());
@@ -430,95 +517,58 @@ void Brain::tick()
 		simulationProgress();
 	}
 	else if (reasoning.shouldSearch)
-	{
-		auto drawerDestination = drawerCheckQueue_.front();
-		while(drawersContainsItem_[drawerDestination.l*8 + drawerDestination.c] == "vide")
-		{
-			drawerCheckQueue_.pop();
-			drawerDestination = drawerCheckQueue_.front();
-		}
-
-		if (drawerCheckQueue_.empty())
-		{
-			body_->onAgentFail(AgentFailureType::Search, "L'armoire ne contient pas d'objet adapte. Passage à la requete suivante.");
-			nextRequest("armoire vide");
-		}
-		else{
-
-			Orientation dirDrawer;
-			//std::cout << "des : " << drawerDestination.l << ", cas : " << casier_.l << std::endl;
-			if(drawerDestination.l != casier_.l)
-			{
-				//std::cout << "Nord/Sud" << std::endl;
-				dirDrawer = findDirection(drawerDestination, casier_);
-			}
-			else
-			{
-				//std::cout << "Est/Ouest" << std::endl;
-				if((drawerDestination.c - casier_.c + 8)%8 < 4)
-					dirDrawer = Orientation::East;
-				else
-					dirDrawer = Orientation::West;
-			}
-
-			addStep(dirDrawer);
-
-			casier_ = casier_ + directionToPos(dirDrawer);
-			casier_.c = (casier_.c + 8)%8;
-			auto result = body_->search(dirDrawer);
-			drawersContainsItem_[casier_.l*8 + casier_.c] = (result.get() ? result.get()->name : "vide");
-
-			if (casier_ == drawerDestination) {
-				if (result.get())
-				{
-					currentObjective_ = Objective::TakeItem;
-					simulationProgress();
-					std::queue<Pos2D> empty;
-					std::swap(drawerCheckQueue_, empty);
-				}
-				else
-					drawerCheckQueue_.pop();
-			}
-		}
-	}
+		search();
 	else if (reasoning.shouldTakeItem)
-	{
-		addStep(Orientation::North);
-
-		itemName_ = drawersContainsItem_[casier_.l*8 + casier_.c];
-		auto result = body_->take();
-
-		if (!result)
-		{
-			std::cout << "ERROR CANT RETRIEVE ITEM\n";
-			nextRequest("unretriveable item");
-			itemName_ = "vide";
-			carryItem_ = false;
-			simulationProgress();
-			return;
-		}
-
-		carryItem_ = true;
-		drawersContainsItem_[casier_.l*8 + casier_.c] = "vide";
-		std::cout << "item taken : " << itemName_ << std::endl;
-		currentObjective_ = Objective::ReachResident;
-		Pos2D residentPos = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
-		destinationReached_ = false;
-		simulationProgress();
-	}
+		take();
 	else if (reasoning.shouldGiveItem)
 	{
 		addStep(Orientation::North);
 
 		auto result = body_->give(reasoning.giveToWhom);
+
+		if (!result)
+		{
+			std::cout << "ERROR GIVE FAILED\n";
+			nextRequest("echec execution DONNER");
+			simulationProgress();
+			return;
+		}
 		nextRequest("null");
 		itemName_ = "vide";
 		carryItem_ = false;
 		simulationProgress();
 	}
+}
+
+void Brain::tick()
+{
+	simulationProgress();
+	//std::cout << pos_.l << "," << pos_.c << std::endl;
+	// PERCEVOIR
+	DeducedStates reasoning;
+ 
+	//std::cout << isVisited_[pos_.l * mapInfo_.width + pos_.c] << std::endl;
+	auto nwse = body_->see();
+
+	if (!nwse)
+	{
+		std::cout << "ERROR CANT RETRIEVE PERCEPTION\n";
+		nextRequest("echec perception");
+		simulationProgress();
+		return;
+	}
+
+	// MEMORISER
+	else
+		updateMentalMap(nwse.get(), reasoning.needReplan);
+
+	// DECIDER
+	decideNextAction(reasoning);
+
+	// AGIR
+	takeAction(reasoning);
 
 	nStepsRequest_++;
-
 	nSteps_++;
 }
 

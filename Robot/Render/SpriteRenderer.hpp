@@ -4,6 +4,12 @@
 
 #include <Robot/Render/SharedResourcesArray.hpp>
 
+#include <Robot/Render/Image.hpp>
+
+#include <GLFW/glfw3.h>
+
+#include <algorithm>
+
 #include <map>
 #include <set>
 #include <string>

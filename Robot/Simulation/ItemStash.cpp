@@ -46,6 +46,11 @@ std::optional<Item> ItemStash::removeItem(Pos2D pos)
 	return item;
 }
 
+void ItemStash::putBackItem(Item returnedItem)
+{
+	drawers_[returnedItem.pos.l*8 + returnedItem.pos.c].item_ = returnedItem.name;
+}
+
 std::vector<Item> ItemStash::inventory() const
 {
 	std::vector<Item> result;

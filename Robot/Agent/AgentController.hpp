@@ -31,6 +31,7 @@ public:
 
 	static void moveDrawerSelect(Pos2D & casier, Orientation direction);
 private:
+	CommandResult<void> placeBackItem(Pos2D closet) override;
 
 	CommandResult<std::vector<Tile>> see() override;
 	CommandResult<void> move(Orientation direction) override;
@@ -40,6 +41,8 @@ private:
 
 	CommandResult<Item> take() override;
 	CommandResult<void> give(Pos2D resident) override;
+
+	CommandResult<void> wait();
 
 	void onAgentFail(AgentFailureType reason, std::string message) override;
 

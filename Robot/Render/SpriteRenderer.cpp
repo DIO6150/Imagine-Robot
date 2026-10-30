@@ -1,12 +1,6 @@
 
 #include <Robot/Render/SpriteRenderer.hpp>
 
-#include <Robot/Render/Image.hpp>
-
-#include <glfw/glfw3.h>
-
-#include <algorithm>
-
 void Sprite::updateTransform()
 {
 	transform = glm::translate(glm::mat4 {1.}, position);
