@@ -151,49 +151,41 @@ void SpriteRenderer::draw()
 
 SpriteRenderer::Graph SpriteRenderer::sortRenderList()
 {
-    Graph result;
+	Graph result;
 
-    // Utilisation d'une map pour regrouper les sprites : VAO -> (ShaderKey -> Liste de Sprites)
-    std::map<GLuint, std::map<std::string, std::vector<Sprite>>> groupedSprites;
-
-	// Supposons que vous ayez accès à votre matrice View-Projection dans le renderer
+	std::map<GLuint, std::map<std::string, std::vector<Sprite>>> groupedSprites;
 
 	std::stable_sort(renderList_.begin(), renderList_.end(), [this](const Sprite& a, const Sprite& b) {
-		// Calcul de la position dans l'espace de projection (Clip Space)
 		glm::vec4 posA = projection_ * a.transform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		glm::vec4 posB = projection_ * b.transform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-		// Comparaison de la coordonnée Z normalisée (profondeur)
 		return posA.z > posB.z; 
 	});
 
-    for (const auto& sprite : renderList_)
-    {
-        groupedSprites[sprite.vao][sprite.shader].push_back(sprite);
-    }
+	for (const auto& sprite : renderList_)
+	{
+		groupedSprites[sprite.vao][sprite.shader].push_back(sprite);
+	}
 
-    // Remplissage de la structure Graph
-    for (const auto& [vao, shaderMap] : groupedSprites)
-    {
-        result.vaos.push_back(vao);
+	for (const auto& [vao, shaderMap] : groupedSprites)
+	{
+		result.vaos.push_back(vao);
 
-        std::vector<ShaderProgram> programList;
-        std::vector<std::vector<Sprite>> instanceListList;
+		std::vector<ShaderProgram> programList;
+		std::vector<std::vector<Sprite>> instanceListList;
 
-        for (const auto& [shaderKey, spriteList] : shaderMap)
-        {
-            auto shader = resourceArray_.getProgram(shaderKey);
-            if (shader)
-            {
-                // Récupération de l'objet ShaderProgram (fonctionne que getProgram retourne un pointeur ou un std::optional)
-                programList.push_back(*shader);
-                instanceListList.push_back(spriteList);
-            }
-        }
+		for (const auto& [shaderKey, spriteList] : shaderMap)
+		{
+			auto shader = resourceArray_.getProgram(shaderKey);
+			if (shader)
+			{
+				programList.push_back(*shader);
+				instanceListList.push_back(spriteList);
+			}
+		}
 
-        result.programs.push_back(programList);
-        result.instances.push_back(instanceListList);
-    }
+		result.programs.push_back(programList);
+		result.instances.push_back(instanceListList);
+	}
 
-    return result;
+	return result;
 }

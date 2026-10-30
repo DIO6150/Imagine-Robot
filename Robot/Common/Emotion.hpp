@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <string>
+
 enum class Emotion: int
 {
 	Unidentified = -1,

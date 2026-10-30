@@ -120,7 +120,7 @@ glm::vec3 MapWidget::getTilePosition(Pos2D tilePos) const
 {
 	return {
 		(windowWidth_  - mapWidth_  * tileScale_) * .5f + tilePos.c * tileScale_,
-		(windowHeight_ - mapHeight_ * tileScale_) * .5f + (mapHeight_ - 1 - tilePos.l) * tileScale_,
+		(windowHeight_ - mapHeight_ * tileScale_) * .5f + (mapHeight_ - 1 - tilePos.l) * tileScale_ + 30.f,
 		0.0
 	};
 }

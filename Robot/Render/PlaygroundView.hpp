@@ -30,9 +30,6 @@ public:
 	Animation moveChestCursor(Pos2D old, Pos2D cursor);
 
 private:
-	glm::vec2 convertPos(Pos2D tilePos);
-
-private:
 	std::optional<Sprite> equipedItem_;
 	bool carryItem_ = false;
 
