@@ -28,7 +28,7 @@ inline std::string directionToArg(Orientation direction)
 	{
 	case North: return "N";
 	case South: return "S";
-	case West:  return "W";
+	case West:  return "O";
 	case East:  return "E";
 	}
 

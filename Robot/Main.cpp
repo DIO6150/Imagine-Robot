@@ -321,7 +321,7 @@ int main(int argc, char ** argv)
 		jpas_perc["N"] = pas.perception["N"];
 		jpas_perc["S"] = pas.perception["S"];
 		jpas_perc["E"] = pas.perception["E"];
-		jpas_perc["O"] = pas.perception["W"];
+		jpas_perc["O"] = pas.perception["O"];
 		jpas["perception"] = jpas_perc;
 		jpas["contenu_casier"] = ((pas.contenu_casier == "null") ? json(nullptr) : json(pas.contenu_casier));
 		jpas["commentaire"] = ((pas.commentaire == "null") ? json(nullptr) : json(pas.commentaire));
