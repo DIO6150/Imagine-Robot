@@ -1,0 +1,9 @@
+{
+  "format": "robot-reconfort/rendu",
+  "version": 1,
+  "equipe": ["EOUZAN Mael", "DOMBROWSKI Tahina"],
+  "langage": "C++",
+  "preparation": ["cmake -S . -B build", "cmake --build build"],
+  "commande": ["./build/ImagineRobot"],
+  "video": "demo_Projet1.webm"
+}

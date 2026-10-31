@@ -296,6 +296,7 @@ bool Brain::perceptionCurrentDrawer(std::string & percepDrawer)
 	}
 	
 	percepDrawer = result.get();
+	std::cout << "Casier " << "(" << casier_.l << "," << casier_.c << ") : " << percepDrawer << std::endl;
 	return true;
 }
 
@@ -590,7 +591,10 @@ void Brain::tick()
 	bool percepTileDone = perceptionSurroundings(percepTiles);
 	bool percepDrawerDone = false;
 
-	if (currentObjective_ == Objective::FindItem || currentObjective_ == Objective::TakeItem)
+	for (auto dir : directions)
+		percepDrawerDone = ((pos_ + directionToPos(dir) == mapInfo_.stashPos) ? true : percepDrawerDone);
+
+	if(percepDrawerDone)
 		percepDrawerDone = perceptionCurrentDrawer(percepDrawer);
 
 	// MEMORISER
