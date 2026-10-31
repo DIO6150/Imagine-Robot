@@ -70,7 +70,7 @@ Les tests couvrent la planification et replanification de chemin, l'existence d'
 | `Render` | affichage visuel de la simulation |
 | `JSONParser` | gestion général et séquentiel de la vérification et du chargement des données |
 | `Pos` | type représentant les positions |
-| `JSONParser` | gestion de l'ouverture d'un fichier .json |
+| `ReadFile` | gestion de l'ouverture d'un fichier .json |
 
 ## État
 
