@@ -41,14 +41,6 @@ void testPlanification()
 	std::cout << "##########\n#.R......#\n#####....#\n#.P.#....#\n";
 	std::cout << "#...###..#\n#........#\n##########\n" << std::endl;
 	std::queue chemin = Brain::shortestPath(Pos2D {1,2}, Pos2D {3,2}, reducedMap, 10);
-	std::cout << "Chemin trouve : ";
-	for (int i = 0; i < chemin.size(); i++) {
-		Pos2D pos = chemin.front();
-		chemin.pop();
-		std::cout << "(" << pos.l << "," << pos.c << ") ";
-		chemin.push(pos);
-	}
-	std::cout << "\n" << std::endl;
 }
 
 void testReplanification()
@@ -61,14 +53,6 @@ void testReplanification()
 	std::cout << "##########\n#........#\n#####....#\n#.P..R...#\n";
 	std::cout << "#........#\n#........#\n##########\n" << std::endl;
 	std::queue chemin = Brain::shortestPath(Pos2D {3,5}, Pos2D {3,2}, reducedMap, 10);
-	std::cout << "Chemin trouve : ";
-	for (int i = 0; i < chemin.size(); i++) {
-		Pos2D pos = chemin.front();
-		chemin.pop();
-		std::cout << "(" << pos.l << "," << pos.c << ") ";
-		chemin.push(pos);
-	}
-	std::cout << "\n" << std::endl;
 
 	reducedMap[34].setSolid(true);
 	reducedMap[45].setSolid(true);
@@ -78,14 +62,6 @@ void testReplanification()
 	std::cout << "#....#...#\n#........#\n##########\n" << std::endl;
 
 	chemin = Brain::shortestPath(Pos2D {3,5}, Pos2D {3,2}, reducedMap, 10);
-	std::cout << "Chemin trouve : ";
-	for (int i = 0; i < chemin.size(); i++) {
-		Pos2D pos = chemin.front();
-		chemin.pop();
-		std::cout << "(" << pos.l << "," << pos.c << ") ";
-		chemin.push(pos);
-	}
-	std::cout << "\n" << std::endl;
 }
 
 void testCaseInccessible()
@@ -147,7 +123,7 @@ void testLectureDictionnaire()
 	singleTestLectureDictionnaire(reducedDictio, "Ne cherchez pas d'emotion dans ce messgage, il n'y en a pas", -1, -1);
 }
 
-void singleTestDeplacementSelecteur(Pos2D casierTest, int iOrient)
+void singleTestDeplacementSelecteur(Pos2D & casierTest, int iOrient)
 {
 	std::vector<Orientation> dir = {North, West, South, East};
 	std::vector<std::string> dirToString = {"Nord", "Ouest", "Sud", "Est"};
@@ -170,7 +146,7 @@ void testDeplacementSelecteur()
 	singleTestDeplacementSelecteur(casierTest, 2);
 }
 
-void singleTestDeplacementSelecteur(Pos2D casierChoisi, Emotion emoRecherche, Intensity intensRecherche, std::string repliAtt)
+void singleTestRepli(Pos2D casierChoisi, Emotion emoRecherche, Intensity intensRecherche, std::string repliAtt)
 {
 	std::cout << "Casier fourni choisi : (intensite = " << casierChoisi.l << ", emotion = " << casierChoisi.c << ")" << std::endl;
 	std::cout << "Repli attendu : " << repliAtt << std::endl;
@@ -186,11 +162,11 @@ void testRegleRepli()
 	std::cout << "Emotion recherchee : " << emotionToInt(emoRecherche);
 	std::cout << ", intensite recherchee : " << intensityToInt(intensRecherche) << std::endl;
 
-	singleTestDeplacementSelecteur(Pos2D{2, 0}, emoRecherche, intensRecherche, "aucun");
-	singleTestDeplacementSelecteur(Pos2D{0, 0}, emoRecherche, intensRecherche, "intensite");
-	singleTestDeplacementSelecteur(Pos2D{2, 1}, emoRecherche, intensRecherche, "voisine_1");
-	singleTestDeplacementSelecteur(Pos2D{1, 6}, emoRecherche, intensRecherche, "voisine_2");
-	singleTestDeplacementSelecteur(Pos2D{1, 3}, emoRecherche, intensRecherche, "casiers_vides");
+	singleTestRepli(Pos2D{2, 0}, emoRecherche, intensRecherche, "aucun");
+	singleTestRepli(Pos2D{0, 0}, emoRecherche, intensRecherche, "intensite");
+	singleTestRepli(Pos2D{2, 1}, emoRecherche, intensRecherche, "voisine_1");
+	singleTestRepli(Pos2D{1, 6}, emoRecherche, intensRecherche, "voisine_2");
+	singleTestRepli(Pos2D{1, 3}, emoRecherche, intensRecherche, "casiers_vides");
 }
 
 void testValidationFichiers(std::string folderTestPath)

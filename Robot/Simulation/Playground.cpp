@@ -60,6 +60,11 @@ bool Playground::agentIsOver()
 	return agent_->requestsOver();
 }
 
+bool Playground::endView()
+{
+	return agentIsOver() && animationStack_.empty();
+}
+
 std::vector<Pas> Playground::steps()
 {
 	return agent_->returnSteps();
@@ -132,15 +137,18 @@ std::vector<Tile> Playground::see()
 	return result;
 }
 
+std::string Playground::openCurrentDrawer(Pos2D pos)
+{
+	std::optional<Item> result = closet_.getItem(pos);
+	if (result == std::nullopt)
+		return "vide";
+	return (*result).name;
+}
+
 std::tuple<Emotion, Intensity> Playground::consult(std::string message)
 {
 	std::tuple<Emotion, Intensity> result = dictionary_.identifEmoIntens(message, dictionary_.getEntrees());
 	return result;
-}
-
-std::optional<Item> Playground::search(Pos2D pos)
-{
-	return closet_.getItem(pos);
 }
 
 std::optional<Item> Playground::take(Pos2D pos)

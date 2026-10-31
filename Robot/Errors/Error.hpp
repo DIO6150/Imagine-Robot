@@ -197,6 +197,8 @@ enum class AgentFailureType
 	Move,
 	Consult,
 	Search,
+	Take,
+	Give,
 };
 
 inline std::string failureToString(AgentFailureType type)
@@ -206,6 +208,8 @@ inline std::string failureToString(AgentFailureType type)
 		case AgentFailureType::Move: return "AVANCER";
 		case AgentFailureType::Consult: return "CONSULTER";
 		case AgentFailureType::Search: return "CHERCHER";
+		case AgentFailureType::Take: return "PRENDRE";
+		case AgentFailureType::Give: return "DONNER";
 		default: return "Aucun echec d'action";
 	}
 }

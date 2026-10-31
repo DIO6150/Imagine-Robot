@@ -14,10 +14,9 @@ struct PlaygroundAgentListener
 {
 	virtual bool canMove() = 0;
 	virtual std::vector<Tile> see() = 0;
+	virtual std::string openCurrentDrawer(Pos2D posDrawer) = 0;
 	virtual void placeBackItem(Item returnedItem) = 0;
 	virtual std::tuple<Emotion, Intensity> consult(std::string message) = 0;
-
-	virtual std::optional<Item> search(Pos2D posDrawer) = 0;
 	virtual std::optional<Item> take(Pos2D posDrawer) = 0;
 
 

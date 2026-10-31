@@ -30,13 +30,13 @@ struct DeducedStates
 {
 	bool needReplan = false;
 	bool  shouldMove = false;
-	Pos2D shouldMoveWhere;
+	Orientation directionToTake;
 	bool shouldTakeItem = false;
 	bool shouldGiveItem = false;
-	Pos2D giveToWhom;
 	bool shouldConsult  = false;
 	bool shouldSearch   = false;
 	bool shouldWait   = false;
+	bool existsPath   = false;
 };
 
 class Brain
@@ -64,14 +64,22 @@ private:
 	void addDelivery(std::string motif);
 	void nextRequest(std::string motif);
 
-	void updateMentalMap(std::vector<Tile> perception, bool & replanNeeded);
+	bool perceptionSurroundings(std::vector<Tile> & percepTiles);
+	bool perceptionCurrentDrawer(std::string & percepDrawer);
+
+	void updateMentalMap(std::vector<Tile> perception);
+	void updateDrawer(std::string content);
+
+	bool keepSearching(Orientation & dirDrawer, bool & shouldTake);
+	void checkPathEnd(bool & shouldMove);
+	void replan();
+	void prepareMove(DeducedStates & reasoning);
+
 	void decideNextAction(DeducedStates & reasoning);
 
-	void checkPathEnd(Pos2D destination);
-	void move(bool replanNeeded, Pos2D destination);
+	void move(Orientation direction);
 
-	void executeSearch(Orientation dirDrawer, Pos2D drawerDestination);
-	void search();
+	void consult();
 
 	void take();
 	void takeAction(DeducedStates reasoning);
@@ -90,6 +98,7 @@ private:
 	std::vector<Tile>    		 mentalMap_;
 	std::map<Orientation, Tile>  currentPerception_;
 	std::queue<Pos2D>            currentPath_;
+	Pos2D                 	     destination_;
 	bool                 	     destinationReached_;
 	bool						 deliverySuccess_;
 	Emotion               	     currentSearchedEmotion_;

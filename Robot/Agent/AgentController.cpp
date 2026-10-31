@@ -69,6 +69,17 @@ CommandResult<std::vector<Tile>> AgentController::see()
 	return perception;
 }
 
+CommandResult<std::string> AgentController::openCurrentDrawer()
+{
+	if(isChestNearby())
+	{
+		auto result = listener_->openCurrentDrawer(casier_);
+		return result;
+	}
+	return CommandStatus::GodSaidNo;
+}
+
+
 CommandResult<void> AgentController::move(Orientation direction)
 {
 	Pos2D pos = pos_ + directionToPos(direction);
@@ -90,27 +101,17 @@ CommandResult<void> AgentController::move(Orientation direction)
 CommandResult<std::tuple<Emotion, Intensity>> AgentController::consult()
 {
 	std::tuple<Emotion, Intensity> result = listener_->consult(brain_->getCurrentMessage());
+	listener_->onAgentMove(pos_, pos_);
 
-	if(get<0>(result) == Emotion::Unidentified || get<1>(result) == Intensity::Unidentified)
-	{
-		return result;
-	}
 	return result;
 }
 
-CommandResult<std::optional<Item>> AgentController::search(Orientation direction)
+CommandResult<void> AgentController::search(Orientation direction)
 {
 	auto old = casier_;
 	moveDrawerSelect(casier_, direction);
-	auto result = listener_->search(casier_);
-
-	if (result)
-	{
-		listener_->onAgentSelect(old, casier_);
-		return result;
-	}
-
-	return CommandStatus::GodSaidNo;
+	listener_->onAgentSelect(old, casier_);
+	return CommandStatus::Ok;
 }
 
 CommandResult<Item> AgentController::take()

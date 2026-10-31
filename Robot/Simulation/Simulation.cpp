@@ -54,12 +54,19 @@ JSONParserStatus Simulation::executeDirective(Directive instructions, DirectiveT
 
 	while(!glfwWindowShouldClose(window_))
 	{
+		if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS || playground_.endView())
+		{
+			glfwSetWindowShouldClose(window_, GLFW_TRUE);
+		}
+		
 		currentTime_ = glfwGetTime();
 		deltaTime_ = currentTime_ - lastTime_;
 		glfwPollEvents();
 		lastTime_ = currentTime_;
 
-		playground_.update();
+
+		if(!playground_.agentIsOver())
+			playground_.update();
 		
 		playground_.fixedUpdate(deltaTime_);
 		
@@ -73,6 +80,9 @@ JSONParserStatus Simulation::executeDirective(Directive instructions, DirectiveT
 		glfwSwapBuffers(window_);
 		lastRenderTime_ = currentTime_;
 	}
+
+	glfwDestroyWindow(window_);
+	glfwTerminate();
 
 	trace.pas = playground_.steps();
 	trace.livraisons = playground_.deliveries();

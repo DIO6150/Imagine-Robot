@@ -177,7 +177,7 @@ std::string Brain::getCurrentMessage()
 
 bool Brain::noRequestsLeft()
 {
-	return currentReq_ == requestList_.size();
+	return currentReq_ >= requestList_.size();
 }
 
 void Brain::initalizeMentalMap()
@@ -220,9 +220,22 @@ void Brain::nextRequest(std::string motif)
 	currentReq_++;
 	currentObjective_ = ((noRequestsLeft()) ? Objective::NoObjective : Objective::ReachDictionary);
 	if (!noRequestsLeft())
+	{
 		std::cout << "\nRequest n" << requestList_[currentReq_].getId() << std::endl;
+		destinationReached_ = false;
+		for (auto dir : directions)
+		{
+			currentObjective_ = ((pos_ + directionToPos(dir) == mapInfo_.dictionaryPos) ? Objective::InterpretRequest : currentObjective_);
+		}
+		if (currentObjective_ == Objective::ReachDictionary)
+		{
+			destination_ = mapInfo_.dictionaryPos;
+			replan();
+		}
+	}
+	else
+		std::cout << "L'agent a termine ses requetes." << std::endl;
 	deliverySuccess_ = false;
-	destinationReached_ = false;
 	nStepsRequest_ = 0;
 }
 
@@ -242,17 +255,51 @@ void Brain::start(std::vector<Request> requestList, MapInfo info, Pos2D casierDe
 	currentPerception_[Orientation::West] = Tile();
 	currentPerception_[Orientation::South] = Tile();
 	currentPerception_[Orientation::East] = Tile();
+	destination_ = mapInfo_.dictionaryPos;
 	deliverySuccess_ = false;
 	itemName_ = "vide";
 	currentSearchedEmotion_ = Emotion::Unidentified;
 	currentSearchedIntensity_ = Intensity::Unidentified;
 	currentObjective_ = Objective::ReachDictionary;
+	replan();
 
 	std::cout << "\nTotal request : " << requestList_.size() << std::endl;
 	std::cout << "\nRequest n" << requestList_[currentReq_].getId() << std::endl;
 }
 
-void Brain::updateMentalMap(std::vector<Tile> perception, bool & replanNeeded)
+bool Brain::perceptionSurroundings(std::vector<Tile> & percepTiles)
+{
+	auto nwse = body_->see();
+
+	if (!nwse)
+	{
+		std::cout << "ERROR CANT RETRIEVE PERCEPTION\n";
+		nextRequest("echec perception");
+		simulationProgress();
+		return false;
+	}
+
+	percepTiles = nwse.get();
+	return true;
+}
+
+bool Brain::perceptionCurrentDrawer(std::string & percepDrawer)
+{
+	auto result = body_->openCurrentDrawer();
+
+	if (!result)
+	{
+		std::cout << "ERROR CANT RETRIEVE DRAWER CONTENT\n";
+		nextRequest("echec perception casier");
+		simulationProgress();
+		return false;
+	}
+	
+	percepDrawer = result.get();
+	return true;
+}
+
+void Brain::updateMentalMap(std::vector<Tile> perception)
 {
 	for (auto i = 0; i < directions.size(); ++i)
 	{
@@ -265,71 +312,68 @@ void Brain::updateMentalMap(std::vector<Tile> perception, bool & replanNeeded)
 		currentPerception_[directions[i]] = tile;
 		//std::cout << tile.pos_.l << "," << tile.pos_.c << " : " << mentalMap_[calculateIndex(tile.pos_, mapInfo_.width)].isSolid() << std::endl;
 	}
+}
 
-	if (!currentPath_.empty())
+void Brain::updateDrawer(std::string content)
+{
+	drawersContainsItem_[casier_.l*8 + casier_.c] = content;
+}
+
+bool Brain::keepSearching(Orientation & dirDrawer, bool & shouldTake)
+{
+	destination_ = drawerCheckQueue_.front();
+	while(drawersContainsItem_[destination_.l*8 + destination_.c] == "vide")
 	{
-		Pos2D curStep;
-		for(int istep = 0; istep < currentPath_.size(); istep++)
+		drawerCheckQueue_.pop();
+		destination_ = ((drawerCheckQueue_.empty()) ? Pos2D {-1, -1} : drawerCheckQueue_.front());
+	}
+
+	if (drawerCheckQueue_.empty())
+	{
+		body_->onAgentFail(AgentFailureType::Search, "L'armoire ne contient pas d'objet adapte. Passage à la requete suivante.");
+		nextRequest("armoire vide");
+		return false;
+	}
+
+	if (casier_ == destination_) {
+		if (drawersContainsItem_[casier_.l*8 + casier_.c] != "vide")
 		{
-			curStep = currentPath_.front();
-			currentPath_.pop();
-			//std::cout << curStep.l << "," << curStep.c << " : " << mentalMap_[calculateIndex(curStep, mapInfo_.width)].isSolid() << std::endl;
-			replanNeeded = ((mentalMap_[calculateIndex(curStep, mapInfo_.width)].isSolid()) ? true : replanNeeded);
-			currentPath_.push(curStep);
+			currentObjective_ = Objective::TakeItem;
+			simulationProgress();
+			std::queue<Pos2D> empty;
+			std::swap(drawerCheckQueue_, empty);
+			shouldTake = true;
+			return false;
 		}
+		else
+			drawerCheckQueue_.pop();
 	}
-}
-
-void Brain::decideNextAction(DeducedStates & reasoning)
-{
-	switch (currentObjective_)
+	
+	if(destination_.l != casier_.l)
 	{
-	case Objective::ReachDictionary:
-		reasoning.shouldMove      = true;
-		reasoning.shouldMoveWhere = mapInfo_.dictionaryPos;
-		break;
-
-	case Objective::InterpretRequest:
-		reasoning.shouldConsult = true;
-		break;
-
-	case Objective::ReachCloset:
-		reasoning.shouldMove = true;
-		reasoning.shouldMoveWhere = mapInfo_.stashPos;
-		break;
-	
-	case Objective::FindItem:
-		reasoning.shouldSearch = true;
-		break;
-
-	case Objective::TakeItem:
-		reasoning.shouldTakeItem = true;
-		break;
-	
-	case Objective::ReachResident:
-		reasoning.shouldMove      = true;
-		reasoning.shouldMoveWhere = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
-		break;
-
-	case Objective::GiveItem:
-		reasoning.shouldGiveItem = true;
-		reasoning.giveToWhom = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
-		break;
-	
-	default:
-		break;
+		//std::cout << "Nord/Sud" << std::endl;
+		dirDrawer = findDirection(destination_, casier_);
 	}
+	else
+	{
+		//std::cout << "Est/Ouest" << std::endl;
+		if((destination_.c - casier_.c + 8)%8 < 4)
+			dirDrawer = Orientation::East;
+		else
+			dirDrawer = Orientation::West;
+	}
+	return true;
 }
 
-void Brain::checkPathEnd(Pos2D destination)
+void Brain::checkPathEnd(bool & shouldMove)
 {
-	bool reached = false;
+	destinationReached_ = false;
 	for (auto dir : directions)
 	{
-		reached = ((pos_ + directionToPos(dir) == destination) ? true : reached);
+		destinationReached_ = ((pos_ + directionToPos(dir) == destination_) ? true : destinationReached_);
 	}
 
-	if (reached)
+	if (destinationReached_)
 	{
 		// target reached
 		if (currentObjective_ == Objective::ReachDictionary)
@@ -346,10 +390,16 @@ void Brain::checkPathEnd(Pos2D destination)
 		}
 		if (currentObjective_ == Objective::ReachResident)
 			currentObjective_ = Objective::GiveItem;
+		destinationReached_ = false;
+		shouldMove = false;
 	}
-	else
+}
+
+void Brain::replan()
+{
+	currentPath_ = Brain::shortestPath(pos_, destination_, mentalMap_, mapInfo_.width);
+	if (currentPath_.empty())
 	{
-		// no valid path
 		body_->onAgentFail(AgentFailureType::Move, "La destination requise n'est pas accessible. Passage à la requete suivante");
 		if (currentObjective_ == Objective::ReachDictionary)
 			nextRequest("dictionnaire inaccessible");
@@ -360,101 +410,104 @@ void Brain::checkPathEnd(Pos2D destination)
 	}
 }
 
-void Brain::move(bool replanNeeded, Pos2D destination)
+void Brain::prepareMove(DeducedStates & reasoning)
 {
+	Pos2D curStep;
+	std::queue<Pos2D> temp = currentPath_;
+	for(int istep = 0; istep < currentPath_.size(); istep++)
+	{
+		curStep = temp.front();
+		temp.pop();
+		//std::cout << curStep.l << "," << curStep.c << " : " << mentalMap_[calculateIndex(curStep, mapInfo_.width)].isSolid() << std::endl;
+		reasoning.needReplan = ((mentalMap_[calculateIndex(curStep, mapInfo_.width)].isSolid()) ? true : reasoning.needReplan);
+	}
+
 	//std::cout << reasoning.needReplan << std::endl;
-	if (replanNeeded || currentPath_.empty())
-	{
-		currentPath_ = Brain::shortestPath(pos_, destination, mentalMap_, mapInfo_.width);
-	}
+	if (reasoning.needReplan)
+		replan();
 
-	if (!currentPath_.empty())
-	{
-		auto direction = findDirection(currentPath_.front(), pos_); // findDirection is maybe wrong
-		
-		addStep(direction);
+	reasoning.directionToTake = findDirection(currentPath_.front(), pos_); // findDirection is maybe wrong
+}
 
-		auto result = body_->move(direction);
-		if (!result)
-		{
-			std::cout << "ERROR MOVE FAILED\n";
-			nextRequest("echec execution AVANCER");
-			simulationProgress();
-			return;
-		}
-
-		if (result)
-		{
-			pos_ += directionToPos(direction); // ajust mental position
-			currentPath_.pop();
-		}
-		else
-		{
-			body_->onAgentFail(AgentFailureType::Move, "Cannot move towards target");
-		}
-	}
-
+void Brain::decideNextAction(DeducedStates & reasoning)
+{	
+	reasoning.shouldMove = (currentObjective_ == Objective::ReachDictionary
+		|| currentObjective_ == Objective::ReachCloset
+		|| currentObjective_ == Objective::ReachResident);
+	
 	// target reached or no valid path
-	if (currentPath_.empty())
-		checkPathEnd(destination);
+	if (reasoning.shouldMove && currentPath_.empty())
+		checkPathEnd(reasoning.shouldMove);
+
+	switch (currentObjective_)
+	{
+		case Objective::InterpretRequest:
+			reasoning.shouldConsult = true;
+			break;
+		
+		case Objective::FindItem:
+			reasoning.shouldSearch = keepSearching(reasoning.directionToTake, reasoning.shouldTakeItem);
+			break;
+		
+		case Objective::TakeItem:
+			reasoning.shouldTakeItem = true;
+			break;
+
+		case Objective::GiveItem:
+			reasoning.shouldGiveItem = true;
+			break;
+		
+		default:
+			reasoning.shouldMove = true;
+			prepareMove(reasoning);
+			break;
+	}
 }
 
-void Brain::executeSearch(Orientation dirDrawer, Pos2D drawerDestination)
+void Brain::move(Orientation direction)
 {
-	addStep(dirDrawer);
+	addStep(direction);
 
-	casier_ = casier_ + directionToPos(dirDrawer);
-	casier_.c = (casier_.c + 8)%8;
-	auto result = body_->search(dirDrawer);
+	auto result = body_->move(direction);
 
-	drawersContainsItem_[casier_.l*8 + casier_.c] = (result.get() ? result.get()->name : "vide");
-
-	if (casier_ == drawerDestination) {
-		if (result.get())
-		{
-			currentObjective_ = Objective::TakeItem;
-			simulationProgress();
-			std::queue<Pos2D> empty;
-			std::swap(drawerCheckQueue_, empty);
-		}
-		else
-			drawerCheckQueue_.pop();
+	if (result)
+	{
+		pos_ += directionToPos(direction); // ajust mental position
+		currentPath_.pop();
+	}
+	else
+	{
+		body_->onAgentFail(AgentFailureType::Move, "ERROR MOVE FAILED");
+		nextRequest("echec execution AVANCER");
+		return;
 	}
 }
 
-void Brain::search()
+void Brain::consult()
 {
-	auto drawerDestination = drawerCheckQueue_.front();
-	while(drawersContainsItem_[drawerDestination.l*8 + drawerDestination.c] == "vide")
+	addStep(Orientation::North);
+		
+	auto result = body_->consult();
+
+	if (!result)
 	{
-		drawerCheckQueue_.pop();
-		drawerDestination = ((drawerCheckQueue_.empty()) ? Pos2D {-1, -1} : drawerCheckQueue_.front());
+		body_->onAgentFail(AgentFailureType::Consult, "ERROR CONSULT FAILED");
+		nextRequest("echec execution CONSULTER");
+		return;
 	}
-
-	if (drawerCheckQueue_.empty())
+	
+	currentSearchedEmotion_ = std::get<0>(result.get());
+	currentSearchedIntensity_ = std::get<1>(result.get());
+	if (currentSearchedEmotion_ == Emotion::Unidentified || currentSearchedIntensity_ == Intensity::Unidentified)
 	{
-		body_->onAgentFail(AgentFailureType::Search, "L'armoire ne contient pas d'objet adapte. Passage à la requete suivante.");
-		nextRequest("armoire vide");
+		body_->onAgentFail(AgentFailureType::Consult, "Pas d'emotion reconnue dans le message. Passage à la requete suivante.");
+		nextRequest("emotion indeterminee");
 	}
-	else{
-
-		Orientation dirDrawer;
-		//std::cout << "des : " << drawerDestination.l << ", cas : " << casier_.l << std::endl;
-		if(drawerDestination.l != casier_.l)
-		{
-			//std::cout << "Nord/Sud" << std::endl;
-			dirDrawer = findDirection(drawerDestination, casier_);
-		}
-		else
-		{
-			//std::cout << "Est/Ouest" << std::endl;
-			if((drawerDestination.c - casier_.c + 8)%8 < 4)
-				dirDrawer = Orientation::East;
-			else
-				dirDrawer = Orientation::West;
-		}
-
-		executeSearch(dirDrawer, drawerDestination);
+	else
+	{
+		currentObjective_ = Objective::ReachCloset;
+		destination_ = mapInfo_.stashPos;
+		replan();
 	}
 }
 
@@ -467,11 +520,10 @@ void Brain::take()
 
 	if (!result)
 	{
-		std::cout << "ERROR TAKE FAILED\n";
+		body_->onAgentFail(AgentFailureType::Take, "ERROR TAKE FAILED");
 		nextRequest("echec execution PRENDRE");
 		itemName_ = "vide";
 		carryItem_ = false;
-		simulationProgress();
 		return;
 	}
 
@@ -479,88 +531,74 @@ void Brain::take()
 	drawersContainsItem_[casier_.l*8 + casier_.c] = "vide";
 	std::cout << "item taken : " << itemName_ << std::endl;
 	currentObjective_ = Objective::ReachResident;
-	Pos2D residentPos = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
-	destinationReached_ = false;
-	simulationProgress();
+	destination_ = mapInfo_.residents_[requestList_[currentReq_].getIdResident()].pos_;
+	replan();
 }
 
 void Brain::takeAction(DeducedStates reasoning)
 {
 	if (reasoning.shouldMove)
-		move(reasoning.needReplan, reasoning.shouldMoveWhere);
+		move(reasoning.directionToTake);
 	else if (reasoning.shouldConsult)
+		consult();
+	else if (reasoning.shouldSearch)
 	{
-		addStep(Orientation::North);
-		
-		auto result = body_->consult();
+		addStep(reasoning.directionToTake);
+
+		casier_ = casier_ + directionToPos(reasoning.directionToTake);
+		casier_.c = (casier_.c + 8)%8;
+		auto result = body_->search(reasoning.directionToTake);
 
 		if (!result)
 		{
-			std::cout << "ERROR CONSULT FAILED\n";
-			nextRequest("echec execution CONSULTER");
-			simulationProgress();
+			body_->onAgentFail(AgentFailureType::Search, "ERROR SEARCH FAILED");
+			nextRequest("echec execution CHERCHER");
+			itemName_ = "vide";
+			carryItem_ = false;
 			return;
 		}
-		
-		currentSearchedEmotion_ = std::get<0>(result.get());
-		currentSearchedIntensity_ = std::get<1>(result.get());
-		if (currentSearchedEmotion_ == Emotion::Unidentified || currentSearchedIntensity_ == Intensity::Unidentified)
-		{
-			body_->onAgentFail(AgentFailureType::Consult, "Pas d'emotion reconnue dans le message. Passage à la requete suivante.");
-			nextRequest("emotion indeterminee");
-		}
-		else
-		{
-			currentObjective_ = Objective::ReachCloset;
-			destinationReached_ = false;
-		}
-		simulationProgress();
 	}
-	else if (reasoning.shouldSearch)
-		search();
 	else if (reasoning.shouldTakeItem)
 		take();
 	else if (reasoning.shouldGiveItem)
 	{
 		addStep(Orientation::North);
 
-		auto result = body_->give(reasoning.giveToWhom);
+		auto result = body_->give(destination_);
 
 		if (!result)
 		{
-			std::cout << "ERROR GIVE FAILED\n";
+			body_->onAgentFail(AgentFailureType::Give, "ERROR GIVE FAILED");
 			nextRequest("echec execution DONNER");
-			simulationProgress();
 			return;
 		}
 		nextRequest("null");
 		itemName_ = "vide";
 		carryItem_ = false;
-		simulationProgress();
 	}
 }
 
 void Brain::tick()
 {
 	simulationProgress();
-	//std::cout << pos_.l << "," << pos_.c << std::endl;
-	// PERCEVOIR
 	DeducedStates reasoning;
- 
-	//std::cout << isVisited_[pos_.l * mapInfo_.width + pos_.c] << std::endl;
-	auto nwse = body_->see();
 
-	if (!nwse)
-	{
-		std::cout << "ERROR CANT RETRIEVE PERCEPTION\n";
-		nextRequest("echec perception");
-		simulationProgress();
-		return;
-	}
+	// PERCEVOIR
+	std::vector<Tile> percepTiles;
+	std::string percepDrawer;
+
+	bool percepTileDone = perceptionSurroundings(percepTiles);
+	bool percepDrawerDone = false;
+
+	if (currentObjective_ == Objective::FindItem || currentObjective_ == Objective::TakeItem)
+		percepDrawerDone = perceptionCurrentDrawer(percepDrawer);
 
 	// MEMORISER
-	else
-		updateMentalMap(nwse.get(), reasoning.needReplan);
+	if(percepTileDone)
+		updateMentalMap(percepTiles);
+
+	if(percepDrawerDone)
+		updateDrawer(percepDrawer);
 
 	// DECIDER
 	decideNextAction(reasoning);
@@ -579,7 +617,7 @@ std::queue<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination, std::vecto
 		queue.push(start);
 		return queue;
 	}
-
+	
 	/*
 	std::cout << "(" << start.l << "," << start.c << ") ";
 	std::cout << "(" << destination.l << "," << destination.c << ") ";
@@ -634,7 +672,7 @@ std::queue<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination, std::vecto
 			if(voisin == destination)
 			{
 				std::vector<Pos2D> toReverse;
-				//std::cout << "chemin trouve : ";
+				std::cout << "Chemin trouve :";
 				while(currentPos != start)
 				{
 					//std::cout << currentPos.l << "," << currentPos.c << std::endl;
@@ -646,15 +684,15 @@ std::queue<Pos2D> Brain::shortestPath(Pos2D start, Pos2D destination, std::vecto
 				for(int i = toReverse.size()-1; i >= 0; i--)
 					queue.push(toReverse[i]);
 				
-				/*
+				std::queue<Pos2D> temp = queue;
+				Pos2D front = temp.front();
 				for (int i = 0; i < queue.size(); i++) {
-					Pos2D pos = queue.front();
-					queue.pop();
-					std::cout << "(" << pos.l << "," << pos.c << ") ";
-					queue.push(pos);
+					temp.pop();
+					std::cout << " (" << front.l << "," << front.c << ")";
+					front = temp.front();
 				}
-				std::cout << "." << std::endl;
-				*/
+				std::cout << ".\n" << std::endl;
+				
 				return queue;
 			}
 			

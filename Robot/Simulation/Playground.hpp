@@ -65,14 +65,16 @@ public:
 	void onAgentSelect(Pos2D old, Pos2D cursor) override;
 
 	bool agentIsOver();
+	bool endView();
 	
 private:
 
 	bool canMove() override;
 	std::vector<Tile> see() override;
+	std::string openCurrentDrawer(Pos2D pos) override;
+
 	void placeBackItem(Item returnedItem) override;
 	std::tuple<Emotion, Intensity> consult(std::string message) override;
-	std::optional<Item> search(Pos2D pos) override;
 	std::optional<Item> take(Pos2D pos) override;
 	
 private:

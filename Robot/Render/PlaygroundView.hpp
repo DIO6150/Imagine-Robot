@@ -33,7 +33,7 @@ private:
 	bool carryItem_ = false;
 
 private:
-	float simulationSpeed_ = 1.5f;
+	float simulationSpeed_ = 1.2f;
 	double deltaTime_;
 
 	SharedResourceArray resourceArray_;

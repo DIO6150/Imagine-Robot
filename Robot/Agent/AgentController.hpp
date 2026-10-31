@@ -34,10 +34,11 @@ private:
 	CommandResult<void> placeBackItem(Pos2D closet) override;
 
 	CommandResult<std::vector<Tile>> see() override;
+	CommandResult<std::string> openCurrentDrawer() override;
 	CommandResult<void> move(Orientation direction) override;
 	
 	CommandResult<std::tuple<Emotion, Intensity>> consult() override;
-	CommandResult<std::optional<Item>> search(Orientation direction) override;
+	CommandResult<void> search(Orientation direction) override;
 
 	CommandResult<Item> take() override;
 	CommandResult<void> give(Pos2D resident) override;
